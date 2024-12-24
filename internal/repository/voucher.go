@@ -11,7 +11,7 @@ type IVoucher interface {
 	ListVoucher() ([]*entity.Voucher, error)
 }
 
-func (db *DB) AddVoucher(v *entity.Voucher) error {
+func (db *Database) AddVoucher(v *entity.Voucher) error {
 	tx := db.Create(v)
 	if tx.Error != nil {
 		return WriteError{
@@ -22,7 +22,7 @@ func (db *DB) AddVoucher(v *entity.Voucher) error {
 	return nil
 }
 
-func (db *DB) GetVoucherByCode(code string) (entity.Voucher, error) {
+func (db *Database) GetVoucherByCode(code string) (entity.Voucher, error) {
 	var voucher entity.Voucher
 	err := db.Model(&entity.Voucher{}).Where("code = ?", code).First(&voucher).Error
 	if err != nil {
@@ -32,7 +32,7 @@ func (db *DB) GetVoucherByCode(code string) (entity.Voucher, error) {
 	return voucher, nil
 }
 
-func (db *DB) ClaimVoucher(id uint, txHash string, claimer uint) error {
+func (db *Database) ClaimVoucher(id uint, txHash string, claimer uint) error {
 	tx := db.Model(&entity.Voucher{}).Where("id = ?", id).Update("tx_hash", txHash).Update("claimed_by", claimer)
 	if tx.Error != nil {
 		return WriteError{
@@ -43,7 +43,7 @@ func (db *DB) ClaimVoucher(id uint, txHash string, claimer uint) error {
 	return nil
 }
 
-func (db *DB) ListVoucher() ([]*entity.Voucher, error) {
+func (db *Database) ListVoucher() ([]*entity.Voucher, error) {
 	var vouchers []*entity.Voucher
 	tx := db.Find(&vouchers)
 	if tx.Error != nil {

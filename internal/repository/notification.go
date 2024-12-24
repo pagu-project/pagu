@@ -11,7 +11,7 @@ type INotification interface {
 	UpdateNotificationStatus(id uint, status entity.NotificationStatus) error
 }
 
-func (db *DB) AddNotification(v *entity.Notification) error {
+func (db *Database) AddNotification(v *entity.Notification) error {
 	tx := db.Create(v)
 	if tx.Error != nil {
 		return WriteError{
@@ -22,7 +22,7 @@ func (db *DB) AddNotification(v *entity.Notification) error {
 	return nil
 }
 
-func (db *DB) GetPendingMailNotification() (*entity.Notification, error) {
+func (db *Database) GetPendingMailNotification() (*entity.Notification, error) {
 	var notif *entity.Notification
 	tx := db.Model(&entity.Notification{}).
 		Where("status = ?", entity.NotificationStatusPending).
@@ -38,7 +38,7 @@ func (db *DB) GetPendingMailNotification() (*entity.Notification, error) {
 	return notif, nil
 }
 
-func (db *DB) UpdateNotificationStatus(id uint, status entity.NotificationStatus) error {
+func (db *Database) UpdateNotificationStatus(id uint, status entity.NotificationStatus) error {
 	tx := db.Model(&entity.Notification{}).Where("id = ?", id).Update("status", status)
 	if tx.Error != nil {
 		return WriteError{

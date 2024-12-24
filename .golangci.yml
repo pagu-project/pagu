@@ -74,7 +74,6 @@ linters:
     # - wrapcheck
     - zerologlint
     - varnamelen
-    # - ireturn
 
 linters-settings:
   gosimple:

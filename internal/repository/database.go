@@ -6,11 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type DB struct {
+type Database struct {
 	*gorm.DB
 }
 
-func NewDB(path string) (IDatabase, error) {
+func NewDB(path string) (*Database, error) {
 	db, err := gorm.Open(mysql.Open(path), &gorm.Config{})
 	if err != nil {
 		return nil, ConnectionError{
@@ -36,7 +36,7 @@ func NewDB(path string) (IDatabase, error) {
 		}
 	}
 
-	return &DB{
+	return &Database{
 		DB: db,
 	}, nil
 }
