@@ -30,8 +30,8 @@ type BotEngine struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	clientMgr client.Manager
-	db        repository.Database
+	clientMgr client.IManager
+	db        repository.IDatabase
 	rootCmd   *command.Command
 
 	// commands
@@ -49,20 +49,22 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 	db, err := repository.NewDB(cfg.Database.URL)
 	if err != nil {
 		cancel()
+
 		return nil, err
 	}
 	log.Info("database loaded successfully")
 
-	cm := client.NewClientMgr(ctx)
+	mgr := client.NewClientMgr(ctx)
 
 	if cfg.LocalNode != "" {
 		localClient, err := client.NewClient(cfg.LocalNode)
 		if err != nil {
 			cancel()
+
 			return nil, err
 		}
 
-		cm.AddClient(localClient)
+		mgr.AddClient(localClient)
 	}
 
 	for _, nn := range cfg.NetworkNodes {
@@ -70,7 +72,7 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		if err != nil {
 			log.Error("can't add new network node client", "err", err, "addr", nn)
 		}
-		cm.AddClient(c)
+		mgr.AddClient(c)
 	}
 
 	var wlt wallet.IWallet
@@ -79,6 +81,7 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		wlt, err = wallet.Open(cfg.Wallet)
 		if err != nil {
 			cancel()
+
 			return nil, WalletError{
 				Reason: err.Error(),
 			}
@@ -97,6 +100,7 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		mailSender, err := notification.New(notification.NotificationTypeMail, zapToMailConfig)
 		if err != nil {
 			cancel()
+
 			return nil, err
 		}
 
@@ -107,7 +111,7 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		go mailSenderSched.Run()
 	}
 
-	return newBotEngine(ctx, cancel, db, cm, wlt, cfg.Phoenix.FaucetAmount), nil
+	return newBotEngine(ctx, cancel, db, mgr, wlt, cfg.Phoenix.FaucetAmount), nil
 }
 
 func (be *BotEngine) Commands() []*command.Command {
@@ -135,7 +139,7 @@ func (be *BotEngine) Run(
 
 	cmd := be.getTargetCommand(commands)
 	if !cmd.HasAppID(appID) {
-		return cmd.FailedResult("unauthorized appID: %v", appID)
+		return cmd.FailedResultF("unauthorized appID: %v", appID)
 	}
 
 	if cmd.Handler == nil {
@@ -145,12 +149,14 @@ func (be *BotEngine) Run(
 	caller, err := be.GetUser(appID, callerID)
 	if err != nil {
 		log.Error(err.Error())
+
 		return cmd.ErrorResult(fmt.Errorf("user is not defined in %s application", appID.String()))
 	}
 
 	for _, middlewareFunc := range cmd.Middlewares {
 		if err := middlewareFunc(caller, cmd, args); err != nil {
 			log.Error(err.Error())
+
 			return cmd.ErrorResult(errors.New("command is not available. please try again later"))
 		}
 	}
@@ -172,9 +178,11 @@ func (be *BotEngine) getTargetCommand(inCommands []string) *command.Command {
 			if len(cmd.SubCommands) > 0 {
 				cmds = cmd.SubCommands
 				found = true
+
 				break
 			}
 			found = true
+
 			break
 		}
 		if !found {
@@ -196,10 +204,7 @@ func (be *BotEngine) NetworkStatus() (*network.NetStatus, error) {
 		return nil, err
 	}
 
-	cs, err := be.clientMgr.GetCirculatingSupply()
-	if err != nil {
-		cs = 0
-	}
+	supply := be.clientMgr.GetCirculatingSupply()
 
 	return &network.NetStatus{
 		ConnectedPeersCount: netInfo.ConnectedPeersCount,
@@ -211,7 +216,7 @@ func (be *BotEngine) NetworkStatus() (*network.NetStatus, error) {
 		TotalCommitteePower: chainInfo.CommitteePower,
 		NetworkName:         netInfo.NetworkName,
 		TotalAccounts:       chainInfo.TotalAccounts,
-		CirculatingSupply:   cs,
+		CirculatingSupply:   supply,
 	}, nil
 }
 
@@ -242,9 +247,9 @@ func (be *BotEngine) Start() {
 }
 
 func newBotEngine(ctx context.Context,
-	cnl context.CancelFunc,
-	db repository.Database,
-	cm client.Manager,
+	cancel context.CancelFunc,
+	db repository.IDatabase,
+	mgr client.IManager,
 	wlt wallet.IWallet,
 	phoenixFaucetAmount amount.Amount,
 ) *BotEngine {
@@ -263,17 +268,17 @@ func newBotEngine(ctx context.Context,
 	priceJobSched.Submit(priceJob)
 	go priceJobSched.Run()
 
-	netCmd := network.NewNetwork(ctx, cm)
-	calcCmd := calculator.NewCalculator(cm)
-	phoenixCmd := phoenixtestnet.NewPhoenix(ctx, wlt, phoenixFaucetAmount, cm, db)
-	voucherCmd := voucher.NewVoucher(db, wlt, cm)
-	marketCmd := market.NewMarket(cm, priceCache)
+	netCmd := network.NewNetwork(ctx, mgr)
+	calcCmd := calculator.NewCalculator(mgr)
+	phoenixCmd := phoenixtestnet.NewPhoenix(ctx, wlt, phoenixFaucetAmount, mgr, db)
+	voucherCmd := voucher.NewVoucher(db, wlt, mgr)
+	marketCmd := market.NewMarket(mgr, priceCache)
 	zealyCmd := zealy.NewZealy(db, wlt)
 
 	return &BotEngine{
 		ctx:           ctx,
-		cancel:        cnl,
-		clientMgr:     cm,
+		cancel:        cancel,
+		clientMgr:     mgr,
 		db:            db,
 		rootCmd:       rootCmd,
 		networkCmd:    netCmd,

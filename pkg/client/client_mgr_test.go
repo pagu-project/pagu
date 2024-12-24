@@ -9,7 +9,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func setup(t *testing.T) (Manager, *MockIClient) {
+func setup(t *testing.T) (IManager, *MockIClient) {
 	t.Helper()
 	ctrl := gomock.NewController(t)
 	mockClient := NewMockIClient(ctrl)

@@ -64,7 +64,7 @@ type UnsafeRoboPacServer interface {
 	mustEmbedUnimplementedRoboPacServer()
 }
 
-func RegisterRoboPacServer(s grpc.ServiceRegistrar, srv RoboPacServer) {
+func RegisterPaguServer(s grpc.ServiceRegistrar, srv RoboPacServer) {
 	s.RegisterService(&RoboPac_ServiceDesc, srv)
 }
 

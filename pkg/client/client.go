@@ -37,6 +37,7 @@ func (c *Client) GetBlockchainInfo(ctx context.Context) (*pactus.GetBlockchainIn
 	if err != nil {
 		return nil, err
 	}
+
 	return blockchainInfo, nil
 }
 
@@ -45,6 +46,7 @@ func (c *Client) GetBlockchainHeight(ctx context.Context) (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return blockchainInfo.LastBlockHeight, nil
 }
 
@@ -70,6 +72,7 @@ func (c *Client) GetPeerInfo(ctx context.Context, address string) (*pactus.PeerI
 			}
 		}
 	}
+
 	return nil, NotFoundError{
 		Search:  "peer",
 		Address: address,

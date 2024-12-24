@@ -32,11 +32,11 @@ func (db *DB) HasUser(id string) bool {
 }
 
 func (db *DB) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, error) {
-	var u *entity.User
+	var user *entity.User
 	tx := db.Model(&entity.User{}).
 		Where("application_id = ?", appID).
 		Where("caller_id = ?", callerID).
-		First(&u)
+		First(&user)
 
 	if tx.Error != nil {
 		return nil, ReadError{
@@ -44,5 +44,5 @@ func (db *DB) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, e
 		}
 	}
 
-	return u, nil
+	return user, nil
 }

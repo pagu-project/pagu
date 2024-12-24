@@ -1,10 +1,10 @@
 syntax = 'proto3';
 
-package robopac;
+package pagu;
 
-option go_package = "github.com/robopac-project/robopac/grpc/robopac";
+option go_package = "github.com/pagu-project/pagu/grpc/pagu";
 
-service RoboPac {
+service Pagu {
   rpc Run(RunRequest) returns (RunResponse);
 }
 

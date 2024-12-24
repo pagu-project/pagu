@@ -21,13 +21,7 @@ var (
 )
 
 type logger struct {
-	subs   map[string]*SubLogger
 	writer io.Writer
-}
-
-type SubLogger struct {
-	logger zerolog.Logger
-	name   string
 }
 
 func InitGlobalLogger(cfg *config.Logger) {
@@ -36,13 +30,13 @@ func InitGlobalLogger(cfg *config.Logger) {
 
 		if slices.Contains(cfg.Targets, "file") {
 			// File writer.
-			fw := &lumberjack.Logger{
+			fileWriter := &lumberjack.Logger{
 				Filename:   cfg.Filename,
 				MaxSize:    cfg.MaxSize,
 				MaxBackups: cfg.MaxBackups,
 				Compress:   cfg.Compress,
 			}
-			writers = append(writers, fw)
+			writers = append(writers, fileWriter)
 		}
 
 		if slices.Contains(cfg.Targets, "console") {
@@ -51,7 +45,6 @@ func InitGlobalLogger(cfg *config.Logger) {
 		}
 
 		globalInst = &logger{
-			subs:   make(map[string]*SubLogger),
 			writer: io.MultiWriter(writers...),
 		}
 
@@ -69,18 +62,6 @@ func InitGlobalLogger(cfg *config.Logger) {
 // NewLoggerLevel initializes the logger level.
 func NewLoggerLevel(level zerolog.Level) {
 	logLevel = level
-}
-
-func getLoggersInst() *logger {
-	if globalInst == nil {
-		globalInst = &logger{
-			subs:   make(map[string]*SubLogger),
-			writer: zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: "15:04:05"},
-		}
-		log.Logger = zerolog.New(globalInst.writer).With().Timestamp().Logger()
-	}
-
-	return globalInst
 }
 
 // SetLoggerLevel sets logger level based on env.
@@ -108,67 +89,23 @@ func addFields(event *zerolog.Event, keyvals ...any) *zerolog.Event {
 		}
 
 		value := keyvals[i+1]
-		switch v := value.(type) {
+		switch typ := value.(type) {
 		case fmt.Stringer:
-			if isNil(v) {
-				event.Any(key, v)
+			if isNil(typ) {
+				event.Any(key, typ)
 			} else {
-				event.Stringer(key, v)
+				event.Stringer(key, typ)
 			}
 		case error:
-			event.AnErr(key, v)
+			event.AnErr(key, typ)
 		case []byte:
-			event.Str(key, hex.EncodeToString(v))
+			event.Str(key, hex.EncodeToString(typ))
 		default:
-			event.Any(key, v)
+			event.Any(key, typ)
 		}
 	}
 
 	return event
-}
-
-func NewSubLogger(name string) *SubLogger {
-	inst := getLoggersInst()
-	sl := &SubLogger{
-		logger: zerolog.New(inst.writer).With().Timestamp().Logger(),
-		name:   name,
-	}
-
-	inst.subs[name] = sl
-
-	return sl
-}
-
-func (sl *SubLogger) logObj(event *zerolog.Event, msg string, keyvals ...any) {
-	addFields(event, keyvals...).Msg(msg)
-}
-
-func (sl *SubLogger) Trace(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Trace(), msg, keyvals...)
-}
-
-func (sl *SubLogger) Debug(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Debug(), msg, keyvals...)
-}
-
-func (sl *SubLogger) Info(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Info(), msg, keyvals...)
-}
-
-func (sl *SubLogger) Warn(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Warn(), msg, keyvals...)
-}
-
-func (sl *SubLogger) Error(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Error(), msg, keyvals...)
-}
-
-func (sl *SubLogger) Fatal(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Fatal(), msg, keyvals...)
-}
-
-func (sl *SubLogger) Panic(msg string, keyvals ...any) {
-	sl.logObj(sl.logger.Panic(), msg, keyvals...)
 }
 
 func Trace(msg string, keyvals ...any) {

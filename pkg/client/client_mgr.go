@@ -12,7 +12,7 @@ import (
 	"github.com/pagu-project/Pagu/pkg/log"
 )
 
-type Mgr struct {
+type Manager struct {
 	valMapLock sync.RWMutex
 	valMap     map[string]*pactus.PeerInfo
 
@@ -20,8 +20,8 @@ type Mgr struct {
 	clients []IClient
 }
 
-func NewClientMgr(ctx context.Context) Manager {
-	return &Mgr{
+func NewClientMgr(ctx context.Context) *Manager {
+	return &Manager{
 		clients:    make([]IClient, 0),
 		valMap:     make(map[string]*pactus.PeerInfo),
 		valMapLock: sync.RWMutex{},
@@ -29,7 +29,7 @@ func NewClientMgr(ctx context.Context) Manager {
 	}
 }
 
-func (cm *Mgr) Start() {
+func (cm *Manager) Start() {
 	ticker := time.NewTicker(30 * time.Minute)
 
 	go func() {
@@ -48,7 +48,7 @@ func (cm *Mgr) Start() {
 	cm.updateValMap()
 }
 
-func (cm *Mgr) Stop() {
+func (cm *Manager) Stop() {
 	for addr, c := range cm.clients {
 		if err := c.Close(); err != nil {
 			log.Error("could not close connection to RPC node", "err", err, "RPCAddr", addr)
@@ -56,37 +56,40 @@ func (cm *Mgr) Stop() {
 	}
 }
 
-func (cm *Mgr) updateValMap() {
+func (cm *Manager) updateValMap() {
 	freshValMap := make(map[string]*pactus.PeerInfo)
 
 	for _, c := range cm.clients {
 		networkInfo, err := c.GetNetworkInfo(cm.ctx)
 		if err != nil {
 			logger.Warn("cannot connect to client", "err", err)
+
 			continue
 		}
 
 		if networkInfo == nil {
 			logger.Warn("network info is nil")
+
 			continue
 		}
 
 		if len(networkInfo.GetConnectedPeers()) == 0 {
 			logger.Warn("no connected peers")
+
 			continue
 		}
 
 		logger.Info("connected peers = ", "count", networkInfo.ConnectedPeersCount)
-		for _, p := range networkInfo.ConnectedPeers {
-			logger.Info("sync peer", "peerId", p.PeerId)
-			for _, addr := range p.ConsensusAddresses {
+		for _, peer := range networkInfo.ConnectedPeers {
+			logger.Info("sync peer", "peerId", peer.PeerId)
+			for _, addr := range peer.ConsensusAddresses {
 				current := freshValMap[addr]
 				if current != nil {
-					if current.LastSent < p.LastSent {
-						freshValMap[addr] = p
+					if current.LastSent < peer.LastSent {
+						freshValMap[addr] = peer
 					}
 				} else {
-					freshValMap[addr] = p
+					freshValMap[addr] = peer
 				}
 			}
 		}
@@ -101,17 +104,17 @@ func (cm *Mgr) updateValMap() {
 }
 
 // AddClient should call before Start.
-func (cm *Mgr) AddClient(c IClient) {
+func (cm *Manager) AddClient(c IClient) {
 	cm.clients = append(cm.clients, c)
 }
 
 // GetLocalClient returns the local client.
 // The local is always the first client in list of clients.
-func (cm *Mgr) GetLocalClient() IClient {
+func (cm *Manager) GetLocalClient() IClient {
 	return cm.clients[0]
 }
 
-func (cm *Mgr) GetRandomClient() IClient {
+func (cm *Manager) GetRandomClient() IClient {
 	for _, c := range cm.clients {
 		return c
 	}
@@ -119,36 +122,40 @@ func (cm *Mgr) GetRandomClient() IClient {
 	return nil
 }
 
-func (cm *Mgr) GetBlockchainInfo() (*pactus.GetBlockchainInfoResponse, error) {
+func (cm *Manager) GetBlockchainInfo() (*pactus.GetBlockchainInfoResponse, error) {
 	localClient := cm.GetLocalClient()
 	info, err := localClient.GetBlockchainInfo(cm.ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	return info, nil
 }
 
-func (cm *Mgr) GetBlockchainHeight() (uint32, error) {
+func (cm *Manager) GetBlockchainHeight() (uint32, error) {
 	localClient := cm.GetLocalClient()
 	height, err := localClient.GetBlockchainHeight(cm.ctx)
 	if err != nil {
 		return 0, err
 	}
+
 	return height, nil
 }
 
-func (cm *Mgr) GetLastBlockTime() (lastBlockTime, lastBlockHeight uint32) {
+func (cm *Manager) GetLastBlockTime() (lastBlockTime, lastBlockHeight uint32) {
 	localClient := cm.GetLocalClient()
+
 	return localClient.GetLastBlockTime(cm.ctx)
 }
 
-func (cm *Mgr) GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error) {
+func (cm *Manager) GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error) {
 	// TODO: use caching and object
 	for _, c := range cm.clients {
 		info, err := c.GetNetworkInfo(cm.ctx)
 		if err != nil {
 			continue
 		}
+
 		return info, nil
 	}
 
@@ -157,7 +164,7 @@ func (cm *Mgr) GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error) {
 	}
 }
 
-func (cm *Mgr) GetPeerInfo(address string) (*pactus.PeerInfo, error) {
+func (cm *Manager) GetPeerInfo(address string) (*pactus.PeerInfo, error) {
 	cm.valMapLock.Lock()
 	defer cm.valMapLock.Unlock()
 
@@ -172,47 +179,50 @@ func (cm *Mgr) GetPeerInfo(address string) (*pactus.PeerInfo, error) {
 	return peerInfo, nil
 }
 
-func (cm *Mgr) GetValidatorInfo(address string) (*pactus.GetValidatorResponse, error) {
+func (cm *Manager) GetValidatorInfo(address string) (*pactus.GetValidatorResponse, error) {
 	localClient := cm.GetLocalClient()
 	val, err := localClient.GetValidatorInfo(cm.ctx, address)
 	if err != nil {
 		return nil, err
 	}
+
 	return val, nil
 }
 
-func (cm *Mgr) GetValidatorInfoByNumber(num int32) (*pactus.GetValidatorResponse, error) {
+func (cm *Manager) GetValidatorInfoByNumber(num int32) (*pactus.GetValidatorResponse, error) {
 	localClient := cm.GetLocalClient()
 	val, err := localClient.GetValidatorInfoByNumber(cm.ctx, num)
 	if err != nil {
 		return nil, err
 	}
+
 	return val, nil
 }
 
-func (cm *Mgr) GetTransactionData(txID string) (*pactus.GetTransactionResponse, error) {
+func (cm *Manager) GetTransactionData(txID string) (*pactus.GetTransactionResponse, error) {
 	localClient := cm.GetLocalClient()
 	txData, err := localClient.GetTransactionData(cm.ctx, txID)
 	if err != nil {
 		return nil, err
 	}
+
 	return txData, nil
 }
 
-func (cm *Mgr) GetBalance(addr string) (int64, error) {
+func (cm *Manager) GetBalance(addr string) (int64, error) {
 	return cm.GetLocalClient().GetBalance(cm.ctx, addr)
 }
 
-func (cm *Mgr) GetFee(amt int64) (int64, error) {
+func (cm *Manager) GetFee(amt int64) (int64, error) {
 	return cm.GetLocalClient().GetFee(cm.ctx, amt)
 }
 
-func (cm *Mgr) GetCirculatingSupply() (int64, error) {
+func (cm *Manager) GetCirculatingSupply() int64 {
 	localClient := cm.GetLocalClient()
 
 	height, err := localClient.GetBlockchainInfo(cm.ctx)
 	if err != nil {
-		return 0, err
+		return 0
 	}
 	minted := float64(height.LastBlockHeight) * 1e9
 	staked := height.TotalPower
@@ -256,10 +266,11 @@ func (cm *Mgr) GetCirculatingSupply() (int64, error) {
 	}
 
 	circulating := (addr1Out + addr2Out + addr3Out + addr4Out + addr5Out + addr6Out + int64(minted)) - staked - warm
-	return circulating, nil
+
+	return circulating
 }
 
-func (cm *Mgr) FindPublicKey(address string, firstVal bool) (string, error) { //nolint
+func (cm *Manager) FindPublicKey(address string, firstVal bool) (string, error) {
 	peerInfo, err := cm.GetPeerInfo(address)
 	if err != nil {
 		return "", err
@@ -270,6 +281,7 @@ func (cm *Mgr) FindPublicKey(address string, firstVal bool) (string, error) { //
 			if firstVal && i != 0 {
 				return "", errors.New("please enter the first validator address")
 			}
+
 			return peerInfo.ConsensusKeys[i], nil
 		}
 	}

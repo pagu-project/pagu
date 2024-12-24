@@ -68,7 +68,7 @@ func (v *Voucher) createOneHandler(
 		return cmd.ErrorResult(err)
 	}
 
-	return cmd.SuccessfulResult("Voucher created successfully! \n Code: %s", vch.Code)
+	return cmd.SuccessfulResultF("Voucher created successfully! \n Code: %s", vch.Code)
 }
 
 func (v *Voucher) createBulkHandler(
@@ -83,12 +83,14 @@ func (v *Voucher) createBulkHandler(
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fileURL, http.NoBody)
 	if err != nil {
 		logger.Error(err.Error())
+
 		return cmd.ErrorResult(errors.New("failed to fetch attachment content"))
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		logger.Error(err.Error())
+
 		return cmd.ErrorResult(errors.New("failed to fetch attachment content"))
 	}
 
@@ -100,6 +102,7 @@ func (v *Voucher) createBulkHandler(
 	dec, err := csvutil.NewDecoder(csvReader)
 	if err != nil {
 		logger.Error(err.Error())
+
 		return cmd.ErrorResult(errors.New("failed to read csv content"))
 	}
 
@@ -110,6 +113,7 @@ func (v *Voucher) createBulkHandler(
 			break
 		} else if err != nil {
 			logger.Error(err.Error())
+
 			return cmd.ErrorResult(errors.New("failed to parse csv content"))
 		}
 
@@ -118,6 +122,7 @@ func (v *Voucher) createBulkHandler(
 
 	if len(records) == 0 {
 		err = fmt.Errorf("no record founded. please add at least one record to csv file")
+
 		return cmd.ErrorResult(err)
 	}
 
@@ -195,6 +200,7 @@ func (v *Voucher) createNotification(email, code, recipient string, amt float64)
 		return err
 	}
 	voucherCodeJSON := datatypes.JSON(b)
+
 	return v.db.AddNotification(&entity.Notification{
 		Type:      notification.NotificationTypeMail,
 		Status:    entity.NotificationStatusPending,

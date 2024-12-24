@@ -39,6 +39,6 @@ func (pt *Phoenix) faucetHandler(
 		return cmd.ErrorResult(err)
 	}
 
-	return cmd.SuccessfulResult("You got %f tPAC on Phoenix Testnet!\n\n"+
+	return cmd.SuccessfulResultF("You got %f tPAC on Phoenix Testnet!\n\n"+
 		"https://phoenix.pacviewer.com/transaction/%s", pt.faucetAmount.ToPAC(), txHash)
 }

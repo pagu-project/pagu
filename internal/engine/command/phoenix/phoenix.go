@@ -25,13 +25,13 @@ const (
 type Phoenix struct {
 	ctx          context.Context
 	wallet       wallet.IWallet
-	db           repository.Database
-	clientMgr    client.Manager
+	db           repository.IDatabase
+	clientMgr    client.IManager
 	faucetAmount amount.Amount
 }
 
 func NewPhoenix(ctx context.Context, wlt wallet.IWallet, faucetAmount amount.Amount,
-	clientMgr client.Manager, db repository.Database,
+	clientMgr client.IManager, db repository.IDatabase,
 ) *Phoenix {
 	return &Phoenix{
 		ctx:          ctx,

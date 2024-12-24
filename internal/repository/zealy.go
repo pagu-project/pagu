@@ -10,15 +10,15 @@ type IZealy interface {
 }
 
 func (db *DB) GetZealyUser(id string) (*entity.ZealyUser, error) {
-	var u *entity.ZealyUser
-	tx := db.Model(&entity.ZealyUser{}).First(&u, "discord_id = ?", id)
+	var user *entity.ZealyUser
+	tx := db.Model(&entity.ZealyUser{}).First(&user, "discord_id = ?", id)
 	if tx.Error != nil {
 		return &entity.ZealyUser{}, ReadError{
 			Message: tx.Error.Error(),
 		}
 	}
 
-	return u, nil
+	return user, nil
 }
 
 func (db *DB) AddZealyUser(u *entity.ZealyUser) error {
@@ -46,13 +46,13 @@ func (db *DB) UpdateZealyUser(id, txHash string) error {
 }
 
 func (db *DB) GetAllZealyUser() ([]*entity.ZealyUser, error) {
-	var u []*entity.ZealyUser
-	tx := db.Find(&u)
+	var users []*entity.ZealyUser
+	tx := db.Find(&users)
 	if tx.Error != nil {
 		return nil, ReadError{
 			Message: tx.Error.Error(),
 		}
 	}
 
-	return u, nil
+	return users, nil
 }

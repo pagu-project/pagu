@@ -25,6 +25,6 @@ func (bc *Calculator) calcFeeHandler(
 
 	feeAmount := amount.Amount(fee)
 
-	return cmd.SuccessfulResult("Sending %s will cost %s with current fee percentage."+
+	return cmd.SuccessfulResultF("Sending %s will cost %s with current fee percentage."+
 		"\n> Note: Consider unbond and sortition transaction fee is 0 PAC always.", amt.String(), feeAmount.String())
 }

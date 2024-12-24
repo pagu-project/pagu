@@ -44,13 +44,13 @@ func (db *DB) ClaimVoucher(id uint, txHash string, claimer uint) error {
 }
 
 func (db *DB) ListVoucher() ([]*entity.Voucher, error) {
-	var v []*entity.Voucher
-	tx := db.Find(&v)
+	var vouchers []*entity.Voucher
+	tx := db.Find(&vouchers)
 	if tx.Error != nil {
 		return nil, ReadError{
 			Message: tx.Error.Error(),
 		}
 	}
 
-	return v, nil
+	return vouchers, nil
 }

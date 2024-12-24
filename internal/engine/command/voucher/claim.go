@@ -39,12 +39,14 @@ func (v *Voucher) claimHandler(
 	if valInfo != nil {
 		err = errors.New("this address is already a staked validator")
 		log.Warn(fmt.Sprintf("staked validator found. %s", address))
+
 		return cmd.ErrorResult(err)
 	}
 
 	pubKey, err := v.clientManager.FindPublicKey(address, false)
 	if err != nil {
 		log.Warn(fmt.Sprintf("peer not found. %s", address))
+
 		return cmd.ErrorResult(err)
 	}
 
@@ -62,5 +64,5 @@ func (v *Voucher) claimHandler(
 		return cmd.ErrorResult(err)
 	}
 
-	return cmd.SuccessfulResult("Voucher claimed successfully!\n\n https://pacviewer.com/transaction/%s", txHash)
+	return cmd.SuccessfulResultF("Voucher claimed successfully!\n\n https://pacviewer.com/transaction/%s", txHash)
 }

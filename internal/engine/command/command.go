@@ -59,27 +59,35 @@ type CommandResult struct {
 	Successful bool
 }
 
-func (cmd *Command) SuccessfulResult(message string, a ...any) CommandResult {
+func (cmd *Command) SuccessfulResult(msg string) CommandResult {
+	return cmd.SuccessfulResultF("%s", msg)
+}
+
+func (cmd *Command) SuccessfulResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
 		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
-		Message:    fmt.Sprintf(message, a...),
+		Message:    fmt.Sprintf(msg, a...),
 		Successful: true,
 	}
 }
 
-func (cmd *Command) FailedResult(message string, a ...any) CommandResult {
+func (cmd *Command) FailedResult(msg string) CommandResult {
+	return cmd.FailedResultF("%s", msg)
+}
+
+func (cmd *Command) FailedResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
 		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
-		Message:    fmt.Sprintf(message, a...),
-		Error:      message,
+		Message:    fmt.Sprintf(msg, a...),
+		Error:      msg,
 		Successful: false,
 	}
 }
 
 func (cmd *Command) ErrorResult(err error) CommandResult {
-	return cmd.FailedResult("An error occurred: %v", err.Error())
+	return cmd.FailedResultF("An error occurred: %v", err.Error())
 }
 
 func (cmd *Command) HelpResult() CommandResult {
@@ -105,6 +113,7 @@ func (cmd *Command) HelpMessage() string {
 	for _, sc := range cmd.SubCommands {
 		help += fmt.Sprintf("  %-12s %s\n", sc.Name, sc.Help)
 	}
+
 	return help
 }
 
@@ -122,7 +131,7 @@ func (cmd *Command) AddHelpSubCommand() {
 		Help:   fmt.Sprintf("Help for %v command", cmd.Name),
 		AppIDs: entity.AllAppIDs(),
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
-			return cmd.SuccessfulResult(cmd.HelpMessage()) //nolint
+			return cmd.SuccessfulResult(cmd.HelpMessage())
 		},
 	}
 

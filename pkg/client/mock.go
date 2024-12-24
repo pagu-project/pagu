@@ -287,12 +287,11 @@ func (mr *MockManagerMockRecorder) GetBlockchainInfo() *gomock.Call {
 }
 
 // GetCirculatingSupply mocks base method.
-func (m *MockManager) GetCirculatingSupply() (int64, error) {
+func (m *MockManager) GetCirculatingSupply() int64 {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCirculatingSupply")
 	ret0, _ := ret[0].(int64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	return ret0
 }
 
 // GetCirculatingSupply indicates an expected call of GetCirculatingSupply.

@@ -18,6 +18,7 @@ type GeoIP struct {
 
 func ExtractIPFromMultiAddr(multiAddr string) string {
 	parts := strings.Split(strings.Split(multiAddr, "/")[2], "/")
+
 	return parts[0]
 }
 

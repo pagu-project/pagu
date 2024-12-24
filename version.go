@@ -17,11 +17,11 @@ var version = Version{
 }
 
 func StringVersion() string {
-	v := fmt.Sprintf("%d.%d.%d", version.Major, version.Minor, version.Patch)
+	ver := fmt.Sprintf("%d.%d.%d", version.Major, version.Minor, version.Patch)
 
 	if version.Meta != "" {
-		v = fmt.Sprintf("%s-%s", v, version.Meta)
+		ver = fmt.Sprintf("%s-%s", ver, version.Meta)
 	}
 
-	return v
+	return ver
 }

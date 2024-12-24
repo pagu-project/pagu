@@ -23,11 +23,11 @@ func (db *DB) AddNotification(v *entity.Notification) error {
 }
 
 func (db *DB) GetPendingMailNotification() (*entity.Notification, error) {
-	var n *entity.Notification
+	var notif *entity.Notification
 	tx := db.Model(&entity.Notification{}).
 		Where("status = ?", entity.NotificationStatusPending).
 		Where("type = ?", notification.NotificationTypeMail).
-		First(&n)
+		First(&notif)
 
 	if tx.Error != nil {
 		return nil, ReadError{
@@ -35,7 +35,7 @@ func (db *DB) GetPendingMailNotification() (*entity.Notification, error) {
 		}
 	}
 
-	return n, nil
+	return notif, nil
 }
 
 func (db *DB) UpdateNotificationStatus(id uint, status entity.NotificationStatus) error {

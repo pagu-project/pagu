@@ -19,11 +19,11 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
+    - copyloopvar
     - forbidigo
     - gci
-    - ginkgolinter
     - gocheckcompilerdirectives
+    - gocognit
     - gocritic
     - gocyclo
     - godot
@@ -48,6 +48,7 @@ linters:
     - nakedret
     - nilerr
     - nilnil
+    - nlreturn
     - noctx
     - nolintlint
     - nosprintfhostport
@@ -60,6 +61,7 @@ linters:
     - sqlclosecheck
     - stylecheck
     - tagalign
+    # - tagliatelle
     - tenv
     - testableexamples
     - thelper
@@ -69,7 +71,10 @@ linters:
     - usestdlibvars
     - wastedassign
     - whitespace
+    # - wrapcheck
     - zerologlint
+    - varnamelen
+    # - ireturn
 
 linters-settings:
   gosimple:
@@ -78,12 +83,12 @@ linters-settings:
   revive:
     enable-all-rules: true
     rules:
-      - name: unused-receiver
-        disabled: true
-
       - name: "exported"
+        # TODO: Enable me
+        # all exported function should have comment.
         disabled: true
 
+      # TODO: Enable me
       - name: package-comments
         disabled: true
 
@@ -102,16 +107,31 @@ linters-settings:
       - name: "cyclomatic"
         disabled: true
 
+      - name: "unchecked-type-assertion"
+        disabled: true
+
       - name: max-public-structs
         disabled: true
 
+      - name: "flag-parameter"
+        disabled: true
+
       - name: "deep-exit"
+        disabled: true
+
+      - name: "get-return"
         disabled: true
 
       - name: "confusing-naming"
         disabled: true
 
       - name: "function-result-limit"
+        disabled: true
+
+      - name: "import-shadowing"
+        disabled: true
+
+      - name: redefines-builtin-id
         disabled: true
 
       - name: unhandled-error
@@ -146,20 +166,42 @@ linters-settings:
   predeclared:
     # Comma-separated list of predeclared identifiers to not report on.
     # Default: ""
-    ignore: "len"
+    ignore: "len, min, max"
     # Include method names and field names (i.e., qualified names) in checks.
     # Default: false
     q: true
+
+  tagliatelle:
+    # Check the struct tag name case.
+    case:
+      use-field-name: false
+      rules:
+        json: snake
+        yaml: snake
 
   gocritic:
     disabled-checks:
       - ifElseChain
       - unnamedResult
-      - builtinShadow
+      - importShadow
     enabled-tags:
       - diagnostic
       - style
       - performance
+
+  varnamelen:
+    ignore-names:
+      - ok
+      - ip
+      - no
+      - db
+      - tt # table tests
+      - i # i *discordgo.InteractionCreate
+      - s # s *discordgo.Session
+      - r # reader
+      - w # writer
+      - wg
+      - tx # Database Tx
 
 issues:
   exclude-use-default: false
@@ -167,8 +209,11 @@ issues:
     - path: _test.go
       linters:
         - maintidx
+        - gocognit
         - forbidigo
 
-    - linters:
-        - govet
-      text: "shadow: declaration of \"err\" shadows"
+  exclude:
+    - "shadow: declaration of \"err\" shadows"
+    - "builtinShadow: shadowing of predeclared identifier: min"
+    - "builtinShadow: shadowing of predeclared identifier: max"
+    - "builtinShadow: shadowing of predeclared identifier: len"
