@@ -18,7 +18,7 @@ func newPaguServer(server *Server) *paguServer {
 	}
 }
 
-func (rs *paguServer) Run(_ context.Context, req *pagu.RunRequest) (*pagu.RunResponse, error) {
+func (ps *paguServer) Run(_ context.Context, req *pagu.RunRequest) (*pagu.RunResponse, error) {
 	beInput := make(map[string]string)
 
 	tokens := strings.Split(req.Command, " ")
@@ -26,7 +26,7 @@ func (rs *paguServer) Run(_ context.Context, req *pagu.RunRequest) (*pagu.RunRes
 		beInput[t] = t
 	}
 
-	res := rs.engine.Run(entity.AppIDgRPC, req.Id, nil, beInput)
+	res := ps.engine.Run(entity.AppIDgRPC, req.Id, nil, beInput)
 
 	return &pagu.RunResponse{
 		Response: res.Message,
