@@ -86,17 +86,17 @@ func round(f float64) Amount {
 // NewAmount is specifically for converting PAC to NanoPAC.
 // For creating a new Amount with an int64 value which denotes a quantity of NanoPAC,
 // do a simple type conversion from type int64 to Amount.
-func NewAmount(f float64) (Amount, error) {
+func NewAmount(pac float64) (Amount, error) {
 	// The amount is only considered invalid if it cannot be represented
 	// as an integer type. This may happen if f is NaN or +-Infinity.
 	switch {
-	case math.IsNaN(f),
-		math.IsInf(f, 1),
-		math.IsInf(f, -1):
+	case math.IsNaN(pac),
+		math.IsInf(pac, 1),
+		math.IsInf(pac, -1):
 		return 0, errors.New("invalid PAC amount")
 	}
 
-	return round(f * float64(NanoPACPerPAC)), nil
+	return round(pac * float64(NanoPACPerPAC)), nil
 }
 
 // FromString parses a string representing a value in PAC.
@@ -163,6 +163,7 @@ func (a *Amount) Scan(src any) error {
 		return err
 	}
 	*a = val
+
 	return nil
 }
 
@@ -177,6 +178,7 @@ func (a *Amount) UnmarshalYAML(unmarshal func(any) error) error {
 		return err
 	}
 	*a = val
+
 	return nil
 }
 

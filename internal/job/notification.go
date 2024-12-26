@@ -15,13 +15,14 @@ type mailSenderJob struct {
 	ctx        context.Context
 	ticker     *time.Ticker
 	cancel     context.CancelFunc
-	db         repository.Database
+	db         repository.IDatabase
 	mailSender notification.ISender
 	templates  map[string]string
 }
 
-func NewMailSender(db repository.Database, mailSender notification.ISender, templates map[string]string) Job {
+func NewMailSender(db repository.IDatabase, mailSender notification.ISender, templates map[string]string) Job {
 	ctx, cancel := context.WithCancel(context.Background())
+
 	return &mailSenderJob{
 		ticker:     time.NewTicker(10 * time.Minute),
 		ctx:        ctx,
@@ -41,12 +42,12 @@ func (p *mailSenderJob) sendVoucherNotifications() {
 	notif, err := p.db.GetPendingMailNotification()
 	if err != nil {
 		logger.Error("failed to get pending mail from db", "err", err)
+
 		return
 	}
 
-	v := entity.VoucherNotificationData{}
-	vByte, _ := notif.Data.MarshalJSON()
-	_ = json.Unmarshal(vByte, &v)
+	voucherNotif := entity.VoucherNotificationData{}
+	_ = json.Unmarshal(notif.Data, &voucherNotif)
 	tmpl, err := notification.LoadMailTemplate(p.templates["voucher"])
 	if err != nil {
 		logger.Fatal("failed to load mail template", "err", err)
@@ -54,7 +55,7 @@ func (p *mailSenderJob) sendVoucherNotifications() {
 
 	err = p.mailSender.SendTemplateMail(
 		notification.NotificationProviderZapToMail,
-		"pagu@pactus.org", []string{notif.Recipient}, tmpl, v)
+		"pagu@pactus.org", []string{notif.Recipient}, tmpl, voucherNotif)
 	if err != nil {
 		logger.Error("failed to send mail notification", "err", err)
 		err = p.db.UpdateNotificationStatus(notif.ID, entity.NotificationStatusFail)

@@ -1,6 +1,6 @@
 package repository
 
-type Database interface {
+type IDatabase interface {
 	IUser
 	IVoucher
 	IFaucet

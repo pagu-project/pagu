@@ -15,11 +15,11 @@ const (
 )
 
 type Zealy struct {
-	db     repository.Database
+	db     repository.IDatabase
 	wallet wallet.IWallet
 }
 
-func NewZealy(db repository.Database, wlt wallet.IWallet) *Zealy {
+func NewZealy(db repository.IDatabase, wlt wallet.IWallet) *Zealy {
 	return &Zealy{
 		db:     db,
 		wallet: wlt,
@@ -66,5 +66,6 @@ func (z *Zealy) GetCommand() *command.Command {
 
 	cmdZealy.AddSubCommand(subCmdClaim)
 	cmdZealy.AddSubCommand(subCmdStatus)
+
 	return cmdZealy
 }

@@ -8,7 +8,7 @@ type IUser interface {
 	GetUserByApp(appID entity.AppID, callerID string) (*entity.User, error)
 }
 
-func (db *DB) AddUser(u *entity.User) error {
+func (db *Database) AddUser(u *entity.User) error {
 	tx := db.Create(u)
 	if tx.Error != nil {
 		return WriteError{
@@ -19,7 +19,7 @@ func (db *DB) AddUser(u *entity.User) error {
 	return nil
 }
 
-func (db *DB) HasUser(id string) bool {
+func (db *Database) HasUser(id string) bool {
 	var exists bool
 
 	_ = db.Model(&entity.User{}).
@@ -31,12 +31,12 @@ func (db *DB) HasUser(id string) bool {
 	return exists
 }
 
-func (db *DB) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, error) {
-	var u *entity.User
+func (db *Database) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, error) {
+	var user *entity.User
 	tx := db.Model(&entity.User{}).
 		Where("application_id = ?", appID).
 		Where("caller_id = ?", callerID).
-		First(&u)
+		First(&user)
 
 	if tx.Error != nil {
 		return nil, ReadError{
@@ -44,5 +44,5 @@ func (db *DB) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, e
 		}
 	}
 
-	return u, nil
+	return user, nil
 }

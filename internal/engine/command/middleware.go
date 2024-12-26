@@ -9,11 +9,11 @@ import (
 type MiddlewareFunc func(caller *entity.User, cmd *Command, args map[string]string) error
 
 type MiddlewareHandler struct {
-	db     repository.Database
+	db     repository.IDatabase
 	wallet wallet.IWallet
 }
 
-func NewMiddlewareHandler(d repository.Database, w wallet.IWallet) *MiddlewareHandler {
+func NewMiddlewareHandler(d repository.IDatabase, w wallet.IWallet) *MiddlewareHandler {
 	return &MiddlewareHandler{
 		db:     d,
 		wallet: w,

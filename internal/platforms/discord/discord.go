@@ -24,13 +24,13 @@ type Bot struct {
 }
 
 func NewDiscordBot(botEngine *engine.BotEngine, cfg *config.DiscordBot, target string) (*Bot, error) {
-	s, err := discordgo.New("Bot " + cfg.Token)
+	session, err := discordgo.New("Bot " + cfg.Token)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Bot{
-		Session: s,
+		Session: session,
 		engine:  botEngine,
 		cfg:     cfg,
 		target:  target,
@@ -46,6 +46,7 @@ func (bot *Bot) Start() error {
 	}
 
 	bot.deleteAllCommands()
+
 	return bot.registerCommands()
 }
 
@@ -58,9 +59,12 @@ func (bot *Bot) Stop() error {
 func (bot *Bot) deleteAllCommands() {
 	cmdsServer, _ := bot.Session.ApplicationCommands(bot.Session.State.User.ID, bot.cfg.GuildID)
 	cmdsGlobal, _ := bot.Session.ApplicationCommands(bot.Session.State.User.ID, "")
-	cmds := append(cmdsServer, cmdsGlobal...) //nolint
 
-	for _, cmd := range cmds {
+	allCmds := []*discordgo.ApplicationCommand{}
+	allCmds = append(allCmds, cmdsServer...)
+	allCmds = append(allCmds, cmdsGlobal...)
+
+	for _, cmd := range allCmds {
 		err := bot.Session.ApplicationCommandDelete(cmd.ApplicationID, cmd.GuildID, cmd.ID)
 		if err != nil {
 			log.Error("unable to delete command", "error", err, "cmd", cmd.Name)
@@ -70,6 +74,7 @@ func (bot *Bot) deleteAllCommands() {
 	}
 }
 
+//nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands() error {
 	bot.Session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		bot.commandHandler(s, i)
@@ -173,6 +178,7 @@ func (bot *Bot) registerCommands() error {
 		cmd, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, bot.cfg.GuildID, &discordCmd)
 		if err != nil {
 			log.Error("can not register discord command", "name", discordCmd.Name, "error", err)
+
 			return err
 		}
 		log.Info("discord command registered", "name", cmd.Name)
@@ -184,6 +190,7 @@ func (bot *Bot) registerCommands() error {
 func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if i.GuildID != bot.cfg.GuildID {
 		bot.respondErrMsg("Please send messages on server chat", s, i)
+
 		return
 	}
 
@@ -211,23 +218,35 @@ func parseArgs(
 	opt *discordgo.ApplicationCommandInteractionDataOption,
 	result map[string]string,
 ) map[string]string {
-	//nolint
 	switch opt.Type {
 	case discordgo.ApplicationCommandOptionString:
 		result[opt.Name] = opt.StringValue()
+
 	case discordgo.ApplicationCommandOptionInteger:
 		result[opt.Name] = strconv.Itoa(int(opt.IntValue()))
+
 	case discordgo.ApplicationCommandOptionNumber:
 		v := strconv.FormatFloat(opt.FloatValue(), 'f', 10, 64)
 		result[opt.Name] = v
+
 	case discordgo.ApplicationCommandOptionBoolean:
 		v := strconv.FormatBool(true)
 		result[opt.Name] = strings.ToUpper(v)
+
 	case discordgo.ApplicationCommandOptionAttachment:
 		// TODO: handle multiple attachment
 		for _, attachment := range rootCmd.Resolved.Attachments {
 			result[opt.Name] = attachment.URL
 		}
+
+	case discordgo.ApplicationCommandOptionSubCommand,
+		discordgo.ApplicationCommandOptionSubCommandGroup,
+		discordgo.ApplicationCommandOptionUser,
+		discordgo.ApplicationCommandOptionChannel,
+		discordgo.ApplicationCommandOptionRole,
+		discordgo.ApplicationCommandOptionMentionable:
+
+		log.Warn("received unhandled option type", "type", opt.Type)
 	}
 
 	return result
@@ -242,9 +261,7 @@ func (bot *Bot) respondErrMsg(errStr string, s *discordgo.Session, i *discordgo.
 	bot.respondEmbed(errorEmbed, s, i)
 }
 
-func (bot *Bot) respondResultMsg(res command.CommandResult,
-	s *discordgo.Session, i *discordgo.InteractionCreate,
-) {
+func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session, i *discordgo.InteractionCreate) {
 	var resEmbed *discordgo.MessageEmbed
 	if res.Successful {
 		resEmbed = &discordgo.MessageEmbed{
@@ -263,9 +280,7 @@ func (bot *Bot) respondResultMsg(res command.CommandResult,
 	bot.respondEmbed(resEmbed, s, i)
 }
 
-func (bot *Bot) respondEmbed(embed *discordgo.MessageEmbed,
-	s *discordgo.Session, i *discordgo.InteractionCreate,
-) {
+func (*Bot) respondEmbed(embed *discordgo.MessageEmbed, s *discordgo.Session, i *discordgo.InteractionCreate) {
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -282,52 +297,59 @@ func (bot *Bot) respondEmbed(embed *discordgo.MessageEmbed,
 func (bot *Bot) UpdateStatusInfo() {
 	log.Info("info status started")
 	for {
-		ns, err := bot.engine.NetworkStatus()
+		status, err := bot.engine.NetworkStatus()
 		if err != nil {
 			continue
 		}
 
-		err = bot.Session.UpdateStatusComplex(newStatus("validators count", utils.FormatNumber(int64(ns.ValidatorsCount))))
+		err = bot.Session.UpdateStatusComplex(newStatus("validators count",
+			utils.FormatNumber(int64(status.ValidatorsCount))))
 		if err != nil {
 			log.Error("can't set status", "err", err)
+
 			continue
 		}
 
 		time.Sleep(time.Second * 5)
 
-		err = bot.Session.UpdateStatusComplex(newStatus("total accounts", utils.FormatNumber(int64(ns.TotalAccounts))))
+		err = bot.Session.UpdateStatusComplex(newStatus("total accounts",
+			utils.FormatNumber(int64(status.TotalAccounts))))
 		if err != nil {
 			log.Error("can't set status", "err", err)
+
 			continue
 		}
 
 		time.Sleep(time.Second * 5)
 
-		err = bot.Session.UpdateStatusComplex(newStatus("height", utils.FormatNumber(int64(ns.CurrentBlockHeight))))
+		err = bot.Session.UpdateStatusComplex(newStatus("height", utils.FormatNumber(int64(status.CurrentBlockHeight))))
 		if err != nil {
 			log.Error("can't set status", "err", err)
+
 			continue
 		}
 
 		time.Sleep(time.Second * 5)
 
-		circulatingSupplyAmount := amount.Amount(ns.CirculatingSupply)
+		circulatingSupplyAmount := amount.Amount(status.CirculatingSupply)
 		formattedCirculatingSupply := circulatingSupplyAmount.Format(amount.UnitPAC) + " PAC"
 
 		err = bot.Session.UpdateStatusComplex(newStatus("circ supply", formattedCirculatingSupply))
 		if err != nil {
 			log.Error("can't set status", "err", err)
+
 			continue
 		}
 
 		time.Sleep(time.Second * 5)
 
-		totalNetworkPowerAmount := amount.Amount(ns.TotalNetworkPower)
+		totalNetworkPowerAmount := amount.Amount(status.TotalNetworkPower)
 		formattedTotalNetworkPower := totalNetworkPowerAmount.Format(amount.UnitPAC) + " PAC"
 
 		err = bot.Session.UpdateStatusComplex(newStatus("total power", formattedTotalNetworkPower))
 		if err != nil {
 			log.Error("can't set status", "err", err)
+
 			continue
 		}
 

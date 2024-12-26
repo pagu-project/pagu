@@ -18,12 +18,12 @@ const (
 )
 
 type Voucher struct {
-	db            repository.Database
+	db            repository.IDatabase
 	wallet        wallet.IWallet
-	clientManager client.Manager
+	clientManager client.IManager
 }
 
-func NewVoucher(db repository.Database, wlt wallet.IWallet, cli client.Manager) *Voucher {
+func NewVoucher(db repository.IDatabase, wlt wallet.IWallet, cli client.IManager) *Voucher {
 	return &Voucher{
 		db:            db,
 		wallet:        wlt,
@@ -150,5 +150,6 @@ func (v *Voucher) GetCommand() *command.Command {
 	cmdVoucher.AddSubCommand(subCmdCreateOne)
 	cmdVoucher.AddSubCommand(subCmdCreateBulk)
 	cmdVoucher.AddSubCommand(subCmdStatus)
+
 	return cmdVoucher
 }

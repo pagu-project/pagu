@@ -15,7 +15,7 @@ func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map
 	}
 
 	if user.IsClaimed() {
-		return cmd.FailedResult("You already claimed your reward: https://pacviewer.com/transaction/%s",
+		return cmd.FailedResultF("You already claimed your reward: https://pacviewer.com/transaction/%s",
 			user.TxHash)
 	}
 
@@ -23,7 +23,8 @@ func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map
 	txHash, err := z.wallet.TransferTransaction(address, "Pagu Zealy reward distribution", user.Amount)
 	if err != nil {
 		log.Error("error in transfer zealy reward", "err", err)
-		transferErr := fmt.Errorf("Failed to transfer zealy reward. Please make sure the address is valid") //nolint
+		transferErr := fmt.Errorf("failed to transfer zealy reward. Please make sure the address is valid")
+
 		return cmd.ErrorResult(transferErr)
 	}
 
@@ -31,6 +32,6 @@ func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map
 		return cmd.ErrorResult(err)
 	}
 
-	return cmd.SuccessfulResult("Zealy reward claimed successfully: https://pacviewer.com/transaction/%s",
+	return cmd.SuccessfulResultF("Zealy reward claimed successfully: https://pacviewer.com/transaction/%s",
 		txHash)
 }

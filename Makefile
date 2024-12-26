@@ -1,15 +1,3 @@
-PACKAGES=$(shell go list ./... | grep -v 'tests')
-
-### Testing
-unit_test:
-	go test $(PACKAGES)
-
-test:
-	go test ./... -covermode=atomic
-
-race_test:
-	go test ./... --race
-
 ### dev tools
 devtools:
 	@echo "Installing devtools"
@@ -36,7 +24,11 @@ fmt:
 	go mod tidy
 
 check:
-	golangci-lint cache clean && golangci-lint run --timeout=20m0s
+	golangci-lint run --timeout=20m0s
+
+### Testing
+test:
+	go test ./... -covermode=atomic
 
 ### building
 build: build-cli build-discord build-grpc build-telegram build-http
@@ -56,8 +48,5 @@ build-telegram:
 build-http:
 	go build -o build/pagu-http     ./cmd/http
 
-### pre commit
-pre-commit: mock proto fmt check unit_test
-	@echo pre commit commands...
-
-.PHONY: build
+###
+.PHONY: devtools mock proto fmt check test build build-cli build-discord build-grpc build-telegram build-http

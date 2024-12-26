@@ -6,7 +6,7 @@ import (
 	"github.com/pagu-project/Pagu/internal/entity"
 )
 
-func (h *MiddlewareHandler) OnlyAdmin(caller *entity.User, _ *Command, _ map[string]string) error {
+func (*MiddlewareHandler) OnlyAdmin(caller *entity.User, _ *Command, _ map[string]string) error {
 	if caller.Role != entity.Admin {
 		return errors.New("this command is Only Admin")
 	}
@@ -14,7 +14,7 @@ func (h *MiddlewareHandler) OnlyAdmin(caller *entity.User, _ *Command, _ map[str
 	return nil
 }
 
-func (h *MiddlewareHandler) OnlyModerator(caller *entity.User, _ *Command, _ map[string]string) error {
+func (*MiddlewareHandler) OnlyModerator(caller *entity.User, _ *Command, _ map[string]string) error {
 	if caller.Role != entity.Moderator {
 		return errors.New("this command is Only Moderator")
 	}

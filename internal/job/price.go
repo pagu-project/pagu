@@ -30,6 +30,7 @@ func NewPrice(
 	cch cache.Cache[string, entity.Price],
 ) Job {
 	ctx, cancel := context.WithCancel(context.Background())
+
 	return &price{
 		cache:  cch,
 		ticker: time.NewTicker(128 * time.Second),
@@ -58,6 +59,7 @@ func (p *price) start() {
 		defer wg.Done()
 		if err := p.getPrice(ctx, _defaultXeggexPriceEndpoint, &xeggex); err != nil {
 			log.Error(err.Error())
+
 			return
 		}
 	}()
@@ -67,6 +69,7 @@ func (p *price) start() {
 		defer wg.Done()
 		if err := p.getPrice(ctx, _defaultAzbitPriceEndpoint, &azbit); err != nil {
 			log.Error(err.Error())
+
 			return
 		}
 	}()
@@ -98,7 +101,7 @@ func (p *price) runTicker() {
 	}
 }
 
-func (p *price) getPrice(ctx context.Context, endpoint string, priceResponse any) error {
+func (*price) getPrice(ctx context.Context, endpoint string, priceResponse any) error {
 	cli := http.DefaultClient
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, http.NoBody)
 	if err != nil {
@@ -118,6 +121,7 @@ func (p *price) getPrice(ctx context.Context, endpoint string, priceResponse any
 	}
 
 	dec := json.NewDecoder(resp.Body)
+
 	return dec.Decode(priceResponse)
 }
 

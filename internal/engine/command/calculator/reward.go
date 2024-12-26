@@ -38,17 +38,17 @@ func (bc *Calculator) calcRewardHandler(
 	}
 
 	blocks := numOfDays * 8640
-	bi, err := bc.clientMgr.GetBlockchainInfo()
+	info, err := bc.clientMgr.GetBlockchainInfo()
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
 
-	reward := (stake.ToNanoPAC() * int64(blocks)) / bi.TotalPower
+	reward := (stake.ToNanoPAC() * int64(blocks)) / info.TotalPower
 
-	return cmd.SuccessfulResult("Approximately you earn %v PAC reward, with %v stake 🔒 on your validator "+
+	return cmd.SuccessfulResultF("Approximately you earn %v PAC reward, with %v stake 🔒 on your validator "+
 		"in %d days ⏰ with %s total power ⚡ of committee."+
 		"\n\n> Note📝: This number is just an estimation. "+
 		"It will vary depending on your stake amount and total network power.",
 		utils.FormatNumber(reward), stake, numOfDays,
-		utils.FormatNumber(int64(amount.Amount(bi.TotalPower).ToPAC())))
+		utils.FormatNumber(int64(amount.Amount(info.TotalPower).ToPAC())))
 }

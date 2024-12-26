@@ -19,7 +19,7 @@ type IClient interface {
 	Close() error
 }
 
-type Manager interface {
+type IManager interface {
 	Start()
 	Stop()
 	updateValMap()
@@ -36,6 +36,6 @@ type Manager interface {
 	GetTransactionData(txID string) (*pactus.GetTransactionResponse, error)
 	GetBalance(addr string) (int64, error)
 	GetFee(amt int64) (int64, error)
-	GetCirculatingSupply() (int64, error)
+	GetCirculatingSupply() int64
 	FindPublicKey(address string, firstVal bool) (string, error)
 }

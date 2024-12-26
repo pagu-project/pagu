@@ -23,10 +23,7 @@ func (pt *Phoenix) networkStatusHandler(
 		return cmd.ErrorResult(err)
 	}
 
-	cs, err := pt.clientMgr.GetCirculatingSupply()
-	if err != nil {
-		cs = 0
-	}
+	supply := pt.clientMgr.GetCirculatingSupply()
 
 	// Convert int64 to float64.
 	totalNetworkPower, err := amount.NewAmount(float64(chainInfo.TotalPower))
@@ -39,7 +36,7 @@ func (pt *Phoenix) networkStatusHandler(
 		return cmd.ErrorResult(err)
 	}
 
-	circulatingSupply, err := amount.NewAmount(float64(cs))
+	circulatingSupply, err := amount.NewAmount(float64(supply))
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
@@ -55,7 +52,7 @@ func (pt *Phoenix) networkStatusHandler(
 		CirculatingSupply:   int64(circulatingSupply.ToPAC()),
 	}
 
-	return cmd.SuccessfulResult("Network Name: %s\nConnected Peers: %v\n"+
+	return cmd.SuccessfulResultF("Network Name: %s\nConnected Peers: %v\n"+
 		"Validators Count: %v\nAccounts Count: %v\nCurrent Block Height: %v\nTotal Power: %v\n"+
 		"Total Committee Power: %v\nCirculating Supply: %v\n"+
 		"\n> Note📝: This info is from one random network node. Non-calculator data may not be consistent.",

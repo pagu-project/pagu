@@ -44,6 +44,7 @@ func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Confi
 	tgb, err := tele.NewBot(pref)
 	if err != nil {
 		log.Error("Failed to create Telegram bot:", err)
+
 		return nil, err
 	}
 
@@ -86,6 +87,7 @@ func (bot *Bot) deleteAllCommands() {
 	}
 }
 
+//nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands() error {
 	rows := make([]tele.Row, 0)
 	menu := &tele.ReplyMarkup{ResizeKeyboard: true}
@@ -152,21 +154,24 @@ func (bot *Bot) registerCommands() error {
 			subMenu.Inline(subRows...)
 			bot.botInstance.Handle(&btn, func(c tele.Context) error {
 				_ = bot.botInstance.Delete(c.Message())
+
 				return c.Send(beCmd.Name, subMenu)
 			})
 
 			bot.botInstance.Handle(fmt.Sprintf("/%s", beCmd.Name), func(c tele.Context) error {
 				_ = bot.botInstance.Delete(c.Message())
+
 				return c.Send(beCmd.Name, subMenu)
 			})
 		} else {
-			bot.botInstance.Handle(&btn, func(c tele.Context) error {
+			bot.botInstance.Handle(&btn, func(ctx tele.Context) error {
 				if len(beCmd.Args) > 0 {
-					return bot.handleArgCommand(c, []string{beCmd.Name}, beCmd.Args)
+					return bot.handleArgCommand(ctx, []string{beCmd.Name}, beCmd.Args)
 				}
 
-				_ = bot.botInstance.Delete(c.Message())
-				return bot.handleCommand(c, []string{beCmd.Name})
+				_ = bot.botInstance.Delete(ctx.Message())
+
+				return bot.handleCommand(ctx, []string{beCmd.Name})
 			})
 		}
 	}
@@ -176,59 +181,63 @@ func (bot *Bot) registerCommands() error {
 	menu.Inline(rows...)
 	bot.botInstance.Handle("/start", func(c tele.Context) error {
 		_ = bot.botInstance.Delete(c.Message())
+
 		return c.Send("Pagu Main Menu", menu)
 	})
 
-	bot.botInstance.Handle(tele.OnText, func(c tele.Context) error {
-		if argsContext[c.Message().Sender.ID] == nil {
+	bot.botInstance.Handle(tele.OnText, func(ctx tele.Context) error {
+		if argsContext[ctx.Message().Sender.ID] == nil {
 			return nil
 		}
 
-		if argsValue[c.Message().Sender.ID] == nil {
-			argsValue[c.Message().Sender.ID] = make(map[string]string)
+		if argsValue[ctx.Message().Sender.ID] == nil {
+			argsValue[ctx.Message().Sender.ID] = make(map[string]string)
 		}
 
-		return bot.parsTextMessage(c)
+		return bot.parsTextMessage(ctx)
 	})
 
 	return nil
 }
 
-func (bot *Bot) parsTextMessage(c tele.Context) error {
-	senderID := c.Message().Sender.ID
+func (bot *Bot) parsTextMessage(ctx tele.Context) error {
+	senderID := ctx.Message().Sender.ID
 	cmd := findCommand(bot.engine.Commands(), senderID)
 	if cmd == nil {
-		return c.Send("Invalid command")
+		return ctx.Send("Invalid command")
 	}
 
 	currentArgsIndex := len(argsValue[senderID])
-	argsValue[senderID][cmd.Args[currentArgsIndex].Name] = c.Message().Text
+	argsValue[senderID][cmd.Args[currentArgsIndex].Name] = ctx.Message().Text
 
 	if len(argsValue[senderID]) == len(cmd.Args) {
-		return bot.handleCommand(c, argsContext[senderID].Commands)
+		return bot.handleCommand(ctx, argsContext[senderID].Commands)
 	}
 
-	_ = bot.botInstance.Delete(c.Message())
-	return c.Send(fmt.Sprintf("Please Enter %s", cmd.Args[currentArgsIndex+1].Name))
+	_ = bot.botInstance.Delete(ctx.Message())
+
+	return ctx.Send(fmt.Sprintf("Please Enter %s", cmd.Args[currentArgsIndex+1].Name))
 }
 
-func (bot *Bot) handleArgCommand(c tele.Context, commands []string, args []command.Args) error {
+func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []command.Args) error {
 	msgCtx := &BotContext{Commands: commands}
-	argsContext[c.Sender().ID] = msgCtx
-	argsValue[c.Sender().ID] = nil
-	_ = bot.botInstance.Delete(c.Message())
-	return c.Send(fmt.Sprintf("Please Enter %s", args[0].Name))
+	argsContext[ctx.Sender().ID] = msgCtx
+	argsValue[ctx.Sender().ID] = nil
+	_ = bot.botInstance.Delete(ctx.Message())
+
+	return ctx.Send(fmt.Sprintf("Please Enter %s", args[0].Name))
 }
 
-func (bot *Bot) handleCommand(c tele.Context, commands []string) error {
-	callerID := strconv.Itoa(int(c.Sender().ID))
-	res := bot.engine.Run(entity.AppIDTelegram, callerID, commands, argsValue[c.Message().Sender.ID])
-	_ = bot.botInstance.Delete(c.Message())
+func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
+	callerID := strconv.Itoa(int(ctx.Sender().ID))
+	res := bot.engine.Run(entity.AppIDTelegram, callerID, commands, argsValue[ctx.Message().Sender.ID])
+	_ = bot.botInstance.Delete(ctx.Message())
 
-	senderID := c.Message().Sender.ID
+	senderID := ctx.Message().Sender.ID
 	argsContext[senderID] = nil
 	argsValue[senderID] = nil
-	return c.Send(res.Message, tele.NoPreview)
+
+	return ctx.Send(res.Message, tele.NoPreview)
 }
 
 func findCommand(commands []*command.Command, senderID int64) *command.Command {

@@ -21,13 +21,13 @@ type Server struct {
 	cfg      *config.GRPC
 }
 
-func NewServer(be *engine.BotEngine, cfg *config.GRPC) *Server {
+func NewServer(eng *engine.BotEngine, cfg *config.GRPC) *Server {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Server{
 		ctx:    ctx,
 		cancel: cancel,
-		engine: be,
+		engine: eng,
 		cfg:    cfg,
 	}
 }
@@ -40,6 +40,7 @@ func (s *Server) Start() error {
 	}
 
 	s.startListening(listener)
+
 	return nil
 }
 
@@ -48,9 +49,9 @@ func (s *Server) startListening(listener net.Listener) {
 
 	grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(opts...))
 
-	robopacServer := newRoboPacServer(s)
+	server := newPaguServer(s)
 
-	pagu.RegisterRoboPacServer(grpcServer, robopacServer)
+	pagu.RegisterPaguServer(grpcServer, server)
 
 	s.listener = listener
 	s.address = listener.Addr().String()

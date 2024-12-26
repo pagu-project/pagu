@@ -17,7 +17,7 @@ type PhoenixFaucet struct {
 	gorm.Model
 }
 
-func (f *PhoenixFaucet) TableName() string {
+func (*PhoenixFaucet) TableName() string {
 	return "phoenix_faucet"
 }
 

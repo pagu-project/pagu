@@ -2,8 +2,6 @@ package voucher
 
 import (
 	"errors"
-	"fmt"
-	"math/rand"
 	"testing"
 
 	"github.com/pagu-project/Pagu/internal/engine/command"
@@ -15,7 +13,7 @@ import (
 func TestClaimNormal(t *testing.T) {
 	voucher, db, client, wallet := setup(t)
 
-	validatorAddr := fmt.Sprintf("pc1z%d", rand.Intn(1000000)) //nolint
+	validatorAddr := "pc1p123"
 	t.Run("normal", func(t *testing.T) {
 		amt, _ := amount.NewAmount(100)
 		db.EXPECT().GetVoucherByCode("12345678").Return(

@@ -36,7 +36,7 @@ func (v *Voucher) statusVoucher(cmd *command.Command, code string) command.Comma
 		txLink = fmt.Sprintf("https://pacviewer.com/transaction/%s", voucher.TxHash)
 	}
 
-	return cmd.SuccessfulResult("Code: %s\nAmount: %s\n"+
+	return cmd.SuccessfulResultF("Code: %s\nAmount: %s\n"+
 		"Expire At: %s\nRecipient: %s\nDescription: %s\nClaimed: %v\nTx Link: %s"+
 		"\n",
 		voucher.Code,
@@ -73,7 +73,7 @@ func (v *Voucher) statusAllVouchers(cmd *command.Command) command.CommandResult 
 		}
 	}
 
-	return cmd.SuccessfulResult("Total Codes: %d\nTotal Amount: %s\n\n\n"+
+	return cmd.SuccessfulResultF("Total Codes: %d\nTotal Amount: %s\n\n\n"+
 		"Claimed: %d\nTotal Claimed Amount: %s\nTotal Expired: %d"+
 		"\n",
 		total,

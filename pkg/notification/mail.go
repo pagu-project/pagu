@@ -29,7 +29,9 @@ func (e *EmailSender) SendTemplateMail(
 			return fmt.Errorf("unsupported notification provider: %s", provider)
 		}
 		z := zoho.NewZapToMailer(config)
+
 		return z.SendByTemplate(sender, recipients, tmpl, data)
+
 	default:
 		return fmt.Errorf("unsupported notification provider: %s", provider)
 	}

@@ -20,20 +20,20 @@ func (z *Zealy) statusHandler(_ *entity.User, cmd *command.Command, _ map[string
 	totalClaimedAmount := amount.Amount(0)
 	totalNotClaimedAmount := amount.Amount(0)
 
-	for _, u := range allUsers {
+	for _, user := range allUsers {
 		total++
-		totalAmount += u.Amount
+		totalAmount += user.Amount
 
-		if u.IsClaimed() {
+		if user.IsClaimed() {
 			totalClaimed++
-			totalClaimedAmount += u.Amount
+			totalClaimedAmount += user.Amount
 		} else {
 			totalNotClaimed++
-			totalNotClaimedAmount += u.Amount
+			totalNotClaimedAmount += user.Amount
 		}
 	}
 
-	return cmd.SuccessfulResult("Total Users: %v\nTotal Claims: %v\nTotal not remained claims: %v\nTotal Coins: %v PAC\n"+
+	return cmd.SuccessfulResultF("Total Users: %v\nTotal Claims: %v\nTotal not remained claims: %v\nTotal Coins: %v PAC\n"+
 		"Total claimed coins: %v PAC\nTotal not claimed coins: %v PAC\n", total, totalClaimed, totalNotClaimed,
 		totalAmount.ToPAC(), totalClaimedAmount.ToPAC(), totalNotClaimedAmount.ToPAC(),
 	)

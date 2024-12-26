@@ -11,7 +11,7 @@ type IFaucet interface {
 	CanGetFaucet(user *entity.User) bool
 }
 
-func (db *DB) AddFaucet(f *entity.PhoenixFaucet) error {
+func (db *Database) AddFaucet(f *entity.PhoenixFaucet) error {
 	tx := db.Create(f)
 	if tx.Error != nil {
 		return WriteError{
@@ -22,7 +22,7 @@ func (db *DB) AddFaucet(f *entity.PhoenixFaucet) error {
 	return nil
 }
 
-func (db *DB) CanGetFaucet(user *entity.User) bool {
+func (db *Database) CanGetFaucet(user *entity.User) bool {
 	var lastFaucet entity.PhoenixFaucet
 	err := db.Model(&entity.PhoenixFaucet{}).Where("user_id = ?", user.ID).Order("id DESC").First(&lastFaucet).Error
 	if err != nil {

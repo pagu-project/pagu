@@ -58,6 +58,7 @@ func contains(s string, c rune) bool {
 			return true
 		}
 	}
+
 	return false
 }
 

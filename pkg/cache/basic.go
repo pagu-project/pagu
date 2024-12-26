@@ -32,13 +32,14 @@ func NewBasic[K any, V any](cleanUpCheckDuration time.Duration, options ...Optio
 		defaultCleanUpDuration = cleanUpCheckDuration
 	}
 
-	c := &BasicCache[K, V]{
+	cache := &BasicCache[K, V]{
 		cache:                sync.Map{},
 		cleanUpCheckDuration: defaultCleanUpDuration,
 		opts:                 opts,
 	}
-	go c.cleanupExpiredEntries()
-	return c
+	go cache.cleanupExpiredEntries()
+
+	return cache
 }
 
 // Add add new time to cache
@@ -52,6 +53,7 @@ func (c *BasicCache[K, V]) Add(key K, value V, expiration time.Duration) bool {
 
 	entry := basicCacheEntry[V]{Value: value, Expiry: expiry}
 	c.cache.Store(key, entry)
+
 	return true
 }
 
@@ -92,6 +94,7 @@ func (c *BasicCache[K, V]) Update(key K, newValue V, expiration time.Duration) b
 
 func (c *BasicCache[K, V]) Exists(key K) bool {
 	_, ok := c.cache.Load(key)
+
 	return ok
 }
 
@@ -99,14 +102,17 @@ func (c *BasicCache[K, V]) Keys() []K {
 	keys := make([]K, 0)
 	c.cache.Range(func(key, _ any) bool {
 		keys = append(keys, key.(K))
+
 		return true
 	})
+
 	return keys
 }
 
 func (c *BasicCache[K, V]) Delete(key K) bool {
 	c.cache.Delete(key)
 	_, ok := c.cache.Load(key)
+
 	return !ok
 }
 
@@ -128,6 +134,7 @@ func (c *BasicCache[K, V]) cleanupExpiredEntries() {
 			if time.Now().After(entry.Expiry) {
 				c.cache.Delete(key)
 			}
+
 			return true
 		})
 	}

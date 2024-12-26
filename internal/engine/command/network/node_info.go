@@ -59,7 +59,7 @@ func (n *Network) nodeInfoHandler(_ *entity.User, cmd *command.Command, args map
 		pip19Score = fmt.Sprintf("%v⚠️", nodeInfo.AvailabilityScore)
 	}
 
-	return cmd.SuccessfulResult("PeerID: %s\nIP Address: %s\nAgent: %s\n"+
+	return cmd.SuccessfulResultF("PeerID: %s\nIP Address: %s\nAgent: %s\n"+
 		"Moniker: %s\nCountry: %s\nCity: %s\nRegion Name: %s\nTimeZone: %s\n"+
 		"ISP: %s\n\nValidator Info🔍\nNumber: %v\nPIP-19 Score: %s\nStake: %v PAC's\n",
 		nodeInfo.PeerID, nodeInfo.IPAddress, nodeInfo.Agent, nodeInfo.Moniker, nodeInfo.Country,

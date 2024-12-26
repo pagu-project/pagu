@@ -34,6 +34,7 @@ func NewHTTPServer(be *engine.BotEngine, cfg *config.HTTP) HTTPServer {
 func (hs *HTTPServer) Start() error {
 	log.Info("Starting HTTP Server", "listen", hs.cfg.Listen)
 	hs.eServer.POST("/run", hs.handler.Run)
+
 	return hs.eServer.Start(hs.cfg.Listen)
 }
 
@@ -45,9 +46,9 @@ type RunResponse struct {
 	Result string `json:"result"`
 }
 
-func (hh *HTTPHandler) Run(c echo.Context) error {
+func (hh *HTTPHandler) Run(ctx echo.Context) error {
 	r := new(RunRequest)
-	if err := c.Bind(r); err != nil {
+	if err := ctx.Bind(r); err != nil {
 		return err
 	}
 
@@ -58,14 +59,15 @@ func (hh *HTTPHandler) Run(c echo.Context) error {
 		beInput[t] = t
 	}
 
-	cmdResult := hh.engine.Run(entity.AppIDHTTP, c.RealIP(), nil, beInput)
+	cmdResult := hh.engine.Run(entity.AppIDHTTP, ctx.RealIP(), nil, beInput)
 
-	return c.JSON(http.StatusOK, RunResponse{
+	return ctx.JSON(http.StatusOK, RunResponse{
 		Result: cmdResult.Message,
 	})
 }
 
 func (hs *HTTPServer) Stop() error {
 	log.Info("Stopping HTTP Server")
+
 	return hs.eServer.Close()
 }

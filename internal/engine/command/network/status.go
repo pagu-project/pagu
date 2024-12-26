@@ -22,15 +22,12 @@ func (n *Network) networkStatusHandler(
 		return cmd.ErrorResult(err)
 	}
 
-	cs, err := n.clientMgr.GetCirculatingSupply()
-	if err != nil {
-		cs = 0
-	}
+	supply := n.clientMgr.GetCirculatingSupply()
 
 	// Convert NanoPAC to PAC using the Amount type.
 	totalNetworkPower := amount.Amount(chainInfo.TotalPower).ToPAC()
 	totalCommitteePower := amount.Amount(chainInfo.CommitteePower).ToPAC()
-	circulatingSupply := amount.Amount(cs).ToPAC()
+	circulatingSupply := amount.Amount(supply).ToPAC()
 
 	net := NetStatus{
 		ValidatorsCount:     chainInfo.TotalValidators,
@@ -42,7 +39,7 @@ func (n *Network) networkStatusHandler(
 		CirculatingSupply:   int64(circulatingSupply),
 	}
 
-	return cmd.SuccessfulResult("Network Name: %s\nConnected Peers: %v\n"+
+	return cmd.SuccessfulResultF("Network Name: %s\nConnected Peers: %v\n"+
 		"Validators Count: %v\nAccounts Count: %v\nCurrent Block Height: %v\nTotal Power: %v PAC\n"+
 		"Total Committee Power: %v PAC\nCirculating Supply: %v PAC\n"+
 		"\n> Note📝: This info is from one random network node. Non-calculator data may not be consistent.",
