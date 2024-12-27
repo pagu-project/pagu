@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"strings"
 
 	pagu "github.com/pagu-project/Pagu/internal/delivery/grpc/gen/go"
 	"github.com/pagu-project/Pagu/internal/entity"
@@ -19,14 +18,7 @@ func newPaguServer(server *Server) *paguServer {
 }
 
 func (ps *paguServer) Run(_ context.Context, req *pagu.RunRequest) (*pagu.RunResponse, error) {
-	beInput := make(map[string]string)
-
-	tokens := strings.Split(req.Command, " ")
-	for _, t := range tokens {
-		beInput[t] = t
-	}
-
-	res := ps.engine.Run(entity.AppIDgRPC, req.Id, nil, beInput)
+	res := ps.engine.ParseAndExecute(entity.AppIDgRPC, req.Id, req.Command)
 
 	return &pagu.RunResponse{
 		Response: res.Message,

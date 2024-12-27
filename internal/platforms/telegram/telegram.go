@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pactus-project/pactus/util"
@@ -228,12 +229,33 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []com
 	return ctx.Send(fmt.Sprintf("Please Enter %s", args[0].Name))
 }
 
+// handleCommand executes a command with its arguments for the user.
+// It combines the commands and arguments into a single string, calls the engine's Run method,
+// clears the user's context, and sends the result back to the user.
 func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
 	callerID := strconv.Itoa(int(ctx.Sender().ID))
-	res := bot.engine.Run(entity.AppIDTelegram, callerID, commands, argsValue[ctx.Message().Sender.ID])
+
+	// Retrieve the arguments for the sender
+	senderID := ctx.Message().Sender.ID
+	args := argsValue[senderID]
+
+	// Combine the commands into a single string
+	fullCommand := strings.Join(commands, " ")
+
+	// Append arguments as key-value pairs
+	if len(args) > 0 {
+		argPairs := []string{}
+		for key, value := range args {
+			argPairs = append(argPairs, fmt.Sprintf("%s=%s", key, value))
+		}
+		fullCommand = fmt.Sprintf("%s %s", fullCommand, strings.Join(argPairs, " "))
+	}
+
+	// Call the engine's Run method with the full command string
+	res := bot.engine.ParseAndExecute(entity.AppIDTelegram, callerID, fullCommand)
 	_ = bot.botInstance.Delete(ctx.Message())
 
-	senderID := ctx.Message().Sender.ID
+	// Clear the stored command context and arguments for the sender
 	argsContext[senderID] = nil
 	argsValue[senderID] = nil
 
