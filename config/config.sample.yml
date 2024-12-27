@@ -1,0 +1,56 @@
+bot_name: "Pagu-Development"
+network: "Mainnet" # Specify the network the bot will use: Mainnet, Testnet, or Localnet.
+
+# Pactus clients
+local_node: "localhost:50051" # Address of the local Pactus node for direct communication.
+
+# List of Pactus nodes Pagu can connect to for information.
+# These nodes must have public gRPC endpoints.
+network_nodes:
+  [
+    "bootstrap1.pactus.org:50051",
+    "bootstrap2.pactus.org:50051",
+    "bootstrap3.pactus.org:50051",
+    "bootstrap4.pactus.org:50051",
+  ]
+
+# Wallet configuration
+wallet:
+  # Set to true to enable wallet functionality.
+  enable: false
+  # Use the `./pactus-wallet` command-line tool to create a wallet.
+  # For detailed instructions, visit:
+  # https://docs.pactus.org/tutorials/pactus-wallet/
+  # Uncomment and set the following fields if the wallet is enabled:
+  # address: <PAGU-WALLET-ADDRESS> # Wallet address for transactions.
+  # rpc: <PAGU-WALLET-RPC>         # RPC endpoint of the wallet.
+  # path: <PATH-TO-WALLET>         # Path to the wallet file.
+  # password: <WALLET-PASSWORD>    # Password for the wallet file.
+
+# Phoenix TestNet faucet configuration
+phoenix:
+  faucet_amount: 5 # Number of coins to send when the faucet is used.
+
+# Database configuration
+database:
+  url: "sqlite:db.sqlite" # Database type or connection string.
+
+# Discord integration configuration
+# Uncomment and set appropriate values to integrate Pagu with your Discord server.
+discord:
+#  token: <DISCORD_APPLICATION_TOKEN> # Discord bot application token.
+#  guild_id: <DISCORD_SERVER_GUILD_ID> # Discord server ID where the bot will operate.
+
+# Telegram integration configuration
+# Uncomment and set appropriate values to integrate Pagu with your Telegram account.
+telegram:
+#   bot_token: <TELEGRAM-BOT-TOKEN> # Telegram bot token for authentication.
+
+# Logger configuration
+logger:
+  level: "info" # Logging level: debug, info, warn, error, or fatal.
+  filename: "pagu.log" # Name of the log file.
+  max_size: 10 # Maximum size (in MB) of the log file before rotation.
+  max_backups: 10 # Maximum number of backup log files to retain.
+  compress: true # Compress old log files.
+  targets: [file, console] # Logging targets: file, console, or both.
