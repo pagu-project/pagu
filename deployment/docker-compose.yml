@@ -1,115 +1,87 @@
-version: '3'
-
-networks:
-  pagu-network:
-    external: true
-
 services:
   pagu-db:
-    image: mysql:5.7.42-debian
+    image: mysql:8.0.40-debian
     hostname: pagu-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${PAGU_DB_PASSWORD}
       MYSQL_DATABASE: pagu
-    expose:
-      - 4417
-    ports:
-      - "4417:3306"
+      MYSQL_ROOT_PASSWORD: ${PAGU_DB_ROOT_PASSWORD}
+      MYSQL_USER:  ${PAGU_DB_USER}
+      MYSQL_PASSWORD:  ${PAGU_DB_USER_PASSWORD}
     container_name: pagu-db
-    networks:
-      pagu-network:
     volumes:
-      - pagu-db-data:/var/lib/mysql
+      - ${HOME}/mysql_data:/var/lib/mysql
+    networks:
+      - pagu-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", pagu-db]
+      timeout: 5s
+      retries: 10
+
   pagu-phpmyadmin:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: pagu-db
     container_name: pagu-phpmyadmin
     ports:
-      - "4418:80"
+      - "${PHPMYADMIN_PORT}:80"
+    depends_on:
+      pagu-db:
+        condition: service_healthy
+    networks:
+      - pagu-network
+
+  pagu-discord-mainnet:
+    image: pagu-discord:stable
+    container_name: pagu-discord-mainnet
     networks:
       pagu-network:
     depends_on:
-      - pagu-db
-  pagu-cli:
-    build:
-      context: ../.
-      dockerfile: deployment/cli/Dockerfile
-    hostname: pagu-cli
-    container_name: pagu-cli
-    networks:
-      pagu-network:
-    depends_on:
-      - pagu-db
+      - pagu-phpmyadmin
     volumes:
-      - ../config/config.yml:/config/config.yml
-      - ../config/wallets/main_wallet:/config/wallets/main_wallet
-      - ../config/wallets/test_wallet:/config/wallets/test_wallet
-  pagu-discord:
-    build:
-      context: ../.
-      dockerfile: deployment/discord/Dockerfile.Mainnet
-    hostname: pagu-discord-mainnet
-    container_name: pagu-discord
+      - ${HOME}/pagu-discord-mainnet:/pagu
+
+  pagu-discord-staging:
+    image: pagu-discord:latest
+    container_name: pagu-discord-staging
     networks:
       pagu-network:
     depends_on:
-      - pagu-db
+      - pagu-phpmyadmin
     volumes:
-      - ../config/config.mainnet.yml:/config/config.yml
-      - ../config/wallets/main_wallet:/config/wallets/main_wallet
-  pagu-discord-mod:
-    build:
-      context: ../.
-      dockerfile: deployment/discord/Dockerfile.Mod
-    hostname: pagu-discord-mod
-    container_name: pagu-discord-mod
-    networks:
-      pagu-network:
-    depends_on:
-      - pagu-db
-    volumes:
-      - ../config/config.mod.yml:/config/config.yml
-      - ../config/templates:/config/templates
-      - ../config/wallets/main_wallet:/config/wallets/main_wallet
+      - ${HOME}/pagu-discord-staging:/pagu
+
   pagu-discord-testnet:
-    build:
-      context: ../.
-      dockerfile: deployment/discord/Dockerfile.Testnet
-    hostname: pagu-discord-testnet
+    image: pagu-discord:latest
     container_name: pagu-discord-testnet
     networks:
       pagu-network:
     depends_on:
-      - pagu-db
+      - pagu-phpmyadmin
     volumes:
-      - ../config/config.testnet.yml:/config/config.yml
-      - ../config/wallets/testnet_wallet:/config/wallets/testnet_wallet
-  pagu-telegram:
-    build:
-      context: ../.
-      dockerfile: deployment/telegram/Dockerfile.Mainnet
-    hostname: pagu-telegram-mainnet
-    container_name: pagu-telegram
+      - ${HOME}/pagu-discord-testnet:/pagu
+
+  pagu-discord-moderator:
+    image: pagu-discord:stable
+    container_name: pagu-discord-moderator
     networks:
       pagu-network:
     depends_on:
-      - pagu-db
+      - pagu-phpmyadmin
     volumes:
-      - ../config/config.mainnet.yml:/config/config.yml
-      - ../config/wallets/main_wallet:/config/wallets/main_wallet
-  pagu-node:
-    hostname: pagu-node
-    domainname: pagu-node
-    container_name: pagu-node
-    image: pactus/pactus:latest
-    command: pactus-daemon start -w ./../../../pactus
-    restart: always
-    ports:
-      - "50051:50051"
-    volumes:
-      - ./../../../pactus:/pactus
+      - ${HOME}/pagu-discord-moderator:/pagu
+
+  pagu-telegram-mainnet:
+    image: pagu-telegram:stable
+    container_name: pagu-telegram-mainnet
     networks:
       pagu-network:
+    depends_on:
+      - pagu-phpmyadmin
+    volumes:
+      - ${HOME}/pagu-telegram-mainnet:/pagu
+
 volumes:
-  pagu-db-data: { }
+  pagu-volume:
+
+networks:
+  pagu-network:

@@ -1,0 +1,29 @@
+name: Deploying
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: SSH into server and deploy Pagu
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        port: ${{ secrets.SSH_PORT }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          cd source
+          git pull
+          export PAGU_DB_ROOT_PASSWORD=${{ secrets.PAGU_DB_ROOT_PASSWORD }}
+          export PAGU_DB_USER=${{ secrets.PAGU_DB_USER }}
+          export PAGU_DB_USER_PASSWORD=${{ secrets.PAGU_DB_USER_PASSWORD }}
+          export PHPMYADMIN_PORT=${{ secrets.PHPMYADMIN_PORT }}
+          bash ./deployment/deploy.sh
