@@ -3,15 +3,6 @@
 .vscode
 todo
 *local*
-dist/
-.releaser.yml
-cmd/data/*
-cmd/data/config.json
-cmd/data/validators.json
-cmd/bin
-__pycache__
-/scripts/go/referral.json
-dev_wallet
 /build
 .env
 *.log
@@ -21,3 +12,4 @@ config/config.*.yml
 config/wallets
 config/templates
 __debug_*
+*.sqlite
