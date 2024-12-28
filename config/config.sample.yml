@@ -1,5 +1,7 @@
 bot_name: "Pagu-Development"
-network: "Mainnet" # Specify the network the bot will use: Mainnet, Testnet, or Localnet.
+
+# Specify the network the bot will use: Mainnet, Testnet, or Localnet.
+network: "Mainnet"
 
 # Pactus clients
 local_node: "localhost:50051" # Address of the local Pactus node for direct communication.
@@ -15,36 +17,48 @@ network_nodes:
   ]
 
 # Wallet configuration
+#
+# Use the Pactus Wallet command-line tool to create a wallet.
+# For detailed instructions, visit:
+# https://docs.pactus.org/tutorials/pactus-wallet/
+#
+# The sample wallet here is neutered, which means it is read-only and can't be used to sign any transactions.
+# You can create a full wallet and replace it.
 wallet:
-  # Set to true to enable wallet functionality.
-  enable: false
-  # Use the `./pactus-wallet` command-line tool to create a wallet.
-  # For detailed instructions, visit:
-  # https://docs.pactus.org/tutorials/pactus-wallet/
-  # Uncomment and set the following fields if the wallet is enabled:
-  # address: <PAGU-WALLET-ADDRESS> # Wallet address for transactions.
-  # rpc: <PAGU-WALLET-RPC>         # RPC endpoint of the wallet.
-  # path: <PATH-TO-WALLET>         # Path to the wallet file.
-  # password: <WALLET-PASSWORD>    # Password for the wallet file.
+  # This is the Pagu wallet address to send transactions
+  address: pc1re5uxrtdve6gama8veqt0ttz5vgfne73w9e03w6
 
-# Phoenix TestNet faucet configuration
+  # Path to the wallet file.
+  path: ./config/wallet.sample.neutered
+
+  # Password for the wallet file.
+  password:
+
+# Phoenix (TestNet) configuration
 phoenix:
-  faucet_amount: 5 # Number of coins to send when the faucet is used.
+  # Number of coins to send when the faucet is used.
+  faucet_amount: 5
 
 # Database configuration
 database:
-  url: "sqlite:db.sqlite" # Database type or connection string.
+  # The database URL specifies the database type and connection string.
+  # Pagu supports MySQL and SQLite.
+  url: "sqlite:db.sqlite"
 
 # Discord integration configuration
-# Uncomment and set appropriate values to integrate Pagu with your Discord server.
+# Set appropriate values to integrate Pagu with your Discord server.
 discord:
-#  token: <DISCORD_APPLICATION_TOKEN> # Discord bot application token.
-#  guild_id: <DISCORD_SERVER_GUILD_ID> # Discord server ID where the bot will operate.
+  # Discord bot application token.
+  token:
+
+  # Discord server ID where the bot will operate.
+  guild_id:
 
 # Telegram integration configuration
-# Uncomment and set appropriate values to integrate Pagu with your Telegram account.
+# Set appropriate values to integrate Pagu with your Telegram account.
 telegram:
-#   bot_token: <TELEGRAM-BOT-TOKEN> # Telegram bot token for authentication.
+  # Telegram bot token for authentication.
+  bot_token:
 
 # Logger configuration
 logger:

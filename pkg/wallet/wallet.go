@@ -1,9 +1,6 @@
 package wallet
 
 import (
-	"errors"
-	"os"
-
 	"github.com/pactus-project/pactus/types/tx/payload"
 	"github.com/pactus-project/pactus/wallet"
 	"github.com/pagu-project/Pagu/config"
@@ -19,21 +16,16 @@ type Wallet struct {
 }
 
 func Open(cfg *config.Wallet) (*Wallet, error) {
-	if doesWalletExist(cfg.Path) {
-		wlt, err := wallet.Open(cfg.Path, false)
-		if err != nil {
-			return &Wallet{}, err
-		}
-
-		return &Wallet{
-			Wallet:   wlt,
-			address:  cfg.Address,
-			password: cfg.Password,
-		}, nil
+	wlt, err := wallet.Open(cfg.Path, false)
+	if err != nil {
+		return nil, err
 	}
 
-	// if the wallet does not exist, create one
-	return &Wallet{}, errors.New("can't open the wallet")
+	return &Wallet{
+		Wallet:   wlt,
+		address:  cfg.Address,
+		password: cfg.Password,
+	}, nil
 }
 
 func (w *Wallet) BondTransaction(pubKey, toAddress, memo string, amt amount.Amount) (string, error) {
@@ -132,11 +124,4 @@ func (w *Wallet) Balance() int64 {
 	balance, _ := w.Wallet.Balance(w.address)
 
 	return int64(balance)
-}
-
-// function to check if file exists.
-func doesWalletExist(fileName string) bool {
-	_, err := os.Stat(fileName)
-
-	return !os.IsNotExist(err)
 }

@@ -87,13 +87,14 @@ func (bot *Bot) registerCommands() error {
 		}
 
 		switch bot.target {
-		case config.BotNamePaguMainnet:
-			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskMain) {
+		case config.BotNamePaguMainnet,
+			config.BotNamePaguStaging:
+			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskMainnet) {
 				continue
 			}
 
 		case config.BotNamePaguTestnet:
-			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskTest) {
+			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskTestnet) {
 				continue
 			}
 
@@ -115,12 +116,12 @@ func (bot *Bot) registerCommands() error {
 			for _, sCmd := range beCmd.SubCommands {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
-					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskMain) {
+					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskMainnet) {
 						continue
 					}
 
 				case config.BotNamePaguTestnet:
-					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskTest) {
+					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskTestnet) {
 						continue
 					}
 
