@@ -53,7 +53,7 @@ func (pt *Phoenix) GetCommand() *command.Command {
 		AppIDs:      entity.AllAppIDs(),
 		Middlewares: nil,
 		Handler:     pt.networkStatusHandler,
-		TargetFlag:  command.TargetMaskTest,
+		TargetFlag:  command.TargetMaskTestnet,
 	}
 
 	subCmdFaucet := &command.Command{
@@ -71,7 +71,7 @@ func (pt *Phoenix) GetCommand() *command.Command {
 		AppIDs:      entity.AllAppIDs(),
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.WalletBalance},
 		Handler:     pt.faucetHandler,
-		TargetFlag:  command.TargetMaskTest,
+		TargetFlag:  command.TargetMaskTestnet,
 	}
 
 	cmdPhoenix := &command.Command{
@@ -81,7 +81,7 @@ func (pt *Phoenix) GetCommand() *command.Command {
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
-		TargetFlag:  command.TargetMaskTest,
+		TargetFlag:  command.TargetMaskTestnet,
 	}
 
 	cmdPhoenix.AddSubCommand(subCmdFaucet)

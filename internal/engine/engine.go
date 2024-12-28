@@ -56,7 +56,6 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 	log.Info("database loaded successfully")
 
 	mgr := client.NewClientMgr(ctx)
-
 	if cfg.LocalNode != "" {
 		localClient, err := client.NewClient(cfg.LocalNode)
 		if err != nil {
@@ -69,27 +68,24 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 	}
 
 	for _, nn := range cfg.NetworkNodes {
-		c, err := client.NewClient(nn)
-		if err != nil {
-			log.Error("can't add new network node client", "err", err, "addr", nn)
-		}
-		mgr.AddClient(c)
-	}
-
-	var wlt wallet.IWallet
-	if cfg.Wallet.Enable {
-		// load or create wallet.
-		wlt, err = wallet.Open(cfg.Wallet)
+		client, err := client.NewClient(nn)
 		if err != nil {
 			cancel()
 
-			return nil, WalletError{
-				Reason: err.Error(),
-			}
+			log.Warn("error on adding new network client", "err", err, "addr", nn)
 		}
-
-		log.Info("wallet opened successfully", "address", wlt.Address())
+		mgr.AddClient(client)
 	}
+
+	wlt, err := wallet.Open(cfg.Wallet)
+	if err != nil {
+		cancel()
+
+		return nil, WalletError{
+			Reason: err.Error(),
+		}
+	}
+	log.Info("wallet opened successfully", "address", wlt.Address())
 
 	if cfg.BotName == config.BotNamePaguModerator {
 		zapToMailConfig := zoho.ZapToMailerConfig{

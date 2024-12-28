@@ -55,7 +55,7 @@ func (v *Voucher) GetCommand() *command.Command {
 		AppIDs:      []entity.AppID{entity.AppIDDiscord},
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.WalletBalance},
 		Handler:     v.claimHandler,
-		TargetFlag:  command.TargetMaskMain,
+		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	subCmdCreateOne := &command.Command{
@@ -143,7 +143,7 @@ func (v *Voucher) GetCommand() *command.Command {
 		AppIDs:      []entity.AppID{entity.AppIDDiscord},
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
-		TargetFlag:  command.TargetMaskMain | command.TargetMaskModerator,
+		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,
 	}
 
 	cmdVoucher.AddSubCommand(subCmdClaim)

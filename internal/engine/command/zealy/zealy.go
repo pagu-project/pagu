@@ -41,7 +41,7 @@ func (z *Zealy) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      []entity.AppID{entity.AppIDDiscord},
 		Handler:     z.claimHandler,
-		TargetFlag:  command.TargetMaskMain,
+		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	subCmdStatus := &command.Command{
@@ -61,7 +61,7 @@ func (z *Zealy) GetCommand() *command.Command {
 		AppIDs:      []entity.AppID{entity.AppIDDiscord},
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
-		TargetFlag:  command.TargetMaskMain | command.TargetMaskModerator,
+		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,
 	}
 
 	cmdZealy.AddSubCommand(subCmdClaim)

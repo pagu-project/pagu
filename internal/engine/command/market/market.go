@@ -33,7 +33,7 @@ func (m *Market) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     m.getPrice,
-		TargetFlag:  command.TargetMaskMain,
+		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	cmdMarket := &command.Command{
@@ -43,7 +43,7 @@ func (m *Market) GetCommand() *command.Command {
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
-		TargetFlag:  command.TargetMaskMain,
+		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	cmdMarket.AddSubCommand(subCmdPrice)

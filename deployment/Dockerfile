@@ -5,14 +5,7 @@ WORKDIR /pagu
 COPY .. .
 RUN make build-discord build-telegram
 
-# Discord bot
-FROM alpine:3.14 AS discord
+FROM alpine:3.14 AS pagu
 WORKDIR /bin
 COPY --from=builder /pagu/build/pagu-discord .
-CMD ["./pagu-discord", "-c", "/pagu/config.yml", "run"]
-
-# Telegram bot
-FROM alpine:3.14 AS telegram
-WORKDIR /bin
 COPY --from=builder /pagu/build/pagu-telegram .
-CMD ["./pagu-telegram", "-c", "/pagu/config.yml", "run"]

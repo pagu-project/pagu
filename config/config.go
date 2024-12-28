@@ -31,11 +31,9 @@ type Database struct {
 }
 
 type Wallet struct {
-	Enable   bool   `yaml:"enable"`
 	Address  string `yaml:"address"`
 	Path     string `yaml:"path"`
 	Password string `yaml:"password"`
-	RPCUrl   string `yaml:"rpc"`
 }
 
 type DiscordBot struct {
@@ -105,19 +103,17 @@ func Load(path string) (*Config, error) {
 
 // BasicCheck validate presence of required config variables.
 func (cfg *Config) BasicCheck() error {
-	if cfg.Wallet.Enable {
-		if cfg.Wallet.Address == "" {
-			return fmt.Errorf("config: basic check error: WALLET_ADDRESS dose not set")
-		}
+	if cfg.Wallet.Address == "" {
+		return fmt.Errorf("config: Wallet address dose not set")
+	}
 
-		// Check if the WalletPath exists.
-		if !util.PathExists(cfg.Wallet.Path) {
-			return fmt.Errorf("config: basic check error: WALLET_PATH does not exist: %s", cfg.Wallet.Path)
-		}
+	// Check if the WalletPath exists.
+	if !util.PathExists(cfg.Wallet.Path) {
+		return fmt.Errorf("config: Wallet does not exist: %s", cfg.Wallet.Path)
 	}
 
 	if len(cfg.NetworkNodes) == 0 {
-		return fmt.Errorf("config: basic check error: NETWORK_NODES is not set or incorrect")
+		return fmt.Errorf("config: network nodes is empty")
 	}
 
 	return nil

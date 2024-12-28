@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	TargetMaskMain      = 1
-	TargetMaskTest      = 2
+	TargetMaskMainnet   = 1
+	TargetMaskTestnet   = 2
 	TargetMaskModerator = 4
 
-	TargetMaskAll = TargetMaskMain | TargetMaskTest | TargetMaskModerator
+	TargetMaskAll = TargetMaskMainnet | TargetMaskTestnet | TargetMaskModerator
 )
 
 type InputBox int

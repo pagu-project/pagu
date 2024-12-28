@@ -1,0 +1,37 @@
+{
+    "version": 2,
+    "uuid": "dc445698-cd6f-46d6-adcb-bb90254ae506",
+    "created_at": "2024-12-28T12:18:37Z",
+    "network": 0,
+    "crc": 2550816060,
+    "vault": {
+      "type": 2,
+      "coin_type": 21888,
+      "addresses": {
+        "pc1re5uxrtdve6gama8veqt0ttz5vgfne73w9e03w6": {
+          "address": "pc1re5uxrtdve6gama8veqt0ttz5vgfne73w9e03w6",
+          "public_key": "public1ryxkxpppc4ef8pcnjxn8sph4u3lahemzdeeuvsc0hsdg2eewv7pmstyzp87",
+          "label": "Pagu Address",
+          "path": "m/44'/21888'/3'/0'"
+        }
+      },
+      "encrypter": {},
+      "key_store": "{}",
+      "purposes": {
+        "purpose_bls": {
+          "xpub_account": "xpublic1pqdwnqqyqsp2spqqpqqqgqgx8avwvym2mlmhk5tatlmp8smml62rtclyj732wrr7xfpzngkjkluqxpy082d9dst4r5lhw4f4p9a4yycdtlgm5qve4pgw79kdu029e44ke7csjdlpwuy0dcys7m77zfflt7yvakwc8qt9dutjukk2xxzmkrexg2mg6c9p3ysdgvja26m7rl8pcdhxfmnyq3x27gmgpzvf79ru3xxqjsfl9g",
+          "xpub_validator": "xpublic1pqdwnqqyqsp2spqqzqqqgqgzkpldp7s5y29mxpngx49qznj4wttkkan7tpphcmp0f702ef50cmsqxppzjt8tayuns0rcp5js90rg6dct9krtdg29yfspxm0zpnl5uyqypecqgpp3azx884tzer5wrk9rjnufqk3hejjusr4wy8wtf2gum8a4ls58v255kllg25kz4lxlmulkfaxcklqh6dxsdxk4zrd3kevgcc0sd9ww4k",
+          "next_account_index": 0,
+          "next_validator_index": 0
+        },
+        "purpose_bip44": {
+          "next_ed25519_index": 1
+        }
+      }
+    },
+    "history": {
+      "transactions": null,
+      "activities": null,
+      "pendings": null
+    }
+  }
