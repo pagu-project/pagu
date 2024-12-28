@@ -2,7 +2,6 @@ package http
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pagu-project/Pagu/config"
@@ -52,14 +51,7 @@ func (hh *HTTPHandler) Run(ctx echo.Context) error {
 		return err
 	}
 
-	beInput := make(map[string]string)
-
-	tokens := strings.Split(r.Command, " ")
-	for _, t := range tokens {
-		beInput[t] = t
-	}
-
-	cmdResult := hh.engine.Run(entity.AppIDHTTP, ctx.RealIP(), nil, beInput)
+	cmdResult := hh.engine.ParseAndExecute(entity.AppIDHTTP, ctx.RealIP(), r.Command)
 
 	return ctx.JSON(http.StatusOK, RunResponse{
 		Result: cmdResult.Message,

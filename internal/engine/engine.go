@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pagu-project/Pagu/config"
@@ -129,7 +130,64 @@ func (be *BotEngine) RegisterAllCommands() {
 	be.rootCmd.AddHelpSubCommand()
 }
 
-func (be *BotEngine) Run(
+// ParseAndExecute parses the input string and executes it.
+// It returns an error if parsing fails or execution is unsuccessful.
+func (be *BotEngine) ParseAndExecute(
+	appID entity.AppID,
+	callerID string,
+	input string,
+) command.CommandResult {
+	var cmds []string
+	var args map[string]string
+
+	cmds, args, err := parseCommand(input)
+	if err != nil {
+		return command.CommandResult{
+			Message:    err.Error(),
+			Successful: false,
+		}
+	}
+
+	return be.executeCommand(appID, callerID, cmds, args)
+}
+
+// parseCommand parses the input string into commands and arguments.
+// The input string should be in the following format:
+// `command1 command2 --arg1=val1 --arg2=val2`
+// It returns an error if parsing fails.
+func parseCommand(input string) ([]string, map[string]string, error) {
+	if strings.TrimSpace(input) == "" {
+		return nil, nil, errors.New("input string cannot be empty")
+	}
+
+	// Split input by spaces while preserving argument values
+	parts := strings.Fields(input)
+
+	// Prepare results
+	cmds := make([]string, 0)
+	args := make(map[string]string)
+
+	// Iterate over parts to separate commands and arguments
+	for _, part := range parts {
+		if strings.HasPrefix(part, "--") {
+			// Argument: split on '='
+			argParts := strings.SplitN(part, "=", 2)
+			key := strings.TrimPrefix(argParts[0], "--")
+			if len(argParts) != 2 || strings.TrimSpace(key) == "" || strings.TrimSpace(argParts[1]) == "" {
+				return nil, nil, fmt.Errorf("invalid argument format: %s", part)
+			}
+			args[key] = argParts[1]
+		} else {
+			cmds = append(cmds, part)
+		}
+	}
+
+	return cmds, args, nil
+}
+
+// executeCommand executes the parsed commands with their corresponding arguments.
+// It returns an error if the execution fails.
+func (be *BotEngine) executeCommand(
 	appID entity.AppID,
 	callerID string,
 	commands []string,
