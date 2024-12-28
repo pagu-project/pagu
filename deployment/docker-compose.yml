@@ -12,6 +12,7 @@ services:
       - ${HOME}/mysql_data:/var/lib/mysql
     networks:
       - pagu-network
+    env_file: "secrets.env"
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", pagu-db]
       timeout: 5s
@@ -29,6 +30,7 @@ services:
         condition: service_healthy
     networks:
       - pagu-network
+    env_file: "secrets.env"
 
   pagu-discord-mainnet:
     image: pagu-discord:stable

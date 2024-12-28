@@ -23,4 +23,3 @@ echo "Cleanup"
 
 docker builder prune -f
 docker image prune -f
-docker container prune -f
