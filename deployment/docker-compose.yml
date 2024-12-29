@@ -3,16 +3,15 @@ services:
     image: mysql:8.0.40-debian
     hostname: pagu_mysql
     environment:
-      MYSQL_DATABASE: pagu
-      MYSQL_ROOT_PASSWORD: ${PAGU_DB_ROOT_PASSWORD}
-      MYSQL_USER:  ${PAGU_DB_USER}
-      MYSQL_PASSWORD:  ${PAGU_DB_USER_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER:  ${MYSQL_USER}
+      MYSQL_PASSWORD:  ${MYSQL_PASSWORD}
     container_name: pagu_mysql
     volumes:
       - ${HOME}/mysql_data:/var/lib/mysql
     networks:
       - pagu_network
-    env_file: "secrets.env"
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", pagu_mysql]
       timeout: 5s
@@ -30,7 +29,6 @@ services:
         condition: service_healthy
     networks:
       - pagu_network
-    env_file: "secrets.env"
 
   pagu_discord_mainnet:
     image: pagu:stable
