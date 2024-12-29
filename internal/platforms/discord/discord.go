@@ -207,8 +207,9 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 
 	for _, opt := range discordCmd.Options {
 		if opt.Type == discordgo.ApplicationCommandOptionSubCommand {
+			inputBuilder.WriteString(opt.Name)
 			inputBuilder.WriteString(" ")
-			inputBuilder.WriteString(discordCmd.Name)
+
 			for _, o := range opt.Options {
 				args = parseArgs(&discordCmd, o, args)
 			}
