@@ -246,7 +246,7 @@ func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
 	if len(args) > 0 {
 		argPairs := []string{}
 		for key, value := range args {
-			argPairs = append(argPairs, fmt.Sprintf("%s=%s", key, value))
+			argPairs = append(argPairs, fmt.Sprintf("--%s=%s", key, value))
 		}
 		fullCommand = fmt.Sprintf("%s %s", fullCommand, strings.Join(argPairs, " "))
 	}
