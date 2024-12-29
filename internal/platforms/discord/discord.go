@@ -200,7 +200,7 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 
 	// Get the application command data
 	discordCmd := i.ApplicationCommandData()
-	inputBuilder.WriteString("/")
+
 	inputBuilder.WriteString(discordCmd.Name)
 
 	for _, opt := range discordCmd.Options {
