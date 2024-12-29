@@ -20,6 +20,7 @@ To create a tag and push it to the repository, follow these steps:
 
 ```bash
 VERSION=0.x.y # Replace x and y with the latest version numbers
+git checkout main
 git pull origin
 git tag -s -a v${VERSION} -m "Version ${VERSION}"
 git push origin v${VERSION}
