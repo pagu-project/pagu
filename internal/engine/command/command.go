@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/Pagu/pkg/color"
 )
 
 var (
@@ -40,7 +41,7 @@ type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string)
 
 type Command struct {
 	Emoji       string
-	Color       string
+	Color       color.ColorCode
 	Name        string
 	Help        string
 	Args        []Args // should be nil for commands.
@@ -52,7 +53,7 @@ type Command struct {
 }
 
 type CommandResult struct {
-	Color      string
+	Color      color.ColorCode
 	Title      string
 	Error      string
 	Message    string

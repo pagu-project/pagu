@@ -13,14 +13,15 @@ import (
 	"github.com/pagu-project/Pagu/internal/engine"
 	"github.com/pagu-project/Pagu/internal/engine/command"
 	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/Pagu/pkg/color"
 	"github.com/pagu-project/Pagu/pkg/log"
 	"github.com/pagu-project/Pagu/pkg/utils"
 )
 
 type Bot struct {
+	cfg     *config.DiscordBot
 	Session *discordgo.Session
 	engine  *engine.BotEngine
-	cfg     *config.DiscordBot
 	target  string
 }
 
@@ -265,7 +266,7 @@ func (bot *Bot) respondErrMsg(errStr string, s *discordgo.Session, i *discordgo.
 	errorEmbed := &discordgo.MessageEmbed{
 		Title:       "Error",
 		Description: errStr,
-		Color:       RED,
+		Color:       color.Yellow.ToInt(),
 	}
 	bot.respondEmbed(errorEmbed, s, i)
 }
@@ -276,13 +277,13 @@ func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session
 		resEmbed = &discordgo.MessageEmbed{
 			Title:       "Successful",
 			Description: res.Message,
-			Color:       GREEN,
+			Color:       color.Green.ToInt(),
 		}
 	} else {
 		resEmbed = &discordgo.MessageEmbed{
 			Title:       "Failed",
 			Description: res.Message,
-			Color:       YELLOW,
+			Color:       color.Yellow.ToInt(),
 		}
 	}
 
