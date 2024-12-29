@@ -18,11 +18,10 @@ import (
 )
 
 type Bot struct {
-	cfg      *config.DiscordBot
-	Session  *discordgo.Session
-	engine   *engine.BotEngine
-	botColor color.ColorCode
-	target   string
+	cfg     *config.DiscordBot
+	Session *discordgo.Session
+	engine  *engine.BotEngine
+	target  string
 }
 
 func NewDiscordBot(botEngine *engine.BotEngine, cfg *config.DiscordBot, target string) (*Bot, error) {

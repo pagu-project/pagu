@@ -10,7 +10,7 @@ const (
 	Pactus ColorCode = 0x052D5A
 )
 
-func (c ColorCode) String() string {
+func (ColorCode) String() string {
 	return "todo"
 }
 

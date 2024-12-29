@@ -6,7 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-
 func newStatus(name string, value any) discordgo.UpdateStatusData {
 	return discordgo.UpdateStatusData{
 		Status: "online",
