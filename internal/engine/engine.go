@@ -133,6 +133,8 @@ func (be *BotEngine) ParseAndExecute(
 	callerID string,
 	input string,
 ) command.CommandResult {
+	log.Debug("run command", "callerID", callerID, "input", input)
+
 	var cmds []string
 	var args map[string]string
 
