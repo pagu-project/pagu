@@ -44,4 +44,4 @@ var version = Version{
 
 Then, create a pull request to merge the changes to `main` branch.
 
-Check this PR as an example for more details: [Pagu - Bump Version](https://github.com/pagu-project/Pagu/pull/10)
+Check this PR as an example for more details: [Pagu - Bump Version](https://github.com/pagu-project/pagu/pull/215)
