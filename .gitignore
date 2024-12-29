@@ -13,4 +13,4 @@ config/wallets
 config/templates
 __debug_*
 *.sqlite
-deployment/secrets.env
+deployment/.env
