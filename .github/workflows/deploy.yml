@@ -19,13 +19,7 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         port: ${{ secrets.SSH_PORT }}
         key: ${{ secrets.SSH_KEY }}
-        envs: PAGU_DB_ROOT_PASSWORD,PAGU_DB_USER,PAGU_DB_USER_PASSWORD,PHPMYADMIN_PORT
         script: |
           cd source
           git pull
           bash ./deployment/deploy.sh
-      env:
-        PAGU_DB_ROOT_PASSWORD: ${{ secrets.PAGU_DB_ROOT_PASSWORD }}
-        PAGU_DB_USER: ${{ secrets.PAGU_DB_USER }}
-        PAGU_DB_USER_PASSWORD: ${{ secrets.PAGU_DB_USER_PASSWORD }}
-        PHPMYADMIN_PORT: ${{ secrets.PHPMYADMIN_PORT }}
