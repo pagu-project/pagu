@@ -5,15 +5,15 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER:  ${MYSQL_USER}
-      MYSQL_PASSWORD:  ${MYSQL_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     container_name: pagu_mysql
     volumes:
       - ${HOME}/mysql_data:/var/lib/mysql
     networks:
       - pagu_network
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", pagu_mysql]
+      test: ["CMD", "mysqladmin", "ping", "-h", pagu_mysql]
       timeout: 5s
       retries: 10
 
