@@ -6,13 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-const (
-	GREEN  = 0x008000
-	RED    = 0xFF0000
-	YELLOW = 0xFFFF00
-	PACTUS = 0x052D5A
-)
-
 func newStatus(name string, value any) discordgo.UpdateStatusData {
 	return discordgo.UpdateStatusData{
 		Status: "online",
