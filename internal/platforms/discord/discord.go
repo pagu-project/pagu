@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -197,6 +198,7 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 	}
 
 	var inputBuilder strings.Builder
+	args := make(map[string]string)
 
 	// Get the application command data
 	discordCmd := i.ApplicationCommandData()
@@ -208,13 +210,56 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 			inputBuilder.WriteString(" ")
 			inputBuilder.WriteString(discordCmd.Name)
 			for _, o := range opt.Options {
-				inputBuilder.WriteString(fmt.Sprintf(" --%s=%s", o.Name, o.Value))
+				args = parseArgs(&discordCmd, o, args)
 			}
 		}
 	}
 
+	for k, v := range args {
+		inputBuilder.WriteString(fmt.Sprintf(" --%s=%s", k, v))
+	}
+
 	res := bot.engine.ParseAndExecute(entity.AppIDDiscord, i.Member.User.ID, inputBuilder.String())
 	bot.respondResultMsg(res, s, i)
+}
+
+func parseArgs(
+	rootCmd *discordgo.ApplicationCommandInteractionData,
+	opt *discordgo.ApplicationCommandInteractionDataOption,
+	result map[string]string,
+) map[string]string {
+	switch opt.Type {
+	case discordgo.ApplicationCommandOptionString:
+		result[opt.Name] = opt.StringValue()
+
+	case discordgo.ApplicationCommandOptionInteger:
+		result[opt.Name] = strconv.Itoa(int(opt.IntValue()))
+
+	case discordgo.ApplicationCommandOptionNumber:
+		v := strconv.FormatFloat(opt.FloatValue(), 'f', 10, 64)
+		result[opt.Name] = v
+
+	case discordgo.ApplicationCommandOptionBoolean:
+		v := strconv.FormatBool(true)
+		result[opt.Name] = strings.ToUpper(v)
+
+	case discordgo.ApplicationCommandOptionAttachment:
+		// TODO: handle multiple attachment
+		for _, attachment := range rootCmd.Resolved.Attachments {
+			result[opt.Name] = attachment.URL
+		}
+
+	case discordgo.ApplicationCommandOptionSubCommand,
+		discordgo.ApplicationCommandOptionSubCommandGroup,
+		discordgo.ApplicationCommandOptionUser,
+		discordgo.ApplicationCommandOptionChannel,
+		discordgo.ApplicationCommandOptionRole,
+		discordgo.ApplicationCommandOptionMentionable:
+
+		log.Warn("received unhandled option type", "type", opt.Type)
+	}
+
+	return result
 }
 
 func (bot *Bot) respondErrMsg(errStr string, s *discordgo.Session, i *discordgo.InteractionCreate) {
