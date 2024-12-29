@@ -191,7 +191,7 @@ func (be *BotEngine) executeCommand(
 	commands []string,
 	args map[string]string,
 ) command.CommandResult {
-	log.Debug("run command", "callerID", callerID, "commands", args, "inputs", args)
+	log.Debug("execute command", "callerID", callerID, "commands", commands, "args", args)
 
 	cmd := be.getTargetCommand(commands)
 	if !cmd.HasAppID(appID) {
