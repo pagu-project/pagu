@@ -23,6 +23,7 @@ func setup(t *testing.T) (*Manager, *MockIClient) {
 func TestFindPublicKey(t *testing.T) {
 	clientMgr, mockClient := setup(t)
 
+	mockClient.EXPECT().Target().AnyTimes().Return("target")
 	mockClient.EXPECT().GetNetworkInfo(gomock.Any()).Return(
 		&pactus.GetNetworkInfoResponse{
 			ConnectedPeers: []*pactus.PeerInfo{

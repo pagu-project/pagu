@@ -16,32 +16,32 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockDatabase is a mock of Database interface.
-type MockDatabase struct {
+// MockIDatabase is a mock of IDatabase interface.
+type MockIDatabase struct {
 	ctrl     *gomock.Controller
-	recorder *MockDatabaseMockRecorder
+	recorder *MockIDatabaseMockRecorder
 	isgomock struct{}
 }
 
-// MockDatabaseMockRecorder is the mock recorder for MockDatabase.
-type MockDatabaseMockRecorder struct {
-	mock *MockDatabase
+// MockIDatabaseMockRecorder is the mock recorder for MockIDatabase.
+type MockIDatabaseMockRecorder struct {
+	mock *MockIDatabase
 }
 
-// NewMockDatabase creates a new mock instance.
-func NewMockDatabase(ctrl *gomock.Controller) *MockDatabase {
-	mock := &MockDatabase{ctrl: ctrl}
-	mock.recorder = &MockDatabaseMockRecorder{mock}
+// NewMockIDatabase creates a new mock instance.
+func NewMockIDatabase(ctrl *gomock.Controller) *MockIDatabase {
+	mock := &MockIDatabase{ctrl: ctrl}
+	mock.recorder = &MockIDatabaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockDatabase) EXPECT() *MockDatabaseMockRecorder {
+func (m *MockIDatabase) EXPECT() *MockIDatabaseMockRecorder {
 	return m.recorder
 }
 
 // AddFaucet mocks base method.
-func (m *MockDatabase) AddFaucet(f *entity.PhoenixFaucet) error {
+func (m *MockIDatabase) AddFaucet(f *entity.PhoenixFaucet) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddFaucet", f)
 	ret0, _ := ret[0].(error)
@@ -49,13 +49,13 @@ func (m *MockDatabase) AddFaucet(f *entity.PhoenixFaucet) error {
 }
 
 // AddFaucet indicates an expected call of AddFaucet.
-func (mr *MockDatabaseMockRecorder) AddFaucet(f any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) AddFaucet(f any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFaucet", reflect.TypeOf((*MockDatabase)(nil).AddFaucet), f)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFaucet", reflect.TypeOf((*MockIDatabase)(nil).AddFaucet), f)
 }
 
 // AddNotification mocks base method.
-func (m *MockDatabase) AddNotification(v *entity.Notification) error {
+func (m *MockIDatabase) AddNotification(v *entity.Notification) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddNotification", v)
 	ret0, _ := ret[0].(error)
@@ -63,13 +63,13 @@ func (m *MockDatabase) AddNotification(v *entity.Notification) error {
 }
 
 // AddNotification indicates an expected call of AddNotification.
-func (mr *MockDatabaseMockRecorder) AddNotification(v any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) AddNotification(v any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNotification", reflect.TypeOf((*MockDatabase)(nil).AddNotification), v)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddNotification", reflect.TypeOf((*MockIDatabase)(nil).AddNotification), v)
 }
 
 // AddUser mocks base method.
-func (m *MockDatabase) AddUser(u *entity.User) error {
+func (m *MockIDatabase) AddUser(u *entity.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddUser", u)
 	ret0, _ := ret[0].(error)
@@ -77,13 +77,13 @@ func (m *MockDatabase) AddUser(u *entity.User) error {
 }
 
 // AddUser indicates an expected call of AddUser.
-func (mr *MockDatabaseMockRecorder) AddUser(u any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) AddUser(u any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUser", reflect.TypeOf((*MockDatabase)(nil).AddUser), u)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddUser", reflect.TypeOf((*MockIDatabase)(nil).AddUser), u)
 }
 
 // AddValidator mocks base method.
-func (m *MockDatabase) AddValidator(arg0 *entity.Validator) error {
+func (m *MockIDatabase) AddValidator(arg0 *entity.Validator) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddValidator", arg0)
 	ret0, _ := ret[0].(error)
@@ -91,13 +91,13 @@ func (m *MockDatabase) AddValidator(arg0 *entity.Validator) error {
 }
 
 // AddValidator indicates an expected call of AddValidator.
-func (mr *MockDatabaseMockRecorder) AddValidator(arg0 any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) AddValidator(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddValidator", reflect.TypeOf((*MockDatabase)(nil).AddValidator), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddValidator", reflect.TypeOf((*MockIDatabase)(nil).AddValidator), arg0)
 }
 
 // AddVoucher mocks base method.
-func (m *MockDatabase) AddVoucher(v *entity.Voucher) error {
+func (m *MockIDatabase) AddVoucher(v *entity.Voucher) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddVoucher", v)
 	ret0, _ := ret[0].(error)
@@ -105,13 +105,13 @@ func (m *MockDatabase) AddVoucher(v *entity.Voucher) error {
 }
 
 // AddVoucher indicates an expected call of AddVoucher.
-func (mr *MockDatabaseMockRecorder) AddVoucher(v any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) AddVoucher(v any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddVoucher", reflect.TypeOf((*MockDatabase)(nil).AddVoucher), v)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddVoucher", reflect.TypeOf((*MockIDatabase)(nil).AddVoucher), v)
 }
 
 // AddZealyUser mocks base method.
-func (m *MockDatabase) AddZealyUser(u *entity.ZealyUser) error {
+func (m *MockIDatabase) AddZealyUser(u *entity.ZealyUser) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AddZealyUser", u)
 	ret0, _ := ret[0].(error)
@@ -119,13 +119,13 @@ func (m *MockDatabase) AddZealyUser(u *entity.ZealyUser) error {
 }
 
 // AddZealyUser indicates an expected call of AddZealyUser.
-func (mr *MockDatabaseMockRecorder) AddZealyUser(u any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) AddZealyUser(u any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddZealyUser", reflect.TypeOf((*MockDatabase)(nil).AddZealyUser), u)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddZealyUser", reflect.TypeOf((*MockIDatabase)(nil).AddZealyUser), u)
 }
 
 // CanGetFaucet mocks base method.
-func (m *MockDatabase) CanGetFaucet(user *entity.User) bool {
+func (m *MockIDatabase) CanGetFaucet(user *entity.User) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CanGetFaucet", user)
 	ret0, _ := ret[0].(bool)
@@ -133,13 +133,13 @@ func (m *MockDatabase) CanGetFaucet(user *entity.User) bool {
 }
 
 // CanGetFaucet indicates an expected call of CanGetFaucet.
-func (mr *MockDatabaseMockRecorder) CanGetFaucet(user any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) CanGetFaucet(user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanGetFaucet", reflect.TypeOf((*MockDatabase)(nil).CanGetFaucet), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CanGetFaucet", reflect.TypeOf((*MockIDatabase)(nil).CanGetFaucet), user)
 }
 
 // ClaimVoucher mocks base method.
-func (m *MockDatabase) ClaimVoucher(id uint, txHash string, claimer uint) error {
+func (m *MockIDatabase) ClaimVoucher(id uint, txHash string, claimer uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ClaimVoucher", id, txHash, claimer)
 	ret0, _ := ret[0].(error)
@@ -147,13 +147,13 @@ func (m *MockDatabase) ClaimVoucher(id uint, txHash string, claimer uint) error 
 }
 
 // ClaimVoucher indicates an expected call of ClaimVoucher.
-func (mr *MockDatabaseMockRecorder) ClaimVoucher(id, txHash, claimer any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) ClaimVoucher(id, txHash, claimer any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClaimVoucher", reflect.TypeOf((*MockDatabase)(nil).ClaimVoucher), id, txHash, claimer)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClaimVoucher", reflect.TypeOf((*MockIDatabase)(nil).ClaimVoucher), id, txHash, claimer)
 }
 
 // GetAllZealyUser mocks base method.
-func (m *MockDatabase) GetAllZealyUser() ([]*entity.ZealyUser, error) {
+func (m *MockIDatabase) GetAllZealyUser() ([]*entity.ZealyUser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllZealyUser")
 	ret0, _ := ret[0].([]*entity.ZealyUser)
@@ -162,13 +162,13 @@ func (m *MockDatabase) GetAllZealyUser() ([]*entity.ZealyUser, error) {
 }
 
 // GetAllZealyUser indicates an expected call of GetAllZealyUser.
-func (mr *MockDatabaseMockRecorder) GetAllZealyUser() *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) GetAllZealyUser() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllZealyUser", reflect.TypeOf((*MockDatabase)(nil).GetAllZealyUser))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllZealyUser", reflect.TypeOf((*MockIDatabase)(nil).GetAllZealyUser))
 }
 
 // GetPendingMailNotification mocks base method.
-func (m *MockDatabase) GetPendingMailNotification() (*entity.Notification, error) {
+func (m *MockIDatabase) GetPendingMailNotification() (*entity.Notification, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPendingMailNotification")
 	ret0, _ := ret[0].(*entity.Notification)
@@ -177,13 +177,13 @@ func (m *MockDatabase) GetPendingMailNotification() (*entity.Notification, error
 }
 
 // GetPendingMailNotification indicates an expected call of GetPendingMailNotification.
-func (mr *MockDatabaseMockRecorder) GetPendingMailNotification() *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) GetPendingMailNotification() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPendingMailNotification", reflect.TypeOf((*MockDatabase)(nil).GetPendingMailNotification))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPendingMailNotification", reflect.TypeOf((*MockIDatabase)(nil).GetPendingMailNotification))
 }
 
 // GetUserByApp mocks base method.
-func (m *MockDatabase) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, error) {
+func (m *MockIDatabase) GetUserByApp(appID entity.AppID, callerID string) (*entity.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserByApp", appID, callerID)
 	ret0, _ := ret[0].(*entity.User)
@@ -192,13 +192,13 @@ func (m *MockDatabase) GetUserByApp(appID entity.AppID, callerID string) (*entit
 }
 
 // GetUserByApp indicates an expected call of GetUserByApp.
-func (mr *MockDatabaseMockRecorder) GetUserByApp(appID, callerID any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) GetUserByApp(appID, callerID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByApp", reflect.TypeOf((*MockDatabase)(nil).GetUserByApp), appID, callerID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByApp", reflect.TypeOf((*MockIDatabase)(nil).GetUserByApp), appID, callerID)
 }
 
 // GetValidator mocks base method.
-func (m *MockDatabase) GetValidator(arg0 uint) (entity.Validator, error) {
+func (m *MockIDatabase) GetValidator(arg0 uint) (entity.Validator, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetValidator", arg0)
 	ret0, _ := ret[0].(entity.Validator)
@@ -207,13 +207,13 @@ func (m *MockDatabase) GetValidator(arg0 uint) (entity.Validator, error) {
 }
 
 // GetValidator indicates an expected call of GetValidator.
-func (mr *MockDatabaseMockRecorder) GetValidator(arg0 any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) GetValidator(arg0 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidator", reflect.TypeOf((*MockDatabase)(nil).GetValidator), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidator", reflect.TypeOf((*MockIDatabase)(nil).GetValidator), arg0)
 }
 
 // GetVoucherByCode mocks base method.
-func (m *MockDatabase) GetVoucherByCode(code string) (entity.Voucher, error) {
+func (m *MockIDatabase) GetVoucherByCode(code string) (entity.Voucher, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVoucherByCode", code)
 	ret0, _ := ret[0].(entity.Voucher)
@@ -222,13 +222,13 @@ func (m *MockDatabase) GetVoucherByCode(code string) (entity.Voucher, error) {
 }
 
 // GetVoucherByCode indicates an expected call of GetVoucherByCode.
-func (mr *MockDatabaseMockRecorder) GetVoucherByCode(code any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) GetVoucherByCode(code any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVoucherByCode", reflect.TypeOf((*MockDatabase)(nil).GetVoucherByCode), code)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVoucherByCode", reflect.TypeOf((*MockIDatabase)(nil).GetVoucherByCode), code)
 }
 
 // GetZealyUser mocks base method.
-func (m *MockDatabase) GetZealyUser(id string) (*entity.ZealyUser, error) {
+func (m *MockIDatabase) GetZealyUser(id string) (*entity.ZealyUser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetZealyUser", id)
 	ret0, _ := ret[0].(*entity.ZealyUser)
@@ -237,13 +237,13 @@ func (m *MockDatabase) GetZealyUser(id string) (*entity.ZealyUser, error) {
 }
 
 // GetZealyUser indicates an expected call of GetZealyUser.
-func (mr *MockDatabaseMockRecorder) GetZealyUser(id any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) GetZealyUser(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZealyUser", reflect.TypeOf((*MockDatabase)(nil).GetZealyUser), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetZealyUser", reflect.TypeOf((*MockIDatabase)(nil).GetZealyUser), id)
 }
 
 // HasUser mocks base method.
-func (m *MockDatabase) HasUser(id string) bool {
+func (m *MockIDatabase) HasUser(id string) bool {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "HasUser", id)
 	ret0, _ := ret[0].(bool)
@@ -251,13 +251,13 @@ func (m *MockDatabase) HasUser(id string) bool {
 }
 
 // HasUser indicates an expected call of HasUser.
-func (mr *MockDatabaseMockRecorder) HasUser(id any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) HasUser(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasUser", reflect.TypeOf((*MockDatabase)(nil).HasUser), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HasUser", reflect.TypeOf((*MockIDatabase)(nil).HasUser), id)
 }
 
 // ListVoucher mocks base method.
-func (m *MockDatabase) ListVoucher() ([]*entity.Voucher, error) {
+func (m *MockIDatabase) ListVoucher() ([]*entity.Voucher, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListVoucher")
 	ret0, _ := ret[0].([]*entity.Voucher)
@@ -266,13 +266,13 @@ func (m *MockDatabase) ListVoucher() ([]*entity.Voucher, error) {
 }
 
 // ListVoucher indicates an expected call of ListVoucher.
-func (mr *MockDatabaseMockRecorder) ListVoucher() *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) ListVoucher() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListVoucher", reflect.TypeOf((*MockDatabase)(nil).ListVoucher))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListVoucher", reflect.TypeOf((*MockIDatabase)(nil).ListVoucher))
 }
 
 // UpdateNotificationStatus mocks base method.
-func (m *MockDatabase) UpdateNotificationStatus(id uint, status entity.NotificationStatus) error {
+func (m *MockIDatabase) UpdateNotificationStatus(id uint, status entity.NotificationStatus) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateNotificationStatus", id, status)
 	ret0, _ := ret[0].(error)
@@ -280,13 +280,13 @@ func (m *MockDatabase) UpdateNotificationStatus(id uint, status entity.Notificat
 }
 
 // UpdateNotificationStatus indicates an expected call of UpdateNotificationStatus.
-func (mr *MockDatabaseMockRecorder) UpdateNotificationStatus(id, status any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) UpdateNotificationStatus(id, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNotificationStatus", reflect.TypeOf((*MockDatabase)(nil).UpdateNotificationStatus), id, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateNotificationStatus", reflect.TypeOf((*MockIDatabase)(nil).UpdateNotificationStatus), id, status)
 }
 
 // UpdateZealyUser mocks base method.
-func (m *MockDatabase) UpdateZealyUser(id, txHash string) error {
+func (m *MockIDatabase) UpdateZealyUser(id, txHash string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateZealyUser", id, txHash)
 	ret0, _ := ret[0].(error)
@@ -294,7 +294,7 @@ func (m *MockDatabase) UpdateZealyUser(id, txHash string) error {
 }
 
 // UpdateZealyUser indicates an expected call of UpdateZealyUser.
-func (mr *MockDatabaseMockRecorder) UpdateZealyUser(id, txHash any) *gomock.Call {
+func (mr *MockIDatabaseMockRecorder) UpdateZealyUser(id, txHash any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateZealyUser", reflect.TypeOf((*MockDatabase)(nil).UpdateZealyUser), id, txHash)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateZealyUser", reflect.TypeOf((*MockIDatabase)(nil).UpdateZealyUser), id, txHash)
 }
