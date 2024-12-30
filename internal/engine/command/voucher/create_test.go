@@ -14,13 +14,13 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func setup(t *testing.T) (*Voucher, repository.MockDatabase, client.MockManager, wallet.MockIWallet) {
+func setup(t *testing.T) (*Voucher, repository.MockIDatabase, client.MockIManager, wallet.MockIWallet) {
 	t.Helper()
 
 	ctrl := gomock.NewController(t)
 
-	mockDB := repository.NewMockDatabase(ctrl)
-	mockClient := client.NewMockManager(ctrl)
+	mockDB := repository.NewMockIDatabase(ctrl)
+	mockClient := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 
 	mockVoucher := NewVoucher(mockDB, mockWallet, mockClient)
