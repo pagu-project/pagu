@@ -1,8 +1,8 @@
 package main
 
 import (
-	pagu "github.com/pagu-project/Pagu"
-	"github.com/pagu-project/Pagu/cmd"
+	"github.com/pagu-project/pagu"
+	"github.com/pagu-project/pagu/cmd"
 	"github.com/spf13/cobra"
 )
 

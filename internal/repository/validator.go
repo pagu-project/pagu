@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/pagu-project/Pagu/internal/entity"
+import "github.com/pagu-project/pagu/internal/entity"
 
 type IValidator interface {
 	AddValidator(*entity.Validator) error

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/pagu-project/Pagu/pkg/notification/zoho"
+	"github.com/pagu-project/pagu/pkg/notification/zoho"
 )
 
 type EmailSender struct {

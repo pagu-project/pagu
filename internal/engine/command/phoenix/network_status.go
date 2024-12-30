@@ -2,10 +2,10 @@ package phoenix
 
 import (
 	"github.com/pactus-project/pactus/types/amount"
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/engine/command/network"
-	"github.com/pagu-project/Pagu/internal/entity"
-	utils2 "github.com/pagu-project/Pagu/pkg/utils"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/engine/command/network"
+	"github.com/pagu-project/pagu/internal/entity"
+	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 
 func (pt *Phoenix) networkStatusHandler(

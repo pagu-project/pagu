@@ -3,8 +3,8 @@ package phoenix
 import (
 	"errors"
 
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 func (pt *Phoenix) faucetHandler(

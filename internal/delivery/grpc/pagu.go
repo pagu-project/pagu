@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 
-	pagu "github.com/pagu-project/Pagu/internal/delivery/grpc/gen/go"
-	"github.com/pagu-project/Pagu/internal/entity"
+	pagu "github.com/pagu-project/pagu/internal/delivery/grpc/gen/go"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 type paguServer struct {

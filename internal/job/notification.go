@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/pactus-project/pactus/util/logger"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/internal/repository"
-	"github.com/pagu-project/Pagu/pkg/notification"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/repository"
+	"github.com/pagu-project/pagu/pkg/notification"
 )
 
 type mailSenderJob struct {

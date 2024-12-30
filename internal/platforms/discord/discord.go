@@ -9,13 +9,13 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/pactus-project/pactus/types/amount"
 	"github.com/pactus-project/pactus/util"
-	"github.com/pagu-project/Pagu/config"
-	"github.com/pagu-project/Pagu/internal/engine"
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/color"
-	"github.com/pagu-project/Pagu/pkg/log"
-	"github.com/pagu-project/Pagu/pkg/utils"
+	"github.com/pagu-project/pagu/config"
+	"github.com/pagu-project/pagu/internal/engine"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/color"
+	"github.com/pagu-project/pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 type Bot struct {
