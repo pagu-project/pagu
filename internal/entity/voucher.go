@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/pagu-project/Pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/amount"
 	"gorm.io/gorm"
 )
 

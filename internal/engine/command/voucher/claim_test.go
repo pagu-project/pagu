@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/amount"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/stretchr/testify/assert"
 )
 

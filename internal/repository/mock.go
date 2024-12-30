@@ -12,7 +12,7 @@ package repository
 import (
 	reflect "reflect"
 
-	entity "github.com/pagu-project/Pagu/internal/entity"
+	entity "github.com/pagu-project/pagu/internal/entity"
 	gomock "go.uber.org/mock/gomock"
 )
 

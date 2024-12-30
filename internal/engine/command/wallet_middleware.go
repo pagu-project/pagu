@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 const minWalletBalance = 500

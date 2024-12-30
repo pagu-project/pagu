@@ -4,10 +4,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/internal/job"
-	"github.com/pagu-project/Pagu/pkg/cache"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/job"
+	"github.com/pagu-project/pagu/pkg/cache"
 	"github.com/stretchr/testify/assert"
 )
 

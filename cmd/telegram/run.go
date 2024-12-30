@@ -5,11 +5,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	pagucmd "github.com/pagu-project/Pagu/cmd"
-	"github.com/pagu-project/Pagu/config"
-	"github.com/pagu-project/Pagu/internal/engine"
-	"github.com/pagu-project/Pagu/internal/platforms/telegram"
-	"github.com/pagu-project/Pagu/pkg/log"
+	pagucmd "github.com/pagu-project/pagu/cmd"
+	"github.com/pagu-project/pagu/config"
+	"github.com/pagu-project/pagu/internal/engine"
+	"github.com/pagu-project/pagu/internal/platforms/telegram"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )
 

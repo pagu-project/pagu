@@ -4,10 +4,10 @@ import (
 	"context"
 	"net"
 
-	"github.com/pagu-project/Pagu/config"
-	pagu "github.com/pagu-project/Pagu/internal/delivery/grpc/gen/go"
-	"github.com/pagu-project/Pagu/internal/engine"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/config"
+	pagu "github.com/pagu-project/pagu/internal/delivery/grpc/gen/go"
+	"github.com/pagu-project/pagu/internal/engine"
+	"github.com/pagu-project/pagu/pkg/log"
 	"google.golang.org/grpc"
 )
 

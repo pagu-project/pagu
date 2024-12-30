@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/pactus-project/pactus/util"
-	"github.com/pagu-project/Pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/amount"
 	"gopkg.in/yaml.v3"
 )
 

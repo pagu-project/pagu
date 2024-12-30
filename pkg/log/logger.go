@@ -9,7 +9,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/pagu-project/Pagu/config"
+	"github.com/pagu-project/pagu/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/natefinch/lumberjack.v2"

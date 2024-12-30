@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/pagu-project/Pagu/pkg/utils"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 func TestRandomString(t *testing.T) {

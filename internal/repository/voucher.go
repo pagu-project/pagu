@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 type IVoucher interface {

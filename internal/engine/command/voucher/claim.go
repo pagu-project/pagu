@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 func (v *Voucher) claimHandler(

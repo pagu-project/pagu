@@ -9,7 +9,7 @@ import (
 
 	"github.com/pactus-project/pactus/util/logger"
 	pactus "github.com/pactus-project/pactus/www/grpc/gen/go"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 type Manager struct {

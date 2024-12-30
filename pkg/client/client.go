@@ -4,7 +4,7 @@ import (
 	"context"
 
 	pactus "github.com/pactus-project/pactus/www/grpc/gen/go"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

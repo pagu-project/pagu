@@ -3,9 +3,9 @@ package wallet
 import (
 	"github.com/pactus-project/pactus/types/tx/payload"
 	"github.com/pactus-project/pactus/wallet"
-	"github.com/pagu-project/Pagu/config"
-	"github.com/pagu-project/Pagu/pkg/amount"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/config"
+	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 type Wallet struct {

@@ -3,9 +3,9 @@ package zealy
 import (
 	"fmt"
 
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {

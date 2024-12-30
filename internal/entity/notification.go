@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/pagu-project/Pagu/pkg/notification"
+	"github.com/pagu-project/pagu/pkg/notification"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )

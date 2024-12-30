@@ -1,9 +1,9 @@
 package calculator
 
 import (
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/client"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/client"
 )
 
 const (

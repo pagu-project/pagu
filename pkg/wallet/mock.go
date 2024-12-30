@@ -12,7 +12,7 @@ package wallet
 import (
 	reflect "reflect"
 
-	amount "github.com/pagu-project/Pagu/pkg/amount"
+	amount "github.com/pagu-project/pagu/pkg/amount"
 	gomock "go.uber.org/mock/gomock"
 )
 

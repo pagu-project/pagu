@@ -6,12 +6,12 @@ import (
 	"strings"
 
 	"github.com/pactus-project/pactus/crypto"
-	pagu "github.com/pagu-project/Pagu"
-	pagucmd "github.com/pagu-project/Pagu/cmd"
-	"github.com/pagu-project/Pagu/config"
-	"github.com/pagu-project/Pagu/internal/engine"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu"
+	pagucmd "github.com/pagu-project/pagu/cmd"
+	"github.com/pagu-project/pagu/config"
+	"github.com/pagu-project/pagu/internal/engine"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )
 

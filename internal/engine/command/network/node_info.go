@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/pactus-project/pactus/types/amount"
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	utils2 "github.com/pagu-project/Pagu/pkg/utils"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 
 func (n *Network) nodeInfoHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {

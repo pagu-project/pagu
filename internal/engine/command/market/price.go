@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pagu-project/Pagu/config"
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/config"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 func (m *Market) getPrice(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
