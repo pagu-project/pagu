@@ -470,15 +470,3 @@ func (mr *MockIManagerMockRecorder) Stop() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockIManager)(nil).Stop))
 }
-
-// updateValMap mocks base method.
-func (m *MockIManager) updateValMap() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "updateValMap")
-}
-
-// updateValMap indicates an expected call of updateValMap.
-func (mr *MockIManagerMockRecorder) updateValMap() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "updateValMap", reflect.TypeOf((*MockIManager)(nil).updateValMap))
-}

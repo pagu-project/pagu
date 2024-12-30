@@ -23,7 +23,6 @@ type IClient interface {
 type IManager interface {
 	Start()
 	Stop()
-	updateValMap()
 	AddClient(c IClient)
 	GetLocalClient() IClient
 	GetRandomClient() IClient
