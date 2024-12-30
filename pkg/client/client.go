@@ -4,7 +4,7 @@ import (
 	"context"
 
 	pactus "github.com/pactus-project/pactus/www/grpc/gen/go"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -14,22 +14,28 @@ type Client struct {
 	networkClient     pactus.NetworkClient
 	transactionClient pactus.TransactionClient
 	conn              *grpc.ClientConn
+	target            string
 }
 
-func NewClient(endpoint string) (*Client, error) {
-	conn, err := grpc.NewClient(endpoint, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewClient(target string) (*Client, error) {
+	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("establishing new connection", "addr", endpoint)
+	log.Info("establishing new connection", "addr", target)
 
 	return &Client{
 		blockchainClient:  pactus.NewBlockchainClient(conn),
 		networkClient:     pactus.NewNetworkClient(conn),
 		transactionClient: pactus.NewTransactionClient(conn),
 		conn:              conn,
+		target:            target,
 	}, nil
+}
+
+func (c *Client) Target() string {
+	return c.target
 }
 
 func (c *Client) GetBlockchainInfo(ctx context.Context) (*pactus.GetBlockchainInfoResponse, error) {

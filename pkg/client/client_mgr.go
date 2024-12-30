@@ -9,7 +9,7 @@ import (
 
 	"github.com/pactus-project/pactus/util/logger"
 	pactus "github.com/pactus-project/pactus/www/grpc/gen/go"
-	"github.com/pagu-project/Pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 type Manager struct {
@@ -59,29 +59,28 @@ func (cm *Manager) Stop() {
 func (cm *Manager) updateValMap() {
 	freshValMap := make(map[string]*pactus.PeerInfo)
 
-	for _, c := range cm.clients {
-		networkInfo, err := c.GetNetworkInfo(cm.ctx)
+	for _, client := range cm.clients {
+		networkInfo, err := client.GetNetworkInfo(cm.ctx)
 		if err != nil {
-			logger.Warn("cannot connect to client", "err", err)
+			logger.Warn("cannot connect to client", "err", err, "target", client.Target())
 
 			continue
 		}
 
 		if networkInfo == nil {
-			logger.Warn("network info is nil")
+			logger.Warn("network info is nil", "target", client.Target())
 
 			continue
 		}
 
 		if len(networkInfo.GetConnectedPeers()) == 0 {
-			logger.Warn("no connected peers")
+			logger.Warn("no connected peers", "target", client.Target())
 
 			continue
 		}
 
-		logger.Info("connected peers = ", "count", networkInfo.ConnectedPeersCount)
+		logger.Info("fetching network information", "target", client.Target(), "connected", networkInfo.ConnectedPeersCount)
 		for _, peer := range networkInfo.ConnectedPeers {
-			logger.Info("sync peer", "peerId", peer.PeerId)
 			for _, addr := range peer.ConsensusAddresses {
 				current := freshValMap[addr]
 				if current != nil {

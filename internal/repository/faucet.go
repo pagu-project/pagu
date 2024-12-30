@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 type IFaucet interface {

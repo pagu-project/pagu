@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/notification"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/notification"
 )
 
 type INotification interface {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/entity"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

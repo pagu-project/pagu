@@ -12,11 +12,11 @@ import (
 
 	"github.com/jszwec/csvutil"
 	"github.com/pactus-project/pactus/util/logger"
-	"github.com/pagu-project/Pagu/internal/engine/command"
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/amount"
-	"github.com/pagu-project/Pagu/pkg/notification"
-	"github.com/pagu-project/Pagu/pkg/utils"
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/notification"
+	"github.com/pagu-project/pagu/pkg/utils"
 	"gorm.io/datatypes"
 )
 

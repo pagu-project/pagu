@@ -3,7 +3,7 @@ package command
 import (
 	"errors"
 
-	"github.com/pagu-project/Pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 func (*MiddlewareHandler) OnlyAdmin(caller *entity.User, _ *Command, _ map[string]string) error {

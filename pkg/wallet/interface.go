@@ -1,6 +1,6 @@
 package wallet
 
-import "github.com/pagu-project/Pagu/pkg/amount"
+import "github.com/pagu-project/pagu/pkg/amount"
 
 type IWallet interface {
 	Balance() int64

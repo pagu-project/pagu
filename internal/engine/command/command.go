@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/pkg/color"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/color"
 )
 
 var (

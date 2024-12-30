@@ -1,9 +1,9 @@
 package command
 
 import (
-	"github.com/pagu-project/Pagu/internal/entity"
-	"github.com/pagu-project/Pagu/internal/repository"
-	"github.com/pagu-project/Pagu/pkg/wallet"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/repository"
+	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
 type MiddlewareFunc func(caller *entity.User, cmd *Command, args map[string]string) error

@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/pagu-project/Pagu/internal/entity"
+import "github.com/pagu-project/pagu/internal/entity"
 
 type IZealy interface {
 	GetZealyUser(id string) (*entity.ZealyUser, error)

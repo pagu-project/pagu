@@ -7,6 +7,7 @@ import (
 )
 
 type IClient interface {
+	Target() string
 	GetBlockchainInfo(context.Context) (*pactus.GetBlockchainInfoResponse, error)
 	GetBlockchainHeight(context.Context) (uint32, error)
 	GetLastBlockTime(context.Context) (uint32, uint32)
@@ -22,7 +23,6 @@ type IClient interface {
 type IManager interface {
 	Start()
 	Stop()
-	updateValMap()
 	AddClient(c IClient)
 	GetLocalClient() IClient
 	GetRandomClient() IClient

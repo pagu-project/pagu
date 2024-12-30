@@ -12,7 +12,7 @@ package wallet
 import (
 	reflect "reflect"
 
-	amount "github.com/pagu-project/Pagu/pkg/amount"
+	amount "github.com/pagu-project/pagu/pkg/amount"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -81,21 +81,6 @@ func (m *MockIWallet) BondTransaction(pubKey, toAddress, memo string, amt amount
 func (mr *MockIWalletMockRecorder) BondTransaction(pubKey, toAddress, memo, amt any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BondTransaction", reflect.TypeOf((*MockIWallet)(nil).BondTransaction), pubKey, toAddress, memo, amt)
-}
-
-// NewAddress mocks base method.
-func (m *MockIWallet) NewAddress(lb string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NewAddress", lb)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// NewAddress indicates an expected call of NewAddress.
-func (mr *MockIWalletMockRecorder) NewAddress(lb any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewAddress", reflect.TypeOf((*MockIWallet)(nil).NewAddress), lb)
 }
 
 // TransferTransaction mocks base method.
