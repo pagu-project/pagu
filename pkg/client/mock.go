@@ -190,44 +190,58 @@ func (mr *MockIClientMockRecorder) GetValidatorInfoByNumber(arg0, arg1 any) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidatorInfoByNumber", reflect.TypeOf((*MockIClient)(nil).GetValidatorInfoByNumber), arg0, arg1)
 }
 
-// MockManager is a mock of Manager interface.
-type MockManager struct {
+// Target mocks base method.
+func (m *MockIClient) Target() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Target")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Target indicates an expected call of Target.
+func (mr *MockIClientMockRecorder) Target() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Target", reflect.TypeOf((*MockIClient)(nil).Target))
+}
+
+// MockIManager is a mock of IManager interface.
+type MockIManager struct {
 	ctrl     *gomock.Controller
-	recorder *MockManagerMockRecorder
+	recorder *MockIManagerMockRecorder
 	isgomock struct{}
 }
 
-// MockManagerMockRecorder is the mock recorder for MockManager.
-type MockManagerMockRecorder struct {
-	mock *MockManager
+// MockIManagerMockRecorder is the mock recorder for MockIManager.
+type MockIManagerMockRecorder struct {
+	mock *MockIManager
 }
 
-// NewMockManager creates a new mock instance.
-func NewMockManager(ctrl *gomock.Controller) *MockManager {
-	mock := &MockManager{ctrl: ctrl}
-	mock.recorder = &MockManagerMockRecorder{mock}
+// NewMockIManager creates a new mock instance.
+func NewMockIManager(ctrl *gomock.Controller) *MockIManager {
+	mock := &MockIManager{ctrl: ctrl}
+	mock.recorder = &MockIManagerMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockManager) EXPECT() *MockManagerMockRecorder {
+func (m *MockIManager) EXPECT() *MockIManagerMockRecorder {
 	return m.recorder
 }
 
 // AddClient mocks base method.
-func (m *MockManager) AddClient(c IClient) {
+func (m *MockIManager) AddClient(c IClient) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "AddClient", c)
 }
 
 // AddClient indicates an expected call of AddClient.
-func (mr *MockManagerMockRecorder) AddClient(c any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) AddClient(c any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClient", reflect.TypeOf((*MockManager)(nil).AddClient), c)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClient", reflect.TypeOf((*MockIManager)(nil).AddClient), c)
 }
 
 // FindPublicKey mocks base method.
-func (m *MockManager) FindPublicKey(address string, firstVal bool) (string, error) {
+func (m *MockIManager) FindPublicKey(address string, firstVal bool) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindPublicKey", address, firstVal)
 	ret0, _ := ret[0].(string)
@@ -236,13 +250,13 @@ func (m *MockManager) FindPublicKey(address string, firstVal bool) (string, erro
 }
 
 // FindPublicKey indicates an expected call of FindPublicKey.
-func (mr *MockManagerMockRecorder) FindPublicKey(address, firstVal any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) FindPublicKey(address, firstVal any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublicKey", reflect.TypeOf((*MockManager)(nil).FindPublicKey), address, firstVal)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindPublicKey", reflect.TypeOf((*MockIManager)(nil).FindPublicKey), address, firstVal)
 }
 
 // GetBalance mocks base method.
-func (m *MockManager) GetBalance(addr string) (int64, error) {
+func (m *MockIManager) GetBalance(addr string) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBalance", addr)
 	ret0, _ := ret[0].(int64)
@@ -251,13 +265,13 @@ func (m *MockManager) GetBalance(addr string) (int64, error) {
 }
 
 // GetBalance indicates an expected call of GetBalance.
-func (mr *MockManagerMockRecorder) GetBalance(addr any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetBalance(addr any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockManager)(nil).GetBalance), addr)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockIManager)(nil).GetBalance), addr)
 }
 
 // GetBlockchainHeight mocks base method.
-func (m *MockManager) GetBlockchainHeight() (uint32, error) {
+func (m *MockIManager) GetBlockchainHeight() (uint32, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBlockchainHeight")
 	ret0, _ := ret[0].(uint32)
@@ -266,13 +280,13 @@ func (m *MockManager) GetBlockchainHeight() (uint32, error) {
 }
 
 // GetBlockchainHeight indicates an expected call of GetBlockchainHeight.
-func (mr *MockManagerMockRecorder) GetBlockchainHeight() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetBlockchainHeight() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockchainHeight", reflect.TypeOf((*MockManager)(nil).GetBlockchainHeight))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockchainHeight", reflect.TypeOf((*MockIManager)(nil).GetBlockchainHeight))
 }
 
 // GetBlockchainInfo mocks base method.
-func (m *MockManager) GetBlockchainInfo() (*pactus.GetBlockchainInfoResponse, error) {
+func (m *MockIManager) GetBlockchainInfo() (*pactus.GetBlockchainInfoResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetBlockchainInfo")
 	ret0, _ := ret[0].(*pactus.GetBlockchainInfoResponse)
@@ -281,13 +295,13 @@ func (m *MockManager) GetBlockchainInfo() (*pactus.GetBlockchainInfoResponse, er
 }
 
 // GetBlockchainInfo indicates an expected call of GetBlockchainInfo.
-func (mr *MockManagerMockRecorder) GetBlockchainInfo() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetBlockchainInfo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockchainInfo", reflect.TypeOf((*MockManager)(nil).GetBlockchainInfo))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBlockchainInfo", reflect.TypeOf((*MockIManager)(nil).GetBlockchainInfo))
 }
 
 // GetCirculatingSupply mocks base method.
-func (m *MockManager) GetCirculatingSupply() int64 {
+func (m *MockIManager) GetCirculatingSupply() int64 {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetCirculatingSupply")
 	ret0, _ := ret[0].(int64)
@@ -295,13 +309,13 @@ func (m *MockManager) GetCirculatingSupply() int64 {
 }
 
 // GetCirculatingSupply indicates an expected call of GetCirculatingSupply.
-func (mr *MockManagerMockRecorder) GetCirculatingSupply() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetCirculatingSupply() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCirculatingSupply", reflect.TypeOf((*MockManager)(nil).GetCirculatingSupply))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCirculatingSupply", reflect.TypeOf((*MockIManager)(nil).GetCirculatingSupply))
 }
 
 // GetFee mocks base method.
-func (m *MockManager) GetFee(amt int64) (int64, error) {
+func (m *MockIManager) GetFee(amt int64) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetFee", amt)
 	ret0, _ := ret[0].(int64)
@@ -310,13 +324,13 @@ func (m *MockManager) GetFee(amt int64) (int64, error) {
 }
 
 // GetFee indicates an expected call of GetFee.
-func (mr *MockManagerMockRecorder) GetFee(amt any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetFee(amt any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFee", reflect.TypeOf((*MockManager)(nil).GetFee), amt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFee", reflect.TypeOf((*MockIManager)(nil).GetFee), amt)
 }
 
 // GetLastBlockTime mocks base method.
-func (m *MockManager) GetLastBlockTime() (uint32, uint32) {
+func (m *MockIManager) GetLastBlockTime() (uint32, uint32) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLastBlockTime")
 	ret0, _ := ret[0].(uint32)
@@ -325,13 +339,13 @@ func (m *MockManager) GetLastBlockTime() (uint32, uint32) {
 }
 
 // GetLastBlockTime indicates an expected call of GetLastBlockTime.
-func (mr *MockManagerMockRecorder) GetLastBlockTime() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetLastBlockTime() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastBlockTime", reflect.TypeOf((*MockManager)(nil).GetLastBlockTime))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLastBlockTime", reflect.TypeOf((*MockIManager)(nil).GetLastBlockTime))
 }
 
 // GetLocalClient mocks base method.
-func (m *MockManager) GetLocalClient() IClient {
+func (m *MockIManager) GetLocalClient() IClient {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLocalClient")
 	ret0, _ := ret[0].(IClient)
@@ -339,13 +353,13 @@ func (m *MockManager) GetLocalClient() IClient {
 }
 
 // GetLocalClient indicates an expected call of GetLocalClient.
-func (mr *MockManagerMockRecorder) GetLocalClient() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetLocalClient() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLocalClient", reflect.TypeOf((*MockManager)(nil).GetLocalClient))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLocalClient", reflect.TypeOf((*MockIManager)(nil).GetLocalClient))
 }
 
 // GetNetworkInfo mocks base method.
-func (m *MockManager) GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error) {
+func (m *MockIManager) GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetNetworkInfo")
 	ret0, _ := ret[0].(*pactus.GetNetworkInfoResponse)
@@ -354,13 +368,13 @@ func (m *MockManager) GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error) {
 }
 
 // GetNetworkInfo indicates an expected call of GetNetworkInfo.
-func (mr *MockManagerMockRecorder) GetNetworkInfo() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetNetworkInfo() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNetworkInfo", reflect.TypeOf((*MockManager)(nil).GetNetworkInfo))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNetworkInfo", reflect.TypeOf((*MockIManager)(nil).GetNetworkInfo))
 }
 
 // GetPeerInfo mocks base method.
-func (m *MockManager) GetPeerInfo(address string) (*pactus.PeerInfo, error) {
+func (m *MockIManager) GetPeerInfo(address string) (*pactus.PeerInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPeerInfo", address)
 	ret0, _ := ret[0].(*pactus.PeerInfo)
@@ -369,13 +383,13 @@ func (m *MockManager) GetPeerInfo(address string) (*pactus.PeerInfo, error) {
 }
 
 // GetPeerInfo indicates an expected call of GetPeerInfo.
-func (mr *MockManagerMockRecorder) GetPeerInfo(address any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetPeerInfo(address any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPeerInfo", reflect.TypeOf((*MockManager)(nil).GetPeerInfo), address)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPeerInfo", reflect.TypeOf((*MockIManager)(nil).GetPeerInfo), address)
 }
 
 // GetRandomClient mocks base method.
-func (m *MockManager) GetRandomClient() IClient {
+func (m *MockIManager) GetRandomClient() IClient {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRandomClient")
 	ret0, _ := ret[0].(IClient)
@@ -383,13 +397,13 @@ func (m *MockManager) GetRandomClient() IClient {
 }
 
 // GetRandomClient indicates an expected call of GetRandomClient.
-func (mr *MockManagerMockRecorder) GetRandomClient() *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetRandomClient() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRandomClient", reflect.TypeOf((*MockManager)(nil).GetRandomClient))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRandomClient", reflect.TypeOf((*MockIManager)(nil).GetRandomClient))
 }
 
 // GetTransactionData mocks base method.
-func (m *MockManager) GetTransactionData(txID string) (*pactus.GetTransactionResponse, error) {
+func (m *MockIManager) GetTransactionData(txID string) (*pactus.GetTransactionResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTransactionData", txID)
 	ret0, _ := ret[0].(*pactus.GetTransactionResponse)
@@ -398,13 +412,13 @@ func (m *MockManager) GetTransactionData(txID string) (*pactus.GetTransactionRes
 }
 
 // GetTransactionData indicates an expected call of GetTransactionData.
-func (mr *MockManagerMockRecorder) GetTransactionData(txID any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetTransactionData(txID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionData", reflect.TypeOf((*MockManager)(nil).GetTransactionData), txID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTransactionData", reflect.TypeOf((*MockIManager)(nil).GetTransactionData), txID)
 }
 
 // GetValidatorInfo mocks base method.
-func (m *MockManager) GetValidatorInfo(address string) (*pactus.GetValidatorResponse, error) {
+func (m *MockIManager) GetValidatorInfo(address string) (*pactus.GetValidatorResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetValidatorInfo", address)
 	ret0, _ := ret[0].(*pactus.GetValidatorResponse)
@@ -413,13 +427,13 @@ func (m *MockManager) GetValidatorInfo(address string) (*pactus.GetValidatorResp
 }
 
 // GetValidatorInfo indicates an expected call of GetValidatorInfo.
-func (mr *MockManagerMockRecorder) GetValidatorInfo(address any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetValidatorInfo(address any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidatorInfo", reflect.TypeOf((*MockManager)(nil).GetValidatorInfo), address)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidatorInfo", reflect.TypeOf((*MockIManager)(nil).GetValidatorInfo), address)
 }
 
 // GetValidatorInfoByNumber mocks base method.
-func (m *MockManager) GetValidatorInfoByNumber(num int32) (*pactus.GetValidatorResponse, error) {
+func (m *MockIManager) GetValidatorInfoByNumber(num int32) (*pactus.GetValidatorResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetValidatorInfoByNumber", num)
 	ret0, _ := ret[0].(*pactus.GetValidatorResponse)
@@ -428,43 +442,43 @@ func (m *MockManager) GetValidatorInfoByNumber(num int32) (*pactus.GetValidatorR
 }
 
 // GetValidatorInfoByNumber indicates an expected call of GetValidatorInfoByNumber.
-func (mr *MockManagerMockRecorder) GetValidatorInfoByNumber(num any) *gomock.Call {
+func (mr *MockIManagerMockRecorder) GetValidatorInfoByNumber(num any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidatorInfoByNumber", reflect.TypeOf((*MockManager)(nil).GetValidatorInfoByNumber), num)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValidatorInfoByNumber", reflect.TypeOf((*MockIManager)(nil).GetValidatorInfoByNumber), num)
 }
 
 // Start mocks base method.
-func (m *MockManager) Start() {
+func (m *MockIManager) Start() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Start")
 }
 
 // Start indicates an expected call of Start.
-func (mr *MockManagerMockRecorder) Start() *gomock.Call {
+func (mr *MockIManagerMockRecorder) Start() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockManager)(nil).Start))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockIManager)(nil).Start))
 }
 
 // Stop mocks base method.
-func (m *MockManager) Stop() {
+func (m *MockIManager) Stop() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Stop")
 }
 
 // Stop indicates an expected call of Stop.
-func (mr *MockManagerMockRecorder) Stop() *gomock.Call {
+func (mr *MockIManagerMockRecorder) Stop() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockManager)(nil).Stop))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockIManager)(nil).Stop))
 }
 
 // updateValMap mocks base method.
-func (m *MockManager) updateValMap() {
+func (m *MockIManager) updateValMap() {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "updateValMap")
 }
 
 // updateValMap indicates an expected call of updateValMap.
-func (mr *MockManagerMockRecorder) updateValMap() *gomock.Call {
+func (mr *MockIManagerMockRecorder) updateValMap() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "updateValMap", reflect.TypeOf((*MockManager)(nil).updateValMap))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "updateValMap", reflect.TypeOf((*MockIManager)(nil).updateValMap))
 }

@@ -7,6 +7,7 @@ import (
 )
 
 type IClient interface {
+	Target() string
 	GetBlockchainInfo(context.Context) (*pactus.GetBlockchainInfoResponse, error)
 	GetBlockchainHeight(context.Context) (uint32, error)
 	GetLastBlockTime(context.Context) (uint32, uint32)
