@@ -59,27 +59,27 @@ func (cm *Manager) Stop() {
 func (cm *Manager) updateValMap() {
 	freshValMap := make(map[string]*pactus.PeerInfo)
 
-	for _, c := range cm.clients {
-		networkInfo, err := c.GetNetworkInfo(cm.ctx)
+	for _, client := range cm.clients {
+		networkInfo, err := client.GetNetworkInfo(cm.ctx)
 		if err != nil {
-			logger.Warn("cannot connect to client", "err", err, "target", c.Target())
+			logger.Warn("cannot connect to client", "err", err, "target", client.Target())
 
 			continue
 		}
 
 		if networkInfo == nil {
-			logger.Warn("network info is nil", "target", c.Target())
+			logger.Warn("network info is nil", "target", client.Target())
 
 			continue
 		}
 
 		if len(networkInfo.GetConnectedPeers()) == 0 {
-			logger.Warn("no connected peers", "target", c.Target())
+			logger.Warn("no connected peers", "target", client.Target())
 
 			continue
 		}
 
-		logger.Info("fetching network information", "target", c.Target(), "connected", networkInfo.ConnectedPeersCount)
+		logger.Info("fetching network information", "target", client.Target(), "connected", networkInfo.ConnectedPeersCount)
 		for _, peer := range networkInfo.ConnectedPeers {
 			for _, addr := range peer.ConsensusAddresses {
 				current := freshValMap[addr]
