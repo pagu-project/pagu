@@ -11,7 +11,7 @@ const (
 type User struct {
 	DBModel
 
-	PlatformID     PlatformID `gorm:"type:tinyint"`
-	PlatformUserID string
-	Role           Role `gorm:"type:tinyint"`
+	PlatformID     PlatformID `gorm:"type:tinyint;uniqueIndex:idx_platform_user"`
+	PlatformUserID string     `gorm:"type:char(64);uniqueIndex:idx_platform_user"`
+	Role           Role       `gorm:"type:tinyint"`
 }

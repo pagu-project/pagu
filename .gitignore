@@ -12,5 +12,5 @@ config/config.*.yml
 config/wallets
 config/templates
 __debug_*
-*.sqlite
+*.sqlite*
 deployment/.env

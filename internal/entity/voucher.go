@@ -14,7 +14,7 @@ type Voucher struct {
 	Email       string
 	Recipient   string
 	ValidMonths uint8
-	TxHash      string `gorm:"type:char(64);unique;default:null"`
+	TxHash      string `gorm:"type:char(64);default:null"`
 	ClaimedBy   uint
 }
 
