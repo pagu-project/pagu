@@ -277,16 +277,21 @@ func (be *BotEngine) NetworkStatus() (*network.NetStatus, error) {
 }
 
 func (be *BotEngine) GetUser(appID entity.PlatformID, platformUserID string) (*entity.User, error) {
-	if u, _ := be.db.GetUserByApp(appID, platformUserID); u != nil {
-		return u, nil
+	existingUser, _ := be.db.GetUserByPlatformID(appID, platformUserID)
+	if existingUser != nil {
+		return existingUser, nil
 	}
 
-	user := &entity.User{PlatformID: appID, PlatformUserID: platformUserID}
-	if err := be.db.AddUser(user); err != nil {
+	newUser := &entity.User{
+		PlatformID:     appID,
+		PlatformUserID: platformUserID,
+		Role:           entity.BasicUser,
+	}
+	if err := be.db.AddUser(newUser); err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return newUser, nil
 }
 
 func (be *BotEngine) Stop() {
