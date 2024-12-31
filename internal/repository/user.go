@@ -3,7 +3,7 @@ package repository
 import "github.com/pagu-project/pagu/internal/entity"
 
 func (db *Database) AddUser(u *entity.User) error {
-	tx := db.gormDB.Create(u)
+	tx := db.gormDB.Debug().Create(u)
 	if tx.Error != nil {
 		return WriteError{
 			Message: tx.Error.Error(),
@@ -13,7 +13,7 @@ func (db *Database) AddUser(u *entity.User) error {
 	return nil
 }
 
-func (db *Database) HasUser(id string) bool {
+func (db *Database) HasUser(id uint) bool {
 	var exists bool
 
 	_ = db.gormDB.Model(&entity.User{}).
@@ -25,9 +25,9 @@ func (db *Database) HasUser(id string) bool {
 	return exists
 }
 
-func (db *Database) GetUserByApp(appID entity.PlatformID, callerID string) (*entity.User, error) {
+func (db *Database) GetUserByPlatformID(appID entity.PlatformID, callerID string) (*entity.User, error) {
 	var user *entity.User
-	tx := db.gormDB.Model(&entity.User{}).
+	tx := db.gormDB.Debug().Model(&entity.User{}).
 		Where("platform_id = ?", appID).
 		Where("platform_user_id = ?", callerID).
 		First(&user)
