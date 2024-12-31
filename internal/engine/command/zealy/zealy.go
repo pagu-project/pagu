@@ -15,11 +15,11 @@ const (
 )
 
 type Zealy struct {
-	db     repository.IDatabase
+	db     *repository.Database
 	wallet wallet.IWallet
 }
 
-func NewZealy(db repository.IDatabase, wlt wallet.IWallet) *Zealy {
+func NewZealy(db *repository.Database, wlt wallet.IWallet) *Zealy {
 	return &Zealy{
 		db:     db,
 		wallet: wlt,
@@ -39,7 +39,7 @@ func (z *Zealy) GetCommand() *command.Command {
 			},
 		},
 		SubCommands: nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Handler:     z.claimHandler,
 		TargetFlag:  command.TargetMaskMainnet,
 	}
@@ -49,7 +49,7 @@ func (z *Zealy) GetCommand() *command.Command {
 		Help:        "Status of Zealy reward claims",
 		Args:        nil,
 		SubCommands: nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Handler:     z.statusHandler,
 		TargetFlag:  command.TargetMaskModerator,
 	}
@@ -58,7 +58,7 @@ func (z *Zealy) GetCommand() *command.Command {
 		Name:        CommandName,
 		Help:        "Zealy Commands",
 		Args:        nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
 		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,

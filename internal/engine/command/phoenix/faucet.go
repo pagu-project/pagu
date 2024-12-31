@@ -31,10 +31,10 @@ func (pt *Phoenix) faucetHandler(
 	}
 
 	if err = pt.db.AddFaucet(&entity.PhoenixFaucet{
-		UserID:          caller.ID,
-		Address:         toAddr,
-		Amount:          pt.faucetAmount,
-		TransactionHash: txHash,
+		UserID:  caller.ID,
+		Address: toAddr,
+		Amount:  pt.faucetAmount,
+		TxHash:  txHash,
 	}); err != nil {
 		return cmd.ErrorResult(err)
 	}

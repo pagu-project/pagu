@@ -1,38 +1,38 @@
 package entity
 
-type AppID int
+type PlatformID int
 
 const (
-	AppIDCLI      AppID = 1
-	AppIDDiscord  AppID = 2
-	AppIDgRPC     AppID = 3
-	AppIDHTTP     AppID = 4
-	AppIDTelegram AppID = 5
+	PlatformIDCLI      PlatformID = 1
+	PlatformIDDiscord  PlatformID = 2
+	PlatformIDWeb      PlatformID = 3
+	PlatformIDReserved PlatformID = 4
+	PlatformIDTelegram PlatformID = 5
 )
 
-func (appID AppID) String() string {
+func (appID PlatformID) String() string {
 	switch appID {
-	case AppIDCLI:
+	case PlatformIDCLI:
 		return "CLI"
-	case AppIDDiscord:
+	case PlatformIDDiscord:
 		return "Discord"
-	case AppIDgRPC:
-		return "gRPC"
-	case AppIDHTTP:
-		return "HTTP"
-	case AppIDTelegram:
+	case PlatformIDWeb:
+		return "Web"
+	case PlatformIDReserved:
+		return "Reserved"
+	case PlatformIDTelegram:
 		return "Telegram"
 	}
 
 	return ""
 }
 
-func AllAppIDs() []AppID {
-	return []AppID{
-		AppIDCLI,
-		AppIDDiscord,
-		AppIDgRPC,
-		AppIDHTTP,
-		AppIDTelegram,
+func AllAppIDs() []PlatformID {
+	return []PlatformID{
+		PlatformIDCLI,
+		PlatformIDDiscord,
+		PlatformIDWeb,
+		PlatformIDReserved,
+		PlatformIDTelegram,
 	}
 }

@@ -18,7 +18,7 @@ func newPaguServer(server *Server) *paguServer {
 }
 
 func (ps *paguServer) Run(_ context.Context, req *pagu.RunRequest) (*pagu.RunResponse, error) {
-	res := ps.engine.ParseAndExecute(entity.AppIDgRPC, req.Id, req.Command)
+	res := ps.engine.ParseAndExecute(entity.PlatformIDWeb, req.Id, req.Command)
 
 	return &pagu.RunResponse{
 		Response: res.Message,

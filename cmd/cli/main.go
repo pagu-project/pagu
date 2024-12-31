@@ -49,7 +49,7 @@ func run(cmd *cobra.Command, _ []string) {
 			return
 		}
 
-		response := botEngine.ParseAndExecute(entity.AppIDCLI, "0", input)
+		response := botEngine.ParseAndExecute(entity.PlatformIDCLI, "0", input)
 
 		cmd.Printf("%v\n%v", response.Title, response.Message)
 	}

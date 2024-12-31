@@ -15,12 +15,12 @@ type mailSenderJob struct {
 	ctx        context.Context
 	ticker     *time.Ticker
 	cancel     context.CancelFunc
-	db         repository.IDatabase
+	db         *repository.Database
 	mailSender notification.ISender
 	templates  map[string]string
 }
 
-func NewMailSender(db repository.IDatabase, mailSender notification.ISender, templates map[string]string) Job {
+func NewMailSender(db *repository.Database, mailSender notification.ISender, templates map[string]string) Job {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &mailSenderJob{

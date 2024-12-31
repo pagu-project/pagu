@@ -2,22 +2,20 @@ package entity
 
 import (
 	"github.com/pagu-project/pagu/pkg/amount"
-	"gorm.io/gorm"
 )
 
 type Voucher struct {
-	ID          uint          `gorm:"primaryKey;unique"`
-	Creator     uint          `gorm:"size:255"`
-	Code        string        `gorm:"size:8"`
+	DBModel
+
+	Creator     uint
+	Code        string        `gorm:"type:char(8);unique"`
 	Amount      amount.Amount `gorm:"column:amount"`
 	Desc        string
 	Email       string
 	Recipient   string
 	ValidMonths uint8
-	TxHash      string
+	TxHash      string `gorm:"type:char(64);unique;default:null"`
 	ClaimedBy   uint
-
-	gorm.Model
 }
 
 func (Voucher) TableName() string {

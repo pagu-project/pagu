@@ -51,7 +51,7 @@ func (hh *HTTPHandler) Run(ctx echo.Context) error {
 		return err
 	}
 
-	cmdResult := hh.engine.ParseAndExecute(entity.AppIDHTTP, ctx.RealIP(), r.Command)
+	cmdResult := hh.engine.ParseAndExecute(entity.PlatformIDReserved, ctx.RealIP(), r.Command)
 
 	return ctx.JSON(http.StatusOK, RunResponse{
 		Result: cmdResult.Message,

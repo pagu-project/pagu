@@ -45,7 +45,7 @@ type Command struct {
 	Name        string
 	Help        string
 	Args        []Args // should be nil for commands.
-	AppIDs      []entity.AppID
+	AppIDs      []entity.PlatformID
 	SubCommands []*Command
 	Middlewares []MiddlewareFunc
 	Handler     HandlerFunc
@@ -100,7 +100,7 @@ func (cmd *Command) HelpResult() CommandResult {
 	}
 }
 
-func (cmd *Command) HasAppID(appID entity.AppID) bool {
+func (cmd *Command) HasAppID(appID entity.PlatformID) bool {
 	return slices.Contains(cmd.AppIDs, appID)
 }
 

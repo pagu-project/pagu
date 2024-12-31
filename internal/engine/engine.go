@@ -32,7 +32,7 @@ type BotEngine struct {
 	cancel context.CancelFunc
 
 	clientMgr client.IManager
-	db        repository.IDatabase
+	db        *repository.Database
 	rootCmd   *command.Command
 
 	// commands
@@ -129,7 +129,7 @@ func (be *BotEngine) RegisterAllCommands() {
 // ParseAndExecute parses the input string and executes it.
 // It returns an error if parsing fails or execution is unsuccessful.
 func (be *BotEngine) ParseAndExecute(
-	appID entity.AppID,
+	appID entity.PlatformID,
 	callerID string,
 	input string,
 ) command.CommandResult {
@@ -186,7 +186,7 @@ func parseCommand(input string) ([]string, map[string]string, error) {
 // executeCommand executes the parsed commands with their corresponding arguments.
 // It returns an error if the execution fails.
 func (be *BotEngine) executeCommand(
-	appID entity.AppID,
+	appID entity.PlatformID,
 	callerID string,
 	commands []string,
 	args map[string]string,
@@ -276,12 +276,12 @@ func (be *BotEngine) NetworkStatus() (*network.NetStatus, error) {
 	}, nil
 }
 
-func (be *BotEngine) GetUser(appID entity.AppID, callerID string) (*entity.User, error) {
-	if u, _ := be.db.GetUserByApp(appID, callerID); u != nil {
+func (be *BotEngine) GetUser(appID entity.PlatformID, platformUserID string) (*entity.User, error) {
+	if u, _ := be.db.GetUserByApp(appID, platformUserID); u != nil {
 		return u, nil
 	}
 
-	user := &entity.User{ApplicationID: appID, CallerID: callerID}
+	user := &entity.User{PlatformID: appID, PlatformUserID: platformUserID}
 	if err := be.db.AddUser(user); err != nil {
 		return nil, err
 	}
@@ -304,7 +304,7 @@ func (be *BotEngine) Start() {
 
 func newBotEngine(ctx context.Context,
 	cancel context.CancelFunc,
-	db repository.IDatabase,
+	db *repository.Database,
 	mgr client.IManager,
 	wlt wallet.IWallet,
 	phoenixFaucetAmount amount.Amount,

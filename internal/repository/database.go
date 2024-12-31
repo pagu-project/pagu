@@ -11,7 +11,7 @@ import (
 )
 
 type Database struct {
-	*gorm.DB
+	gormDB *gorm.DB
 }
 
 func NewDB(path string) (*Database, error) {
@@ -59,6 +59,6 @@ func NewDB(path string) (*Database, error) {
 	}
 
 	return &Database{
-		DB: db,
+		gormDB: db,
 	}, nil
 }

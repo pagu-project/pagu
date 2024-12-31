@@ -95,7 +95,7 @@ func (bot *Bot) registerCommands() error {
 	commands := make([]tele.Command, 0)
 
 	for i, beCmd := range bot.engine.Commands() {
-		if !beCmd.HasAppID(entity.AppIDTelegram) {
+		if !beCmd.HasAppID(entity.PlatformIDTelegram) {
 			continue
 		}
 
@@ -252,7 +252,7 @@ func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
 	}
 
 	// Call the engine's Run method with the full command string
-	res := bot.engine.ParseAndExecute(entity.AppIDTelegram, callerID, fullCommand)
+	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, callerID, fullCommand)
 	_ = bot.botInstance.Delete(ctx.Message())
 
 	// Clear the stored command context and arguments for the sender
