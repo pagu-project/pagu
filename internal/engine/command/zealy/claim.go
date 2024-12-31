@@ -9,7 +9,7 @@ import (
 )
 
 func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
-	user, err := z.db.GetZealyUser(caller.UserID)
+	user, err := z.db.GetZealyUser(caller.PlatformUserID)
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
@@ -28,7 +28,7 @@ func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map
 		return cmd.ErrorResult(transferErr)
 	}
 
-	if err = z.db.UpdateZealyUser(caller.UserID, txHash); err != nil {
+	if err = z.db.UpdateZealyUser(caller.PlatformUserID, txHash); err != nil {
 		return cmd.ErrorResult(err)
 	}
 

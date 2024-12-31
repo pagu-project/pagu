@@ -12,7 +12,7 @@ type PhoenixFaucet struct {
 	UserID  uint          `gorm:"type:bigint"`
 	Address string        `gorm:"type:char(43)"`
 	Amount  amount.Amount `gorm:"column:amount"`
-	TxHash  string        `gorm:"default:null"`
+	TxHash  string        `gorm:"type:char(64);unique;not_null"`
 }
 
 func (*PhoenixFaucet) TableName() string {

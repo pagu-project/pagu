@@ -9,7 +9,7 @@ type ZealyUser struct {
 
 	Amount    amount.Amount `gorm:"column:amount"`
 	DiscordID string        `gorm:"column:discord_id"`
-	TxHash    string        `gorm:"type:char(64);unique"`
+	TxHash    string        `gorm:"type:char(64);unique;default:null"`
 }
 
 func (z *ZealyUser) IsClaimed() bool {

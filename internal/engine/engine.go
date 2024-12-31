@@ -276,12 +276,12 @@ func (be *BotEngine) NetworkStatus() (*network.NetStatus, error) {
 	}, nil
 }
 
-func (be *BotEngine) GetUser(appID entity.PlatformID, callerID string) (*entity.User, error) {
-	if u, _ := be.db.GetUserByApp(appID, callerID); u != nil {
+func (be *BotEngine) GetUser(appID entity.PlatformID, platformUserID string) (*entity.User, error) {
+	if u, _ := be.db.GetUserByApp(appID, platformUserID); u != nil {
 		return u, nil
 	}
 
-	user := &entity.User{PlatformID: appID, UserID: callerID}
+	user := &entity.User{PlatformID: appID, PlatformUserID: platformUserID}
 	if err := be.db.AddUser(user); err != nil {
 		return nil, err
 	}
