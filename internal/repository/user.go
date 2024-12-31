@@ -28,8 +28,8 @@ func (db *Database) HasUser(id string) bool {
 func (db *Database) GetUserByApp(appID entity.PlatformID, callerID string) (*entity.User, error) {
 	var user *entity.User
 	tx := db.gormDB.Model(&entity.User{}).
-		Where("application_id = ?", appID).
-		Where("caller_id = ?", callerID).
+		Where("platform_id = ?", appID).
+		Where("platform_user_id = ?", callerID).
 		First(&user)
 
 	if tx.Error != nil {
