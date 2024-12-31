@@ -18,12 +18,12 @@ const (
 )
 
 type Voucher struct {
-	db            repository.IDatabase
+	db            *repository.Database
 	wallet        wallet.IWallet
 	clientManager client.IManager
 }
 
-func NewVoucher(db repository.IDatabase, wlt wallet.IWallet, cli client.IManager) *Voucher {
+func NewVoucher(db *repository.Database, wlt wallet.IWallet, cli client.IManager) *Voucher {
 	return &Voucher{
 		db:            db,
 		wallet:        wlt,
@@ -52,7 +52,7 @@ func (v *Voucher) GetCommand() *command.Command {
 			},
 		},
 		SubCommands: nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.WalletBalance},
 		Handler:     v.claimHandler,
 		TargetFlag:  command.TargetMaskMainnet,
@@ -88,7 +88,7 @@ func (v *Voucher) GetCommand() *command.Command {
 			},
 		},
 		SubCommands: nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
 		Handler:     v.createOneHandler,
 		TargetFlag:  command.TargetMaskModerator,
@@ -112,7 +112,7 @@ func (v *Voucher) GetCommand() *command.Command {
 			},
 		},
 		SubCommands: nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
 		Handler:     v.createBulkHandler,
 		TargetFlag:  command.TargetMaskModerator,
@@ -130,7 +130,7 @@ func (v *Voucher) GetCommand() *command.Command {
 			},
 		},
 		SubCommands: nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
 		Handler:     v.statusHandler,
 		TargetFlag:  command.TargetMaskModerator,
@@ -140,7 +140,7 @@ func (v *Voucher) GetCommand() *command.Command {
 		Name:        CommandName,
 		Help:        "Voucher Commands",
 		Args:        nil,
-		AppIDs:      []entity.AppID{entity.AppIDDiscord},
+		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
 		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,

@@ -3,7 +3,6 @@ package entity
 import (
 	"github.com/pagu-project/pagu/pkg/notification"
 	"gorm.io/datatypes"
-	"gorm.io/gorm"
 )
 
 type NotificationStatus int
@@ -15,13 +14,12 @@ const (
 )
 
 type Notification struct {
-	ID        uint                          `gorm:"primaryKey;unique"`
-	Type      notification.NotificationType `gorm:"size:2"`
+	DBModel
+
+	Type      notification.NotificationType `gorm:"type:tinyint"`
 	Recipient string                        `gorm:"size:255"`
 	Data      datatypes.JSON
-	Status    NotificationStatus `gorm:"size:2"`
-
-	gorm.Model
+	Status    NotificationStatus `gorm:"type:tinyint"`
 }
 
 type VoucherNotificationData struct {

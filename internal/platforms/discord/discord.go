@@ -84,7 +84,7 @@ func (bot *Bot) registerCommands() error {
 
 	beCmds := bot.engine.Commands()
 	for i, beCmd := range beCmds {
-		if !beCmd.HasAppID(entity.AppIDDiscord) {
+		if !beCmd.HasAppID(entity.PlatformIDDiscord) {
 			continue
 		}
 
@@ -220,7 +220,7 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 		inputBuilder.WriteString(fmt.Sprintf(" --%s=%s", k, v))
 	}
 
-	res := bot.engine.ParseAndExecute(entity.AppIDDiscord, i.Member.User.ID, inputBuilder.String())
+	res := bot.engine.ParseAndExecute(entity.PlatformIDDiscord, i.Member.User.ID, inputBuilder.String())
 	bot.respondResultMsg(res, s, i)
 }
 

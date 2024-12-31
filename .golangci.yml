@@ -193,6 +193,8 @@ linters-settings:
       - ok
       - ip
       - no
+      - td # test_data
+      - ts # test_suite
       - db
       - tt # table tests
       - i # i *discordgo.InteractionCreate

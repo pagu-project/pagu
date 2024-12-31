@@ -73,7 +73,7 @@ func (v *Voucher) statusAllVouchers(cmd *command.Command) command.CommandResult 
 		}
 	}
 
-	return cmd.SuccessfulResultF("Total Codes: %d\nTotal Amount: %s\n\n\n"+
+	return cmd.SuccessfulResultF("Total Vouchers: %d\nTotal Amount: %s\n\n\n"+
 		"Claimed: %d\nTotal Claimed Amount: %s\nTotal Expired: %d"+
 		"\n",
 		total,

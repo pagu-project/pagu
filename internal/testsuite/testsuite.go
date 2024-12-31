@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
@@ -45,6 +46,12 @@ func NewTestSuite(t *testing.T) *TestSuite {
 		//nolint:gosec // to reproduce the failed tests
 		Rand: rand.New(rand.NewSource(seed)),
 	}
+}
+
+func (*TestSuite) MakeTestDB() *repository.Database {
+	db, _ := repository.NewDB("sqlite:file::memory:")
+
+	return db
 }
 
 // RandBool returns a random boolean value.

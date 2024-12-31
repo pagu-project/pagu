@@ -4,17 +4,15 @@ import (
 	"time"
 
 	"github.com/pagu-project/pagu/pkg/amount"
-	"gorm.io/gorm"
 )
 
 type PhoenixFaucet struct {
-	ID              uint `gorm:"primaryKey;unique"`
-	UserID          uint `gorm:"size:255"`
-	Address         string
-	Amount          amount.Amount `gorm:"column:amount"`
-	TransactionHash string
+	DBModel
 
-	gorm.Model
+	UserID  uint          `gorm:"type:bigint"`
+	Address string        `gorm:"type:char(43)"`
+	Amount  amount.Amount `gorm:"column:amount"`
+	TxHash  string        `gorm:"default:null"`
 }
 
 func (*PhoenixFaucet) TableName() string {
