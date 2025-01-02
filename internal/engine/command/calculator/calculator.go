@@ -6,67 +6,52 @@ import (
 	"github.com/pagu-project/pagu/pkg/client"
 )
 
-const (
-	CommandName           = "calculate"
-	CalcRewardCommandName = "reward"
-	CalcFeeCommandName    = "fee"
-	HelpCommandName       = "help"
-)
-
-type Calculator struct {
+type CalculatorCmd struct {
 	clientMgr client.IManager
 }
 
-func NewCalculator(clientMgr client.IManager) *Calculator {
-	return &Calculator{
+func NewCalculatorCmd(clientMgr client.IManager) *CalculatorCmd {
+	return &CalculatorCmd{
 		clientMgr: clientMgr,
 	}
 }
 
-func (bc *Calculator) GetCommand() *command.Command {
+func (c *CalculatorCmd) GetCommand() *command.Command {
 	subCmdCalcReward := &command.Command{
-		Name: CalcRewardCommandName,
-		Help: "Calculate how many PAC coins you will earn with your validator stake",
+		Name: "reward",
+		Help: "Calculate the PAC coins you can earn based on your validator stake",
 		Args: []command.Args{
 			{
 				Name:     "stake",
-				Desc:     "Amount of stake in your validator (1-1000)",
+				Desc:     "The amount of stake in your validator",
 				InputBox: command.InputBoxAmount,
 				Optional: false,
 			},
 			{
 				Name:     "days",
-				Desc:     "Number of days (1-365)",
+				Desc:     "The number of days to calculate rewards for (range: 1-365)",
 				InputBox: command.InputBoxNumber,
 				Optional: false,
 			},
 		},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     bc.calcRewardHandler,
+		Handler:     c.calcRewardHandler,
 		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	subCmdCalcFee := &command.Command{
-		Name: CalcFeeCommandName,
-		Help: "Calculate fee of a transaction with providing amount",
-		Args: []command.Args{
-			{
-				Name:     "amount",
-				Desc:     "Amount of transaction",
-				InputBox: command.InputBoxAmount,
-				Optional: false,
-			},
-		},
+		Name:        "fee",
+		Help:        "Return the estimated transaction fee on the network",
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     bc.calcFeeHandler,
+		Handler:     c.calcFeeHandler,
 		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	cmdBlockchain := &command.Command{
-		Name:        CommandName,
-		Help:        "Calculator information and tools",
+		Name:        "calculate",
+		Help:        "Perform calculations such as reward and fee estimations",
 		Args:        nil,
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),

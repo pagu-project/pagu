@@ -8,45 +8,36 @@ import (
 	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
-const (
-	CommandName           = "voucher"
-	ClaimCommandName      = "claim"
-	CreateOneCommandName  = "create-one"
-	CreateBulkCommandName = "create-bulk"
-	StatusCommandName     = "status"
-	HelpCommandName       = "help"
-)
-
-type Voucher struct {
+type VoucherCmd struct {
 	db            *repository.Database
 	wallet        wallet.IWallet
 	clientManager client.IManager
 }
 
-func NewVoucher(db *repository.Database, wlt wallet.IWallet, cli client.IManager) *Voucher {
-	return &Voucher{
+func NewVoucherCmd(db *repository.Database, wlt wallet.IWallet, cli client.IManager) *VoucherCmd {
+	return &VoucherCmd{
 		db:            db,
 		wallet:        wlt,
 		clientManager: cli,
 	}
 }
 
-func (v *Voucher) GetCommand() *command.Command {
+func (v *VoucherCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(v.db, v.wallet)
 
 	subCmdClaim := &command.Command{
-		Name: ClaimCommandName,
-		Help: "Claim your voucher coins and bond to validator",
+		Name: "claim",
+		Help: "Claim voucher coins and bond them to a validator",
 		Args: []command.Args{
 			{
 				Name:     "code",
-				Desc:     "voucher code",
+				Desc:     "The voucher code",
 				InputBox: command.InputBoxText,
 				Optional: false,
 			},
 			{
 				Name:     "address",
-				Desc:     "your pactus validator address",
+				Desc:     "Your Pactus validator address",
 				InputBox: command.InputBoxText,
 				Optional: false,
 			},
@@ -59,30 +50,30 @@ func (v *Voucher) GetCommand() *command.Command {
 	}
 
 	subCmdCreateOne := &command.Command{
-		Name: CreateOneCommandName,
-		Help: "Create a new voucher code",
+		Name: "create-one",
+		Help: "Generate a single voucher code",
 		Args: []command.Args{
 			{
 				Name:     "amount",
-				Desc:     "Amount of PAC to bond",
+				Desc:     "The amount of PAC to bond",
 				InputBox: command.InputBoxAmount,
 				Optional: false,
 			},
 			{
 				Name:     "valid-months",
-				Desc:     "Indicates how many months the voucher is valid after it is issued",
+				Desc:     "Number of months the voucher remains valid after issuance",
 				InputBox: command.InputBoxNumber,
 				Optional: false,
 			},
 			{
 				Name:     "recipient",
-				Desc:     "Indicates the name of the recipient of the voucher",
+				Desc:     "The recipient's name for the voucher",
 				InputBox: command.InputBoxText,
 				Optional: true,
 			},
 			{
 				Name:     "description",
-				Desc:     "Describes the reason for issuing the voucher",
+				Desc:     "A description of the voucher's purpose",
 				InputBox: command.InputBoxText,
 				Optional: true,
 			},
@@ -95,18 +86,18 @@ func (v *Voucher) GetCommand() *command.Command {
 	}
 
 	subCmdCreateBulk := &command.Command{
-		Name: CreateBulkCommandName,
-		Help: "Create more than one voucher code by importing file",
+		Name: "create-bulk",
+		Help: "Generate multiple voucher codes by importing a file",
 		Args: []command.Args{
 			{
 				Name:     "file",
-				Desc:     "include list of vouchers receivers",
+				Desc:     "File containing a list of voucher recipients",
 				InputBox: command.InputBoxFile,
 				Optional: false,
 			},
 			{
 				Name:     "notify",
-				Desc:     "Notify receivers by sending mail",
+				Desc:     "Send notifications to recipients via email",
 				InputBox: command.InputBoxToggle,
 				Optional: false,
 			},
@@ -119,12 +110,12 @@ func (v *Voucher) GetCommand() *command.Command {
 	}
 
 	subCmdStatus := &command.Command{
-		Name: StatusCommandName,
-		Help: "Get status of vouchers/one voucher",
+		Name: "status",
+		Help: "View the status of vouchers or a specific voucher",
 		Args: []command.Args{
 			{
 				Name:     "code",
-				Desc:     "Voucher code (8 characters)",
+				Desc:     "The voucher code (8 characters)",
 				InputBox: command.InputBoxText,
 				Optional: true,
 			},
@@ -137,8 +128,8 @@ func (v *Voucher) GetCommand() *command.Command {
 	}
 
 	cmdVoucher := &command.Command{
-		Name:        CommandName,
-		Help:        "Voucher Commands",
+		Name:        "voucher",
+		Help:        "Commands for managing vouchers",
 		Args:        nil,
 		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		SubCommands: make([]*command.Command, 0),

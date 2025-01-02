@@ -8,21 +8,13 @@ import (
 	"github.com/pagu-project/pagu/pkg/client"
 )
 
-const (
-	CommandName         = "network"
-	NodeInfoCommandName = "node-info"
-	StatusCommandName   = "status"
-	HealthCommandName   = "health"
-	HelpCommandName     = "help"
-)
-
-type Network struct {
+type NetworkCmd struct {
 	ctx       context.Context
 	clientMgr client.IManager
 }
 
-func NewNetwork(ctx context.Context, clientMgr client.IManager) *Network {
-	return &Network{
+func NewNetworkCmd(ctx context.Context, clientMgr client.IManager) *NetworkCmd {
+	return &NetworkCmd{
 		ctx:       ctx,
 		clientMgr: clientMgr,
 	}
@@ -58,14 +50,14 @@ type NetStatus struct {
 	CirculatingSupply   int64
 }
 
-func (n *Network) GetCommand() *command.Command {
+func (n *NetworkCmd) GetCommand() *command.Command {
 	subCmdNodeInfo := &command.Command{
-		Name: NodeInfoCommandName,
-		Help: "View the information of a node",
+		Name: "node-info",
+		Help: "View information about a specific node",
 		Args: []command.Args{
 			{
 				Name:     "validator_address",
-				Desc:     "Your validator address",
+				Desc:     "The validator address",
 				InputBox: command.InputBoxText,
 				Optional: false,
 			},
@@ -77,28 +69,28 @@ func (n *Network) GetCommand() *command.Command {
 	}
 
 	subCmdHealth := &command.Command{
-		Name:        HealthCommandName,
-		Help:        "Checking network health status",
+		Name:        "health",
+		Help:        "Check the network health status",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.networkHealthHandler,
+		Handler:     n.healthHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 
 	subCmdStatus := &command.Command{
-		Name:        StatusCommandName,
-		Help:        "Network statistics",
+		Name:        "status",
+		Help:        "View network statistics",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.networkStatusHandler,
+		Handler:     n.statusHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 
 	cmdNetwork := &command.Command{
-		Name:        CommandName,
-		Help:        "Network related commands",
+		Name:        "network",
+		Help:        "Commands for network metrics and information",
 		Args:        nil,
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),
@@ -106,8 +98,8 @@ func (n *Network) GetCommand() *command.Command {
 		TargetFlag:  command.TargetMaskAll,
 	}
 
-	cmdNetwork.AddSubCommand(subCmdHealth)
 	cmdNetwork.AddSubCommand(subCmdNodeInfo)
+	cmdNetwork.AddSubCommand(subCmdHealth)
 	cmdNetwork.AddSubCommand(subCmdStatus)
 
 	return cmdNetwork

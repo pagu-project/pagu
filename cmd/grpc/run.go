@@ -33,7 +33,6 @@ func runCommand(parentCmd *cobra.Command) {
 		botEngine, err := engine.NewBotEngine(config)
 		pagucmd.ExitOnError(cmd, err)
 
-		botEngine.RegisterAllCommands()
 		botEngine.Start()
 
 		grpcServer := grpc.NewServer(botEngine, config.GRPC)

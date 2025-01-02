@@ -17,18 +17,20 @@ func TestClaim(t *testing.T) {
 	cmd := &command.Command{}
 
 	t.Run("Invalid Voucher Code", func(t *testing.T) {
-		args := make(map[string]string)
-		args["code"] = "0"
-		args["address"] = "pc1z"
+		args := map[string]string{
+			"code":    "0",
+			"address": "pc1p...",
+		}
 		result := td.voucherCmd.claimHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 		assert.Equal(t, result.Message, "An error occurred: voucher code is not valid, length must be 8")
 	})
 
 	t.Run("Voucher Code Not Issued Yet", func(t *testing.T) {
-		args := make(map[string]string)
-		args["code"] = voucherCode
-		args["address"] = "pc1z"
+		args := map[string]string{
+			"code":    voucherCode,
+			"address": "pc1p...",
+		}
 		result := td.voucherCmd.claimHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 		assert.Equal(t, result.Message, "An error occurred: voucher code is not valid, no voucher found")
@@ -36,7 +38,7 @@ func TestClaim(t *testing.T) {
 
 	t.Run("Claim a Voucher", func(t *testing.T) {
 		testVoucher := td.createTestVoucher(t, WithCode(voucherCode))
-		validatorAddr := "pc1p123"
+		validatorAddr := "pc1p..."
 
 		td.clientManager.EXPECT().GetValidatorInfo(validatorAddr).Return(
 			nil, nil,
@@ -51,18 +53,20 @@ func TestClaim(t *testing.T) {
 			"0x1", nil,
 		).AnyTimes()
 
-		args := make(map[string]string)
-		args["code"] = testVoucher.Code
-		args["address"] = validatorAddr
+		args := map[string]string{
+			"code":    voucherCode,
+			"address": validatorAddr,
+		}
 		result := td.voucherCmd.claimHandler(caller, cmd, args)
 		assert.True(t, result.Successful)
 		assert.Equal(t, result.Message, "Voucher claimed successfully!\n\n https://pacviewer.com/transaction/0x1")
 	})
 
 	t.Run("Claim again", func(t *testing.T) {
-		args := make(map[string]string)
-		args["code"] = voucherCode
-		args["address"] = "pc1z"
+		args := map[string]string{
+			"code":    voucherCode,
+			"address": "pc1p...",
+		}
 		result := td.voucherCmd.claimHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 		assert.Equal(t, result.Message, "An error occurred: voucher code claimed before")

@@ -7,7 +7,7 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (pt *Phoenix) faucetHandler(
+func (p *PhoenixCmd) faucetHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -21,24 +21,24 @@ func (pt *Phoenix) faucetHandler(
 		return cmd.ErrorResult(errors.New("invalid wallet address"))
 	}
 
-	if !pt.db.CanGetFaucet(caller) {
+	if !p.db.CanGetFaucet(caller) {
 		return cmd.FailedResult("Uh, you used your share of faucets today!")
 	}
 
-	txHash, err := pt.wallet.TransferTransaction(toAddr, "Phoenix Testnet Pagu PhoenixFaucet", pt.faucetAmount)
+	txHash, err := p.wallet.TransferTransaction(toAddr, "Phoenix Testnet Pagu PhoenixFaucet", p.faucetAmount)
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
 
-	if err = pt.db.AddFaucet(&entity.PhoenixFaucet{
+	if err = p.db.AddFaucet(&entity.PhoenixFaucet{
 		UserID:  caller.ID,
 		Address: toAddr,
-		Amount:  pt.faucetAmount,
+		Amount:  p.faucetAmount,
 		TxHash:  txHash,
 	}); err != nil {
 		return cmd.ErrorResult(err)
 	}
 
 	return cmd.SuccessfulResultF("You got %f tPAC on Phoenix Testnet!\n\n"+
-		"https://phoenix.pacviewer.com/transaction/%s", pt.faucetAmount.ToPAC(), txHash)
+		"https://phoenix.pacviewer.com/transaction/%s", p.faucetAmount.ToPAC(), txHash)
 }

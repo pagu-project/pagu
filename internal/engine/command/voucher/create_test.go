@@ -16,37 +16,45 @@ func TestCreateOne(t *testing.T) {
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 
 	t.Run("more than 1000 PAC", func(t *testing.T) {
-		args := make(map[string]string)
-		args["amount"] = "1001"
-		args["valid-months"] = "1"
+		args := map[string]string{
+			"amount":       "1001",
+			"valid-months": "1",
+		}
+
 		result := td.voucherCmd.createOneHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "stake amount is more than 1000")
 	})
 
 	t.Run("wrong month", func(t *testing.T) {
-		args := make(map[string]string)
-		args["amount"] = "100"
-		args["valid-months"] = "1.1"
+		args := map[string]string{
+			"amount":       "100",
+			"valid-months": "1.1",
+		}
+
 		result := td.voucherCmd.createOneHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 	})
 
 	t.Run("normal", func(t *testing.T) {
-		args := make(map[string]string)
-		args["amount"] = "100"
-		args["valid-months"] = "1"
+		args := map[string]string{
+			"amount":       "100",
+			"valid-months": "1",
+		}
+
 		result := td.voucherCmd.createOneHandler(caller, cmd, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})
 
 	t.Run("normal with optional arguments", func(t *testing.T) {
-		args := make(map[string]string)
-		args["amount"] = "100"
-		args["valid-months"] = "12"
-		args["recipient"] = "Kayhan"
-		args["description"] = "Testnet node"
+		args := map[string]string{
+			"amount":       "100",
+			"valid-months": "12",
+			"recipient":    "Kayhan",
+			"description":  "Testnet node",
+		}
+
 		result := td.voucherCmd.createOneHandler(caller, cmd, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher created successfully!")
@@ -68,9 +76,10 @@ func TestCreateBulk(t *testing.T) {
 				"foo.bar,a@gmail.com,1,2,Some Descriptions\n" +
 				"foo.bar,b@gmail.com,1,2,Some Descriptions")
 
-		args := make(map[string]string)
-		args["file"] = "http://foo.com/bar"
-		args["notify"] = "TRUE"
+		args := map[string]string{
+			"file":   "http://foo.com/bar",
+			"notify": "TRUE",
+		}
 
 		result := td.voucherCmd.createBulkHandler(caller, cmd, args)
 

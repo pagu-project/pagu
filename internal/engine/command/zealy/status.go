@@ -6,7 +6,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
-func (z *Zealy) statusHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
+func (z *ZealyCmd) statusHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
 	allUsers, err := z.db.GetAllZealyUser()
 	if err != nil {
 		return cmd.ErrorResult(err)

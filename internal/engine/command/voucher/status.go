@@ -10,7 +10,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
-func (v *Voucher) statusHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
+func (v *VoucherCmd) statusHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
 	if args["code"] != "" {
 		code, ok := args["code"]
 		if !ok {
@@ -23,7 +23,7 @@ func (v *Voucher) statusHandler(_ *entity.User, cmd *command.Command, args map[s
 	return v.statusAllVouchers(cmd)
 }
 
-func (v *Voucher) statusVoucher(cmd *command.Command, code string) command.CommandResult {
+func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.CommandResult {
 	voucher, err := v.db.GetVoucherByCode(code)
 	if err != nil {
 		return cmd.ErrorResult(errors.New("voucher code is not valid, no voucher found"))
@@ -48,7 +48,7 @@ func (v *Voucher) statusVoucher(cmd *command.Command, code string) command.Comma
 		txLink)
 }
 
-func (v *Voucher) statusAllVouchers(cmd *command.Command) command.CommandResult {
+func (v *VoucherCmd) statusAllVouchers(cmd *command.Command) command.CommandResult {
 	vouchers, err := v.db.ListVoucher()
 	if err != nil {
 		return cmd.ErrorResult(err)

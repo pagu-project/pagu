@@ -8,7 +8,9 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
-func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
+func (z *ZealyCmd) claimHandler(caller *entity.User,
+	cmd *command.Command, args map[string]string,
+) command.CommandResult {
 	user, err := z.db.GetZealyUser(caller.PlatformUserID)
 	if err != nil {
 		return cmd.ErrorResult(err)

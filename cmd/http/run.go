@@ -33,7 +33,6 @@ func runCommand(parentCmd *cobra.Command) {
 		botEngine, err := engine.NewBotEngine(configs)
 		pagucmd.ExitOnError(cmd, err)
 
-		botEngine.RegisterAllCommands()
 		botEngine.Start()
 
 		httpServer := http.NewHTTPServer(botEngine, configs.HTTP)

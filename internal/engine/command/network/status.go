@@ -7,7 +7,7 @@ import (
 	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (n *Network) networkStatusHandler(
+func (n *NetworkCmd) statusHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,

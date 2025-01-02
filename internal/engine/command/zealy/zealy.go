@@ -7,33 +7,26 @@ import (
 	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
-const (
-	CommandName       = "zealy"
-	ClaimCommandName  = "claim"
-	StatusCommandName = "status"
-	HelpCommandName   = "help"
-)
-
-type Zealy struct {
+type ZealyCmd struct {
 	db     *repository.Database
 	wallet wallet.IWallet
 }
 
-func NewZealy(db *repository.Database, wlt wallet.IWallet) *Zealy {
-	return &Zealy{
+func NewZealyCmd(db *repository.Database, wlt wallet.IWallet) *ZealyCmd {
+	return &ZealyCmd{
 		db:     db,
 		wallet: wlt,
 	}
 }
 
-func (z *Zealy) GetCommand() *command.Command {
+func (z *ZealyCmd) GetCommand() *command.Command {
 	subCmdClaim := &command.Command{
-		Name: ClaimCommandName,
-		Help: "Claim your Zealy Reward",
+		Name: "claim",
+		Help: "Claim your Zealy reward",
 		Args: []command.Args{
 			{
 				Name:     "address",
-				Desc:     "Your Pactus address",
+				Desc:     "The Pactus address where the reward will be claimed",
 				InputBox: command.InputBoxText,
 				Optional: false,
 			},
@@ -45,8 +38,8 @@ func (z *Zealy) GetCommand() *command.Command {
 	}
 
 	subCmdStatus := &command.Command{
-		Name:        StatusCommandName,
-		Help:        "Status of Zealy reward claims",
+		Name:        "status",
+		Help:        "Check the status of Zealy reward claims",
 		Args:        nil,
 		SubCommands: nil,
 		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
@@ -55,8 +48,8 @@ func (z *Zealy) GetCommand() *command.Command {
 	}
 
 	cmdZealy := &command.Command{
-		Name:        CommandName,
-		Help:        "Zealy Commands",
+		Name:        "zealy",
+		Help:        "Commands for managing Zealy campaign",
 		Args:        nil,
 		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		SubCommands: make([]*command.Command, 0),

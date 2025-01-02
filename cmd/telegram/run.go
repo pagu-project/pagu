@@ -32,7 +32,6 @@ func runCommand(parentCmd *cobra.Command) {
 
 		log.InitGlobalLogger(configs.Logger)
 
-		botEngine.RegisterAllCommands()
 		botEngine.Start()
 
 		telegramBot, err := telegram.NewTelegramBot(botEngine, configs.Telegram.BotToken, configs)

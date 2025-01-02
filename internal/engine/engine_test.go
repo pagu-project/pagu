@@ -1,11 +1,18 @@
 package engine
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/testsuite"
+	"github.com/pagu-project/pagu/pkg/client"
+	"github.com/pagu-project/pagu/pkg/wallet"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/mock/gomock"
 )
 
 func TestParseCommand(t *testing.T) {
@@ -85,4 +92,51 @@ func TestParseCommand(t *testing.T) {
 			}
 		})
 	}
+}
+
+func isLowerCase(s string) bool {
+	return s == strings.ToLower(s)
+}
+
+func endsWithPeriod(s string) bool {
+	return strings.HasSuffix(s, ".")
+}
+
+func TestCheckCommandsAndArgs(t *testing.T) {
+	ts := testsuite.NewTestSuite(t)
+	ctrl := gomock.NewController(t)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	testDB := ts.MakeTestDB()
+	mockClientManager := client.NewMockIManager(ctrl)
+	mockWallet := wallet.NewMockIWallet(ctrl)
+	eng := newBotEngine(ctx, cancel, testDB, mockClientManager, mockWallet, 5)
+
+	var checkCommands func(cmds []*command.Command)
+
+	checkCommands = func(cmds []*command.Command) {
+		for _, cmd := range cmds {
+			if !isLowerCase(cmd.Name) {
+				t.Errorf("Command name is not lowercase: %s", cmd.Name)
+			}
+
+			if endsWithPeriod(cmd.Help) {
+				t.Errorf("Command help should not end with a period: %s", cmd.Help)
+			}
+
+			for _, arg := range cmd.Args {
+				if !isLowerCase(arg.Name) {
+					t.Errorf("Argument name is not lowercase: %s", cmd.Name)
+				}
+
+				if endsWithPeriod(arg.Desc) {
+					t.Errorf("Argument desc should not end with a period: %s", cmd.Help)
+				}
+			}
+
+			checkCommands(cmd.SubCommands)
+		}
+	}
+
+	checkCommands(eng.Commands())
 }
