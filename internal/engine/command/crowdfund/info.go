@@ -5,7 +5,7 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (*Crowdfund) handlerInfo(
+func (*Crowdfund) infoHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,

@@ -104,6 +104,55 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 	return newBotEngine(ctx, cancel, db, mgr, wlt, cfg.Phoenix.FaucetAmount), nil
 }
 
+func newBotEngine(ctx context.Context,
+	cancel context.CancelFunc,
+	db *repository.Database,
+	mgr client.IManager,
+	wlt wallet.IWallet,
+	phoenixFaucetAmount amount.Amount,
+) *BotEngine {
+	// price caching job
+	priceCache := cache.NewBasic[string, entity.Price](10 * time.Second)
+	priceJob := job.NewPrice(priceCache)
+	priceJobSched := job.NewScheduler()
+	priceJobSched.Submit(priceJob)
+	go priceJobSched.Run()
+
+	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, nil)
+	calculatorCmd := calculator.NewCalculatorCmd(mgr)
+	networkCmd := network.NewNetworkCmd(ctx, mgr)
+	phoenixCmd := phoenixtestnet.NewPhoenixCmd(ctx, wlt, phoenixFaucetAmount, mgr, db)
+	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr)
+	marketCmd := market.NewMarketCmd(mgr, priceCache)
+	zealyCmd := zealy.NewZealyCmd(db, wlt)
+
+	rootCmd := &command.Command{
+		Emoji:       "🤖",
+		Name:        "pagu",
+		Help:        "Root Command",
+		AppIDs:      entity.AllAppIDs(),
+		SubCommands: make([]*command.Command, 0),
+	}
+
+	rootCmd.AddSubCommand(crowdfundCmd.GetCommand())
+	rootCmd.AddSubCommand(calculatorCmd.GetCommand())
+	rootCmd.AddSubCommand(networkCmd.GetCommand())
+	rootCmd.AddSubCommand(voucherCmd.GetCommand())
+	rootCmd.AddSubCommand(marketCmd.GetCommand())
+	rootCmd.AddSubCommand(zealyCmd.GetCommand())
+	rootCmd.AddSubCommand(phoenixCmd.GetCommand())
+
+	rootCmd.AddHelpSubCommand()
+
+	return &BotEngine{
+		ctx:       ctx,
+		cancel:    cancel,
+		clientMgr: mgr,
+		db:        db,
+		rootCmd:   rootCmd,
+	}
+}
+
 func (be *BotEngine) Commands() []*command.Command {
 	return be.rootCmd.SubCommands
 }
@@ -287,53 +336,4 @@ func (be *BotEngine) Start() {
 	log.Info("Starting the Bot Engine")
 
 	be.clientMgr.Start()
-}
-
-func newBotEngine(ctx context.Context,
-	cancel context.CancelFunc,
-	db *repository.Database,
-	mgr client.IManager,
-	wlt wallet.IWallet,
-	phoenixFaucetAmount amount.Amount,
-) *BotEngine {
-	// price caching job
-	priceCache := cache.NewBasic[string, entity.Price](10 * time.Second)
-	priceJob := job.NewPrice(priceCache)
-	priceJobSched := job.NewScheduler()
-	priceJobSched.Submit(priceJob)
-	go priceJobSched.Run()
-
-	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, nil)
-	calculatorCmd := calculator.NewCalculatorCmd(mgr)
-	networkCmd := network.NewNetworkCmd(ctx, mgr)
-	phoenixCmd := phoenixtestnet.NewPhoenixCmd(ctx, wlt, phoenixFaucetAmount, mgr, db)
-	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr)
-	marketCmd := market.NewMarketCmd(mgr, priceCache)
-	zealyCmd := zealy.NewZealyCmd(db, wlt)
-
-	rootCmd := &command.Command{
-		Emoji:       "🤖",
-		Name:        "pagu",
-		Help:        "Root Command",
-		AppIDs:      entity.AllAppIDs(),
-		SubCommands: make([]*command.Command, 0),
-	}
-
-	rootCmd.AddSubCommand(crowdfundCmd.GetCommand())
-	rootCmd.AddSubCommand(calculatorCmd.GetCommand())
-	rootCmd.AddSubCommand(networkCmd.GetCommand())
-	rootCmd.AddSubCommand(voucherCmd.GetCommand())
-	rootCmd.AddSubCommand(marketCmd.GetCommand())
-	rootCmd.AddSubCommand(zealyCmd.GetCommand())
-	rootCmd.AddSubCommand(phoenixCmd.GetCommand())
-
-	rootCmd.AddHelpSubCommand()
-
-	return &BotEngine{
-		ctx:       ctx,
-		cancel:    cancel,
-		clientMgr: mgr,
-		db:        db,
-		rootCmd:   rootCmd,
-	}
 }

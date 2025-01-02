@@ -8,7 +8,7 @@ import (
 	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (n *NetworkCmd) networkHealthHandler(
+func (n *NetworkCmd) healthHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,

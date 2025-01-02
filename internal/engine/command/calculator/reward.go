@@ -11,7 +11,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (bc *CalculatorCmd) calcRewardHandler(
+func (c *CalculatorCmd) calcRewardHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -38,7 +38,7 @@ func (bc *CalculatorCmd) calcRewardHandler(
 	}
 
 	blocks := numOfDays * 8640
-	info, err := bc.clientMgr.GetBlockchainInfo()
+	info, err := c.clientMgr.GetBlockchainInfo()
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}

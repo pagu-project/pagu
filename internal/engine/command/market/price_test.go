@@ -27,6 +27,6 @@ func TestGetPrice(t *testing.T) {
 	time.Sleep(10 * time.Second)
 
 	cmd := &command.Command{}
-	result := market.handlerPrice(nil, cmd, nil)
+	result := market.priceHandler(nil, cmd, nil)
 	assert.Equal(t, result.Successful, true)
 }

@@ -12,16 +12,6 @@ import (
 	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
-const (
-	CommandName         = "phoenix"
-	FaucetCommandName   = "faucet"
-	WalletCommandName   = "wallet"
-	StatusCommandName   = "status"
-	HealthCommandName   = "health"
-	NodeInfoCommandName = "node-info"
-	HelpCommandName     = "help"
-)
-
 type PhoenixCmd struct {
 	ctx          context.Context
 	wallet       wallet.IWallet
@@ -42,23 +32,12 @@ func NewPhoenixCmd(ctx context.Context, wlt wallet.IWallet, faucetAmount amount.
 	}
 }
 
-func (pt *PhoenixCmd) GetCommand() *command.Command {
-	middlewareHandler := command.NewMiddlewareHandler(pt.db, pt.wallet)
-
-	subCmdStatus := &command.Command{
-		Name:        StatusCommandName,
-		Help:        "Phoenix Testnet statistics",
-		Args:        []command.Args{},
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Middlewares: nil,
-		Handler:     pt.networkStatusHandler,
-		TargetFlag:  command.TargetMaskTestnet,
-	}
+func (p *PhoenixCmd) GetCommand() *command.Command {
+	middlewareHandler := command.NewMiddlewareHandler(p.db, p.wallet)
 
 	subCmdFaucet := &command.Command{
-		Name: FaucetCommandName,
-		Help: fmt.Sprintf("Get %f tPAC Coins on Phoenix Testnet for Testing your code or project", pt.faucetAmount.ToPAC()),
+		Name: "faucet",
+		Help: fmt.Sprintf("Get %f tPAC Coins on Phoenix Testnet for Testing your code or project", p.faucetAmount.ToPAC()),
 		Args: []command.Args{
 			{
 				Name:     "address",
@@ -70,12 +49,22 @@ func (pt *PhoenixCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.WalletBalance},
-		Handler:     pt.faucetHandler,
+		Handler:     p.faucetHandler,
+		TargetFlag:  command.TargetMaskTestnet,
+	}
+
+	subCmdStatus := &command.Command{
+		Name:        "wallet",
+		Help:        "Show the faucet wallet balance",
+		SubCommands: nil,
+		AppIDs:      entity.AllAppIDs(),
+		Middlewares: nil,
+		Handler:     p.walletHandler,
 		TargetFlag:  command.TargetMaskTestnet,
 	}
 
 	cmdPhoenix := &command.Command{
-		Name:        CommandName,
+		Name:        "phoenix",
 		Help:        "Phoenix Testnet tools and utils for developers",
 		Args:        nil,
 		AppIDs:      entity.AllAppIDs(),

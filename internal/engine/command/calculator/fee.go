@@ -8,7 +8,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
-func (bc *CalculatorCmd) calcFeeHandler(
+func (c *CalculatorCmd) calcFeeHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -18,7 +18,7 @@ func (bc *CalculatorCmd) calcFeeHandler(
 		return cmd.ErrorResult(errors.New("invalid amount param"))
 	}
 
-	fee, err := bc.clientMgr.GetFee(amt.ToNanoPAC())
+	fee, err := c.clientMgr.GetFee(amt.ToNanoPAC())
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}

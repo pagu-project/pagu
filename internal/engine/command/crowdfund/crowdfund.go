@@ -8,16 +8,6 @@ import (
 	"github.com/pagu-project/pagu/internal/nowpayments"
 )
 
-const (
-	CommandName            = "crowdfund"
-	subCommandNameCreate   = "Create"
-	subCommandNameInfo     = "info"
-	subCommandNamePurchase = "purchase"
-	subCommandNameClaim    = "claim"
-	subCommandNameDisable  = "disable"
-	subCommandNameReport   = "report"
-)
-
 type Crowdfund struct {
 	ctx         context.Context
 	nowPayments nowpayments.INowpayments
@@ -32,64 +22,63 @@ func NewCrowdfundCmd(ctx context.Context, nowPayments nowpayments.INowpayments) 
 
 func (n *Crowdfund) GetCommand() *command.Command {
 	subCmdCreate := &command.Command{
-		Name:        subCommandNameCreate,
-		Help:        "Create a new crowdfund campaign",
+		Name:        "create",
+		Help:        "Create a new crowdfunding campaign",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.handlerCreate,
+		Handler:     n.createHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdDisable := &command.Command{
-		Name:        subCommandNameDisable,
-		Help:        "Disable an active crowdfund campaign",
+		Name:        "disable",
+		Help:        "Disable an existing crowdfunding campaign",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.handlerDisable,
+		Handler:     n.disableHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdReport := &command.Command{
-		Name:        subCommandNameReport,
-		Help:        "Report of the crowdfund campaigns",
+		Name:        "report",
+		Help:        "View reports of a crowdfunding campaign",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.handlerReport,
+		Handler:     n.reportHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
-
 	subCmdInfo := &command.Command{
-		Name:        subCommandNameInfo,
-		Help:        "get information about the crowdfund campaigns",
+		Name:        "info",
+		Help:        "Get detailed information about a crowdfunding campaign",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.handlerInfo,
+		Handler:     n.infoHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdPurchase := &command.Command{
-		Name:        subCommandNamePurchase,
-		Help:        "Purchase a package",
+		Name:        "purchase",
+		Help:        "Make a purchase in a crowdfunding campaign",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.handlerPurchase,
+		Handler:     n.purchaseHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdClaim := &command.Command{
-		Name:        subCommandNameClaim,
-		Help:        "Claim your purchase",
+		Name:        "claim",
+		Help:        "Claim packages from a crowdfunding campaign",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.handlerClaim,
+		Handler:     n.claimHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 
-	cmdNetwork := &command.Command{
-		Name:        CommandName,
-		Help:        "Network related commands",
+	cmdCrowdfund := &command.Command{
+		Name:        "crowdfund",
+		Help:        "Commands for managing crowdfunding campaigns",
 		Args:        nil,
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),
@@ -97,12 +86,12 @@ func (n *Crowdfund) GetCommand() *command.Command {
 		TargetFlag:  command.TargetMaskAll,
 	}
 
-	cmdNetwork.AddSubCommand(subCmdCreate)
-	cmdNetwork.AddSubCommand(subCmdDisable)
-	cmdNetwork.AddSubCommand(subCmdReport)
-	cmdNetwork.AddSubCommand(subCmdInfo)
-	cmdNetwork.AddSubCommand(subCmdPurchase)
-	cmdNetwork.AddSubCommand(subCmdClaim)
+	cmdCrowdfund.AddSubCommand(subCmdCreate)
+	cmdCrowdfund.AddSubCommand(subCmdDisable)
+	cmdCrowdfund.AddSubCommand(subCmdReport)
+	cmdCrowdfund.AddSubCommand(subCmdInfo)
+	cmdCrowdfund.AddSubCommand(subCmdPurchase)
+	cmdCrowdfund.AddSubCommand(subCmdClaim)
 
-	return cmdNetwork
+	return cmdCrowdfund
 }

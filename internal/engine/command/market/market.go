@@ -7,12 +7,6 @@ import (
 	"github.com/pagu-project/pagu/pkg/client"
 )
 
-const (
-	CommandName      = "market"
-	PriceCommandName = "price"
-	HelpCommandName  = "help"
-)
-
 type MarketCmd struct {
 	clientMgr  client.IManager
 	priceCache cache.Cache[string, entity.Price]
@@ -27,18 +21,18 @@ func NewMarketCmd(clientMgr client.IManager, priceCache cache.Cache[string, enti
 
 func (m *MarketCmd) GetCommand() *command.Command {
 	subCmdPrice := &command.Command{
-		Name:        PriceCommandName,
-		Help:        "Shows the last price of PAC coin on the markets",
+		Name:        "price",
+		Help:        "Shows the latest price of PAC coin across different markets",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     m.handlerPrice,
+		Handler:     m.priceHandler,
 		TargetFlag:  command.TargetMaskMainnet,
 	}
 
 	cmdMarket := &command.Command{
-		Name:        CommandName,
-		Help:        "Pactus market data and information",
+		Name:        "market",
+		Help:        "Access market data and information for Pactus",
 		Args:        nil,
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),

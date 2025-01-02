@@ -10,7 +10,7 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (m *MarketCmd) handlerPrice(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
+func (m *MarketCmd) priceHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
 	priceData, ok := m.priceCache.Get(config.PriceCacheKey)
 	if !ok {
 		return cmd.ErrorResult(fmt.Errorf("failed to get price from markets. please try again later"))
