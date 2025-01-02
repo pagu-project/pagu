@@ -10,7 +10,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
-func (v *Voucher) claimHandler(
+func (v *VoucherCmd) claimHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,

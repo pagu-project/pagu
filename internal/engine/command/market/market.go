@@ -13,26 +13,26 @@ const (
 	HelpCommandName  = "help"
 )
 
-type Market struct {
+type MarketCmd struct {
 	clientMgr  client.IManager
 	priceCache cache.Cache[string, entity.Price]
 }
 
-func NewMarket(clientMgr client.IManager, priceCache cache.Cache[string, entity.Price]) *Market {
-	return &Market{
+func NewMarketCmd(clientMgr client.IManager, priceCache cache.Cache[string, entity.Price]) *MarketCmd {
+	return &MarketCmd{
 		clientMgr:  clientMgr,
 		priceCache: priceCache,
 	}
 }
 
-func (m *Market) GetCommand() *command.Command {
+func (m *MarketCmd) GetCommand() *command.Command {
 	subCmdPrice := &command.Command{
 		Name:        PriceCommandName,
 		Help:        "Shows the last price of PAC coin on the markets",
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     m.getPrice,
+		Handler:     m.handlerPrice,
 		TargetFlag:  command.TargetMaskMainnet,
 	}
 

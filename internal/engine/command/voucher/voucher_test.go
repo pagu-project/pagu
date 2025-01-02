@@ -17,7 +17,7 @@ import (
 type testData struct {
 	*testsuite.TestSuite
 
-	voucherCmd    *Voucher
+	voucherCmd    *VoucherCmd
 	database      *repository.Database
 	clientManager *client.MockIManager
 	wallet        *wallet.MockIWallet
@@ -33,7 +33,7 @@ func setup(t *testing.T) *testData {
 	mockClientManager := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 
-	voucher := NewVoucher(testDB, mockWallet, mockClientManager)
+	voucher := NewVoucherCmd(testDB, mockWallet, mockClientManager)
 
 	return &testData{
 		TestSuite:     ts,

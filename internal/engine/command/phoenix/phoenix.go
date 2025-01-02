@@ -22,7 +22,7 @@ const (
 	HelpCommandName     = "help"
 )
 
-type Phoenix struct {
+type PhoenixCmd struct {
 	ctx          context.Context
 	wallet       wallet.IWallet
 	db           *repository.Database
@@ -30,10 +30,10 @@ type Phoenix struct {
 	faucetAmount amount.Amount
 }
 
-func NewPhoenix(ctx context.Context, wlt wallet.IWallet, faucetAmount amount.Amount,
+func NewPhoenixCmd(ctx context.Context, wlt wallet.IWallet, faucetAmount amount.Amount,
 	clientMgr client.IManager, db *repository.Database,
-) *Phoenix {
-	return &Phoenix{
+) *PhoenixCmd {
+	return &PhoenixCmd{
 		ctx:          ctx,
 		wallet:       wlt,
 		clientMgr:    clientMgr,
@@ -42,7 +42,7 @@ func NewPhoenix(ctx context.Context, wlt wallet.IWallet, faucetAmount amount.Amo
 	}
 }
 
-func (pt *Phoenix) GetCommand() *command.Command {
+func (pt *PhoenixCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(pt.db, pt.wallet)
 
 	subCmdStatus := &command.Command{

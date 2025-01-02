@@ -8,7 +8,7 @@ import (
 	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (pt *Phoenix) networkStatusHandler(
+func (pt *PhoenixCmd) networkStatusHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,

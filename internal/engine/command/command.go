@@ -44,7 +44,7 @@ type Command struct {
 	Color       color.ColorCode
 	Name        string
 	Help        string
-	Args        []Args // should be nil for commands.
+	Args        []Args
 	AppIDs      []entity.PlatformID
 	SubCommands []*Command
 	Middlewares []MiddlewareFunc

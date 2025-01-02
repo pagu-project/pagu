@@ -17,21 +17,21 @@ const (
 	HelpCommandName       = "help"
 )
 
-type Voucher struct {
+type VoucherCmd struct {
 	db            *repository.Database
 	wallet        wallet.IWallet
 	clientManager client.IManager
 }
 
-func NewVoucher(db *repository.Database, wlt wallet.IWallet, cli client.IManager) *Voucher {
-	return &Voucher{
+func NewVoucherCmd(db *repository.Database, wlt wallet.IWallet, cli client.IManager) *VoucherCmd {
+	return &VoucherCmd{
 		db:            db,
 		wallet:        wlt,
 		clientManager: cli,
 	}
 }
 
-func (v *Voucher) GetCommand() *command.Command {
+func (v *VoucherCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(v.db, v.wallet)
 
 	subCmdClaim := &command.Command{

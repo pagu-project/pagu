@@ -23,7 +23,7 @@ type Crowdfund struct {
 	nowPayments nowpayments.INowpayments
 }
 
-func NewCrowdfundCommand(ctx context.Context, nowPayments nowpayments.INowpayments) *Crowdfund {
+func NewCrowdfundCmd(ctx context.Context, nowPayments nowpayments.INowpayments) *Crowdfund {
 	return &Crowdfund{
 		ctx:         ctx,
 		nowPayments: nowPayments,

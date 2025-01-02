@@ -8,8 +8,10 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
-func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
-	user, err := z.db.GetZealyUser(caller.PlatformUserID)
+func (c *ZealyCmd) claimHandler(caller *entity.User,
+	cmd *command.Command, args map[string]string,
+) command.CommandResult {
+	user, err := c.db.GetZealyUser(caller.PlatformUserID)
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
@@ -20,7 +22,7 @@ func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map
 	}
 
 	address := args["address"]
-	txHash, err := z.wallet.TransferTransaction(address, "Pagu Zealy reward distribution", user.Amount)
+	txHash, err := c.wallet.TransferTransaction(address, "Pagu Zealy reward distribution", user.Amount)
 	if err != nil {
 		log.Error("error in transfer zealy reward", "err", err)
 		transferErr := fmt.Errorf("failed to transfer zealy reward. Please make sure the address is valid")
@@ -28,7 +30,7 @@ func (z *Zealy) claimHandler(caller *entity.User, cmd *command.Command, args map
 		return cmd.ErrorResult(transferErr)
 	}
 
-	if err = z.db.UpdateZealyUser(caller.PlatformUserID, txHash); err != nil {
+	if err = c.db.UpdateZealyUser(caller.PlatformUserID, txHash); err != nil {
 		return cmd.ErrorResult(err)
 	}
 

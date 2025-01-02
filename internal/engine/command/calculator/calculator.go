@@ -13,17 +13,17 @@ const (
 	HelpCommandName       = "help"
 )
 
-type Calculator struct {
+type CalculatorCmd struct {
 	clientMgr client.IManager
 }
 
-func NewCalculator(clientMgr client.IManager) *Calculator {
-	return &Calculator{
+func NewCalculatorCmd(clientMgr client.IManager) *CalculatorCmd {
+	return &CalculatorCmd{
 		clientMgr: clientMgr,
 	}
 }
 
-func (bc *Calculator) GetCommand() *command.Command {
+func (bc *CalculatorCmd) GetCommand() *command.Command {
 	subCmdCalcReward := &command.Command{
 		Name: CalcRewardCommandName,
 		Help: "Calculate how many PAC coins you will earn with your validator stake",

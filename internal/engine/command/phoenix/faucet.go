@@ -7,7 +7,7 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (pt *Phoenix) faucetHandler(
+func (pt *PhoenixCmd) faucetHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,

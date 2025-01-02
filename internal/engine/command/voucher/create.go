@@ -28,7 +28,7 @@ type BulkRecorder struct {
 	Description      string  `csv:"Description"`
 }
 
-func (v *Voucher) createOneHandler(
+func (v *VoucherCmd) createOneHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -71,7 +71,7 @@ func (v *Voucher) createOneHandler(
 	return cmd.SuccessfulResultF("Voucher created successfully! \n Code: %s", vch.Code)
 }
 
-func (v *Voucher) createBulkHandler(
+func (v *VoucherCmd) createBulkHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -148,7 +148,7 @@ func (v *Voucher) createBulkHandler(
 	return cmd.SuccessfulResult("Vouchers created successfully!")
 }
 
-func (v *Voucher) createBulkVoucher(records []BulkRecorder, callerID uint) ([]*entity.Voucher, error) {
+func (v *VoucherCmd) createBulkVoucher(records []BulkRecorder, callerID uint) ([]*entity.Voucher, error) {
 	vouchers := make([]*entity.Voucher, 0)
 	for index, record := range records {
 		code := utils.RandomString(8, utils.CapitalAlphanumerical)
@@ -189,7 +189,7 @@ func (v *Voucher) createBulkVoucher(records []BulkRecorder, callerID uint) ([]*e
 	return vouchers, nil
 }
 
-func (v *Voucher) createNotification(email, code, recipient string, amt float64) error {
+func (v *VoucherCmd) createNotification(email, code, recipient string, amt float64) error {
 	notificationData := entity.VoucherNotificationData{
 		Code:      code,
 		Recipient: recipient,

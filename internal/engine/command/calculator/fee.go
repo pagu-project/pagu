@@ -8,7 +8,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
-func (bc *Calculator) calcFeeHandler(
+func (bc *CalculatorCmd) calcFeeHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	args map[string]string,

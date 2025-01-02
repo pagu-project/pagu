@@ -16,13 +16,13 @@ const (
 	HelpCommandName     = "help"
 )
 
-type Network struct {
+type NetworkCmd struct {
 	ctx       context.Context
 	clientMgr client.IManager
 }
 
-func NewNetwork(ctx context.Context, clientMgr client.IManager) *Network {
-	return &Network{
+func NewNetworkCmd(ctx context.Context, clientMgr client.IManager) *NetworkCmd {
+	return &NetworkCmd{
 		ctx:       ctx,
 		clientMgr: clientMgr,
 	}
@@ -58,7 +58,7 @@ type NetStatus struct {
 	CirculatingSupply   int64
 }
 
-func (n *Network) GetCommand() *command.Command {
+func (n *NetworkCmd) GetCommand() *command.Command {
 	subCmdNodeInfo := &command.Command{
 		Name: NodeInfoCommandName,
 		Help: "View the information of a node",

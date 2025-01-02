@@ -11,7 +11,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (bc *Calculator) calcRewardHandler(
+func (bc *CalculatorCmd) calcRewardHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	args map[string]string,

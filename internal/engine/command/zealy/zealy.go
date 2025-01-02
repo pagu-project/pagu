@@ -14,19 +14,19 @@ const (
 	HelpCommandName   = "help"
 )
 
-type Zealy struct {
+type ZealyCmd struct {
 	db     *repository.Database
 	wallet wallet.IWallet
 }
 
-func NewZealy(db *repository.Database, wlt wallet.IWallet) *Zealy {
-	return &Zealy{
+func NewZealyCmd(db *repository.Database, wlt wallet.IWallet) *ZealyCmd {
+	return &ZealyCmd{
 		db:     db,
 		wallet: wlt,
 	}
 }
 
-func (z *Zealy) GetCommand() *command.Command {
+func (z *ZealyCmd) GetCommand() *command.Command {
 	subCmdClaim := &command.Command{
 		Name: ClaimCommandName,
 		Help: "Claim your Zealy Reward",
