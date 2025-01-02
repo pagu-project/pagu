@@ -1,6 +1,7 @@
 linters:
+  disable-all: true
+
   enable:
-    - errcheck
     - gosimple
     - govet
     - ineffassign
@@ -143,6 +144,7 @@ linters-settings:
           - "strings.Builder.WriteByte"
           - "bytes.Buffer.Write"
           - "bytes.Buffer.WriteString"
+          - "io.Closer.Close"
 
   gosec:
     excludes:

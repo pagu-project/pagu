@@ -10,6 +10,7 @@ import (
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/engine/command/calculator"
+	"github.com/pagu-project/pagu/internal/engine/command/crowdfund"
 	"github.com/pagu-project/pagu/internal/engine/command/market"
 	"github.com/pagu-project/pagu/internal/engine/command/network"
 	phoenixtestnet "github.com/pagu-project/pagu/internal/engine/command/phoenix"
@@ -36,6 +37,7 @@ type BotEngine struct {
 	rootCmd   *command.Command
 
 	// commands
+	crowdfundCmd  *crowdfund.Crowdfund
 	calculatorCmd *calculator.Calculator
 	networkCmd    *network.Network
 	phoenixCmd    *phoenixtestnet.Phoenix
@@ -116,6 +118,7 @@ func (be *BotEngine) Commands() []*command.Command {
 }
 
 func (be *BotEngine) RegisterAllCommands() {
+	be.rootCmd.AddSubCommand(be.crowdfundCmd.GetCommand())
 	be.rootCmd.AddSubCommand(be.calculatorCmd.GetCommand())
 	be.rootCmd.AddSubCommand(be.networkCmd.GetCommand())
 	be.rootCmd.AddSubCommand(be.voucherCmd.GetCommand())
@@ -329,21 +332,24 @@ func newBotEngine(ctx context.Context,
 	priceJobSched.Submit(priceJob)
 	go priceJobSched.Run()
 
-	netCmd := network.NewNetwork(ctx, mgr)
-	calcCmd := calculator.NewCalculator(mgr)
+	crowdfundCmd := crowdfund.NewCrowdfundCommand(ctx, nil)
+	calculatorCmd := calculator.NewCalculator(mgr)
+	networkCmd := network.NewNetwork(ctx, mgr)
 	phoenixCmd := phoenixtestnet.NewPhoenix(ctx, wlt, phoenixFaucetAmount, mgr, db)
 	voucherCmd := voucher.NewVoucher(db, wlt, mgr)
 	marketCmd := market.NewMarket(mgr, priceCache)
 	zealyCmd := zealy.NewZealy(db, wlt)
 
 	return &BotEngine{
-		ctx:           ctx,
-		cancel:        cancel,
-		clientMgr:     mgr,
-		db:            db,
-		rootCmd:       rootCmd,
-		networkCmd:    netCmd,
-		calculatorCmd: calcCmd,
+		ctx:       ctx,
+		cancel:    cancel,
+		clientMgr: mgr,
+		db:        db,
+		rootCmd:   rootCmd,
+		// Commands
+		crowdfundCmd:  crowdfundCmd,
+		calculatorCmd: calculatorCmd,
+		networkCmd:    networkCmd,
 		phoenixCmd:    phoenixCmd,
 		voucherCmd:    voucherCmd,
 		marketCmd:     marketCmd,
