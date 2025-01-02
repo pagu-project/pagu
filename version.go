@@ -11,7 +11,7 @@ type Version struct {
 var version = Version{
 	Major: 0,
 	Minor: 0,
-	Patch: 2,
+	Patch: 3,
 }
 
 func StringVersion() string {
