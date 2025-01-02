@@ -8,10 +8,10 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
-func (c *ZealyCmd) claimHandler(caller *entity.User,
+func (z *ZealyCmd) claimHandler(caller *entity.User,
 	cmd *command.Command, args map[string]string,
 ) command.CommandResult {
-	user, err := c.db.GetZealyUser(caller.PlatformUserID)
+	user, err := z.db.GetZealyUser(caller.PlatformUserID)
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
@@ -22,7 +22,7 @@ func (c *ZealyCmd) claimHandler(caller *entity.User,
 	}
 
 	address := args["address"]
-	txHash, err := c.wallet.TransferTransaction(address, "Pagu Zealy reward distribution", user.Amount)
+	txHash, err := z.wallet.TransferTransaction(address, "Pagu Zealy reward distribution", user.Amount)
 	if err != nil {
 		log.Error("error in transfer zealy reward", "err", err)
 		transferErr := fmt.Errorf("failed to transfer zealy reward. Please make sure the address is valid")
@@ -30,7 +30,7 @@ func (c *ZealyCmd) claimHandler(caller *entity.User,
 		return cmd.ErrorResult(transferErr)
 	}
 
-	if err = c.db.UpdateZealyUser(caller.PlatformUserID, txHash); err != nil {
+	if err = z.db.UpdateZealyUser(caller.PlatformUserID, txHash); err != nil {
 		return cmd.ErrorResult(err)
 	}
 
