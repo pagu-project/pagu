@@ -40,15 +40,15 @@ func TestClaim(t *testing.T) {
 		testVoucher := td.createTestVoucher(t, WithCode(voucherCode))
 		validatorAddr := "pc1p..."
 
-		td.clientManager.EXPECT().GetValidatorInfo(validatorAddr).Return(
+		td.mockClientMgr.EXPECT().GetValidatorInfo(validatorAddr).Return(
 			nil, nil,
 		).AnyTimes()
 
-		td.clientManager.EXPECT().FindPublicKey(validatorAddr, false).Return(
+		td.mockClientMgr.EXPECT().FindPublicKey(validatorAddr, false).Return(
 			validatorAddr, nil,
 		).AnyTimes()
 
-		td.wallet.EXPECT().BondTransaction(gomock.Any(), validatorAddr,
+		td.mockWallet.EXPECT().BondTransaction(gomock.Any(), validatorAddr,
 			"voucher 12345678 claimed by Pagu", testVoucher.Amount).Return(
 			"0x1", nil,
 		).AnyTimes()

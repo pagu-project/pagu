@@ -15,6 +15,7 @@ type PhoenixFaucet struct {
 	TxHash  string        `gorm:"type:char(64);unique;not null"`
 }
 
+// TODO: rename me to "faucet" (just remove this function is enough)
 func (*PhoenixFaucet) TableName() string {
 	return "phoenix_faucet"
 }
