@@ -20,6 +20,7 @@ type InputBox int
 
 const (
 	InputBoxText InputBox = iota
+	InputBoxMultilineText
 	InputBoxNumber
 	InputBoxFile
 	InputBoxAmount
@@ -67,7 +68,7 @@ func (cmd *Command) SuccessfulResult(msg string) CommandResult {
 func (cmd *Command) SuccessfulResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
 		Color:      cmd.Color,
-		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
+		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    fmt.Sprintf(msg, a...),
 		Successful: true,
 	}
@@ -80,7 +81,7 @@ func (cmd *Command) FailedResult(msg string) CommandResult {
 func (cmd *Command) FailedResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
 		Color:      cmd.Color,
-		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
+		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    fmt.Sprintf(msg, a...),
 		Error:      msg,
 		Successful: false,
@@ -112,7 +113,7 @@ func (cmd *Command) HelpMessage() string {
 	help := cmd.Help
 	help += "\n\nAvailable commands:\n"
 	for _, sc := range cmd.SubCommands {
-		help += fmt.Sprintf("  %-12s %s\n", sc.Name, sc.Help)
+		help += fmt.Sprintf("- **%-12s**: %s\n", sc.Name, sc.Help)
 	}
 
 	return help
@@ -128,9 +129,10 @@ func (cmd *Command) AddSubCommand(subCmd *Command) {
 
 func (cmd *Command) AddHelpSubCommand() {
 	helpCmd := &Command{
-		Name:   "help",
-		Help:   fmt.Sprintf("Help for %v command", cmd.Name),
-		AppIDs: entity.AllAppIDs(),
+		Name:       "help",
+		Help:       fmt.Sprintf("Help for %v command", cmd.Name),
+		AppIDs:     entity.AllAppIDs(),
+		TargetFlag: TargetMaskAll,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
 			return cmd.SuccessfulResult(cmd.HelpMessage())
 		},

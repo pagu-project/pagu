@@ -19,6 +19,7 @@ type Voucher struct {
 }
 
 func (Voucher) TableName() string {
+	// TODO: rename me to "vouchers" (just remove this function is enough).
 	return "voucher"
 }
 

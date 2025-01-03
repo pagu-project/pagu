@@ -5,7 +5,7 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (*Crowdfund) reportHandler(
+func (*CrowdfundCmd) reportHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,

@@ -9,8 +9,9 @@ devtools:
 
 ### mock
 mock:
-	mockgen -source=./pkg/client/interface.go -destination=./pkg/client/mock.go -package=client
-	mockgen -source=./pkg/wallet/interface.go -destination=./pkg/wallet/mock.go -package=wallet
+	mockgen -source=./pkg/client/interface.go      -destination=./pkg/client/mock.go      -package=client
+	mockgen -source=./pkg/wallet/interface.go      -destination=./pkg/wallet/mock.go      -package=wallet
+	mockgen -source=./pkg/nowpayments/interface.go -destination=./pkg/nowpayments/mock.go -package=nowpayments
 
 ### proto file generate
 proto:

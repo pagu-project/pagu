@@ -16,6 +16,7 @@ type PhoenixFaucet struct {
 }
 
 func (*PhoenixFaucet) TableName() string {
+	// TODO: rename me to "faucets" (just remove this function is enough).
 	return "phoenix_faucet"
 }
 

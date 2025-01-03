@@ -5,7 +5,7 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (*Crowdfund) claimHandler(
+func (*CrowdfundCmd) claimHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,

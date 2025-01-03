@@ -3,7 +3,6 @@ package voucher
 import (
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -17,7 +16,6 @@ import (
 	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/notification"
 	"github.com/pagu-project/pagu/pkg/utils"
-	"gorm.io/datatypes"
 )
 
 type BulkRecorder struct {
@@ -195,16 +193,11 @@ func (v *VoucherCmd) createNotification(email, code, recipient string, amt float
 		Recipient: recipient,
 		Amount:    amt,
 	}
-	b, err := json.Marshal(notificationData)
-	if err != nil {
-		return err
-	}
-	voucherCodeJSON := datatypes.JSON(b)
 
 	return v.db.AddNotification(&entity.Notification{
 		Type:      notification.NotificationTypeMail,
 		Status:    entity.NotificationStatusPending,
 		Recipient: email,
-		Data:      voucherCodeJSON,
+		Data:      notificationData,
 	})
 }

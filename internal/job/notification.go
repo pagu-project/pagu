@@ -2,7 +2,6 @@ package job
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/pactus-project/pactus/util/logger"
@@ -46,8 +45,6 @@ func (p *mailSenderJob) sendVoucherNotifications() {
 		return
 	}
 
-	voucherNotif := entity.VoucherNotificationData{}
-	_ = json.Unmarshal(notif.Data, &voucherNotif)
 	tmpl, err := notification.LoadMailTemplate(p.templates["voucher"])
 	if err != nil {
 		logger.Fatal("failed to load mail template", "err", err)
@@ -55,7 +52,7 @@ func (p *mailSenderJob) sendVoucherNotifications() {
 
 	err = p.mailSender.SendTemplateMail(
 		notification.NotificationProviderZapToMail,
-		"pagu@pactus.org", []string{notif.Recipient}, tmpl, voucherNotif)
+		"pagu@pactus.org", []string{notif.Recipient}, tmpl, notif.Data)
 	if err != nil {
 		logger.Error("failed to send mail notification", "err", err)
 		err = p.db.UpdateNotificationStatus(notif.ID, entity.NotificationStatusFail)
