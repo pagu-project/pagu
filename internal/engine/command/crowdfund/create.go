@@ -35,7 +35,10 @@ func (c *CrowdfundCmd) createHandler(
 		Desc:     desc,
 		Packages: packages,
 	}
-	c.db.AddCrowdfundCampaign(campaign)
+	err = c.db.AddCrowdfundCampaign(campaign)
+	if err != nil {
+		return cmd.FailedResult(err.Error())
+	}
 
 	return cmd.SuccessfulResultF(
 		"Crowdfund campaign '%s' created successfully with %d packages",

@@ -18,8 +18,8 @@ type Voucher struct {
 	ClaimedBy   uint
 }
 
-// TODO: rename me to "voucher" (just remove this function is enough)
 func (Voucher) TableName() string {
+	// TODO: rename me to "vouchers" (just remove this function is enough).
 	return "voucher"
 }
 

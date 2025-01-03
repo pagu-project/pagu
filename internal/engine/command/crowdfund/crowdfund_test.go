@@ -9,7 +9,6 @@ import (
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/wallet"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 )
 
@@ -58,38 +57,38 @@ func WithPackages(packages []entity.Package) CampaignOption {
 	}
 }
 
-func (td *testData) createTestCampaign(t *testing.T, opts ...CampaignOption) *entity.CrowdfundCampaign {
-	t.Helper()
+// func (td *testData) createTestCampaign(t *testing.T, opts ...CampaignOption) *entity.CrowdfundCampaign {
+// 	t.Helper()
 
-	campaign := &entity.CrowdfundCampaign{
-		Title: td.RandString(16),
-		Desc:  td.RandString(128),
-		Packages: []entity.Package{
-			entity.Package{
-				Name:      td.RandString(16),
-				USDAmount: td.RandInt(1000),
-				PACAmount: td.RandInt(1000),
-			},
-			entity.Package{
-				Name:      td.RandString(16),
-				USDAmount: td.RandInt(1000),
-				PACAmount: td.RandInt(1000),
-			},
-			entity.Package{
-				Name:      td.RandString(16),
-				USDAmount: td.RandInt(1000),
-				PACAmount: td.RandInt(1000),
-			},
-		},
-	}
+// 	campaign := &entity.CrowdfundCampaign{
+// 		Title: td.RandString(16),
+// 		Desc:  td.RandString(128),
+// 		Packages: []entity.Package{
+// 			{
+// 				Name:      td.RandString(16),
+// 				USDAmount: td.RandInt(1000),
+// 				PACAmount: td.RandInt(1000),
+// 			},
+// 			{
+// 				Name:      td.RandString(16),
+// 				USDAmount: td.RandInt(1000),
+// 				PACAmount: td.RandInt(1000),
+// 			},
+// 			{
+// 				Name:      td.RandString(16),
+// 				USDAmount: td.RandInt(1000),
+// 				PACAmount: td.RandInt(1000),
+// 			},
+// 		},
+// 	}
 
-	// Apply options
-	for _, opt := range opts {
-		opt(campaign)
-	}
+// 	// Apply options
+// 	for _, opt := range opts {
+// 		opt(campaign)
+// 	}
 
-	err := td.database.AddCrowdfundCampaign(campaign)
-	require.NoError(t, err)
+// 	err := td.database.AddCrowdfundCampaign(campaign)
+// 	require.NoError(t, err)
 
-	return campaign
-}
+// 	return campaign
+// }

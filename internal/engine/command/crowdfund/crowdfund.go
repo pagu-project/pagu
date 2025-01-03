@@ -20,7 +20,8 @@ type CrowdfundCmd struct {
 func NewCrowdfundCmd(ctx context.Context,
 	db *repository.Database,
 	wallet wallet.IWallet,
-	nowPayments nowpayments.INowpayments) *CrowdfundCmd {
+	nowPayments nowpayments.INowpayments,
+) *CrowdfundCmd {
 	return &CrowdfundCmd{
 		ctx:         ctx,
 		db:          db,
@@ -29,7 +30,7 @@ func NewCrowdfundCmd(ctx context.Context,
 	}
 }
 
-func (n *CrowdfundCmd) GetCommand() *command.Command {
+func (c *CrowdfundCmd) GetCommand() *command.Command {
 	subCmdCreate := &command.Command{
 		Name: "create",
 		Help: "Create a new crowdfunding campaign",
@@ -55,7 +56,7 @@ func (n *CrowdfundCmd) GetCommand() *command.Command {
 		},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.createHandler,
+		Handler:     c.createHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdDisable := &command.Command{
@@ -64,7 +65,7 @@ func (n *CrowdfundCmd) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.disableHandler,
+		Handler:     c.disableHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdReport := &command.Command{
@@ -73,7 +74,7 @@ func (n *CrowdfundCmd) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.reportHandler,
+		Handler:     c.reportHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdInfo := &command.Command{
@@ -82,7 +83,7 @@ func (n *CrowdfundCmd) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.infoHandler,
+		Handler:     c.infoHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdPurchase := &command.Command{
@@ -91,7 +92,7 @@ func (n *CrowdfundCmd) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.purchaseHandler,
+		Handler:     c.purchaseHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdClaim := &command.Command{
@@ -100,7 +101,7 @@ func (n *CrowdfundCmd) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.claimHandler,
+		Handler:     c.claimHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 
