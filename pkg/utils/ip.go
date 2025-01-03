@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+//nolint:tagliatelle // External dependency
 type GeoIP struct {
 	CountryName string `json:"country"`
 	RegionName  string `json:"regionName"`

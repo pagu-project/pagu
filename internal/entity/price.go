@@ -5,6 +5,7 @@ type Price struct {
 	AzbitPacToUSDT  AzbitPriceResponse
 }
 
+//nolint:tagliatelle // External dependency
 type XeggexPriceResponse struct {
 	LastPrice      string  `json:"lastPrice"`
 	YesterdayPrice string  `json:"yesterdayPrice"`
@@ -19,6 +20,7 @@ type XeggexPriceResponse struct {
 	MarketCap      float64 `json:"marketcapNumber"`
 }
 
+//nolint:tagliatelle // External dependency
 type AzbitPriceResponse struct {
 	Timestamp                int     `json:"timestamp"`
 	CurrencyPairCode         string  `json:"currencyPairCode"`

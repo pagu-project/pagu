@@ -62,7 +62,7 @@ linters:
     - sqlclosecheck
     - stylecheck
     - tagalign
-    # - tagliatelle
+    - tagliatelle
     - tenv
     - testableexamples
     - thelper
