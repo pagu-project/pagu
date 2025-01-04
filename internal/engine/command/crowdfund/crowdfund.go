@@ -5,29 +5,58 @@ import (
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/pagu-project/pagu/internal/nowpayments"
+	"github.com/pagu-project/pagu/internal/repository"
+	"github.com/pagu-project/pagu/pkg/nowpayments"
+	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
-type Crowdfund struct {
+type CrowdfundCmd struct {
 	ctx         context.Context
+	db          *repository.Database
+	wallet      wallet.IWallet
 	nowPayments nowpayments.INowpayments
 }
 
-func NewCrowdfundCmd(ctx context.Context, nowPayments nowpayments.INowpayments) *Crowdfund {
-	return &Crowdfund{
+func NewCrowdfundCmd(ctx context.Context,
+	db *repository.Database,
+	wallet wallet.IWallet,
+	nowPayments nowpayments.INowpayments,
+) *CrowdfundCmd {
+	return &CrowdfundCmd{
 		ctx:         ctx,
+		db:          db,
+		wallet:      wallet,
 		nowPayments: nowPayments,
 	}
 }
 
-func (n *Crowdfund) GetCommand() *command.Command {
+func (c *CrowdfundCmd) GetCommand() *command.Command {
 	subCmdCreate := &command.Command{
-		Name:        "create",
-		Help:        "Create a new crowdfunding campaign",
-		Args:        []command.Args{},
+		Name: "create",
+		Help: "Create a new crowdfunding campaign",
+		Args: []command.Args{
+			{
+				Name:     "title",
+				Desc:     "The title of this crowdfunding campaign",
+				InputBox: command.InputBoxText,
+				Optional: false,
+			},
+			{
+				Name:     "desc",
+				Desc:     "A description of this crowdfunding campaign",
+				InputBox: command.InputBoxMultilineText,
+				Optional: false,
+			},
+			{
+				Name:     "packages",
+				Desc:     "The packages for this campaign in JSON format",
+				InputBox: command.InputBoxMultilineText,
+				Optional: false,
+			},
+		},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.createHandler,
+		Handler:     c.createHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdDisable := &command.Command{
@@ -36,7 +65,7 @@ func (n *Crowdfund) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.disableHandler,
+		Handler:     c.disableHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdReport := &command.Command{
@@ -45,7 +74,7 @@ func (n *Crowdfund) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.reportHandler,
+		Handler:     c.reportHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdInfo := &command.Command{
@@ -54,7 +83,7 @@ func (n *Crowdfund) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.infoHandler,
+		Handler:     c.infoHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdPurchase := &command.Command{
@@ -63,7 +92,7 @@ func (n *Crowdfund) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.purchaseHandler,
+		Handler:     c.purchaseHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 	subCmdClaim := &command.Command{
@@ -72,7 +101,7 @@ func (n *Crowdfund) GetCommand() *command.Command {
 		Args:        []command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.claimHandler,
+		Handler:     c.claimHandler,
 		TargetFlag:  command.TargetMaskAll,
 	}
 

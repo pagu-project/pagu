@@ -18,9 +18,9 @@ type testData struct {
 	*testsuite.TestSuite
 
 	voucherCmd    *VoucherCmd
-	database      *repository.Database
-	clientManager *client.MockIManager
-	wallet        *wallet.MockIWallet
+	testDB        *repository.Database
+	mockClientMgr *client.MockIManager
+	mockWallet    *wallet.MockIWallet
 }
 
 func setup(t *testing.T) *testData {
@@ -30,17 +30,17 @@ func setup(t *testing.T) *testData {
 	ctrl := gomock.NewController(t)
 
 	testDB := ts.MakeTestDB()
-	mockClientManager := client.NewMockIManager(ctrl)
+	mockClientMgr := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 
-	voucher := NewVoucherCmd(testDB, mockWallet, mockClientManager)
+	voucherCmd := NewVoucherCmd(testDB, mockWallet, mockClientMgr)
 
 	return &testData{
 		TestSuite:     ts,
-		voucherCmd:    voucher,
-		database:      testDB,
-		clientManager: mockClientManager,
-		wallet:        mockWallet,
+		voucherCmd:    voucherCmd,
+		testDB:        testDB,
+		mockClientMgr: mockClientMgr,
+		mockWallet:    mockWallet,
 	}
 }
 
@@ -97,7 +97,7 @@ func (td *testData) createTestVoucher(t *testing.T, opts ...VoucherOption) *enti
 		opt(voucher)
 	}
 
-	err := td.database.AddVoucher(voucher)
+	err := td.testDB.AddVoucher(voucher)
 	require.NoError(t, err)
 
 	return voucher
