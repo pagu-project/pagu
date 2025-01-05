@@ -12,18 +12,21 @@ import (
 
 type CrowdfundCmd struct {
 	ctx         context.Context
+	config      *Config
 	db          *repository.Database
 	wallet      wallet.IWallet
 	nowPayments nowpayments.INowpayments
 }
 
 func NewCrowdfundCmd(ctx context.Context,
+	config *Config,
 	db *repository.Database,
 	wallet wallet.IWallet,
 	nowPayments nowpayments.INowpayments,
 ) *CrowdfundCmd {
 	return &CrowdfundCmd{
 		ctx:         ctx,
+		config:      config,
 		db:          db,
 		wallet:      wallet,
 		nowPayments: nowPayments,

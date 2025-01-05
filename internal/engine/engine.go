@@ -118,7 +118,7 @@ func newBotEngine(ctx context.Context,
 	priceJobSched.Submit(priceJob)
 	go priceJobSched.Run()
 
-	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, db, wlt, nil)
+	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, nil, db, wlt, nil)
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
 	phoenixCmd := phoenixtestnet.NewPhoenixCmd(ctx, wlt, phoenixFaucetAmount, mgr, db)
