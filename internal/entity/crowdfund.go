@@ -9,7 +9,7 @@ type Package struct {
 type CrowdfundCampaign struct {
 	DBModel
 
-	Title    string    `gorm:"type:char(256);not null"`
+	Title    string    `gorm:"type:char(128);not null"`
 	Desc     string    `gorm:"type:text;not null"`
 	Packages []Package `gorm:"serializer:json"`
 }

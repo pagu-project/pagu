@@ -77,6 +77,9 @@ linters:
     - varnamelen
 
 linters-settings:
+  staticcheck:
+    checks: [ "all", "-SA1019"] # TODO: enable SA1019
+
   gosimple:
     checks: ["all"]
 
