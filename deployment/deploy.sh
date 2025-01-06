@@ -2,23 +2,25 @@
 
 set -e
 
-DOCKER_TAG="latest"
+# Ensure Database is up and running
+docker compose -f ./deployment/docker-compose.db.yml up -d
+
+
+export DEPLOY_TAG="latest"
 
 TAG=$(git describe --tags --exact-match 2> /dev/null) || echo ""
 
 if [[ -n "$TAG" ]]; then
-    DOCKER_TAG="stable"
+    export DEPLOY_TAG="stable"
 fi
 
-echo "Building ${DOCKER_TAG} version"
+echo "Building ${DEPLOY_TAG} version..."
+docker build -t pagu:${DEPLOY_TAG} -f ./deployment/Dockerfile .
 
-docker build -t pagu:${DOCKER_TAG}  -f ./deployment/Dockerfile .
-
-docker compose -f ./deployment/docker-compose.yml down
-docker compose -f ./deployment/docker-compose.yml up -d
+docker compose -p pagu_${DEPLOY_TAG} -f ./deployment/docker-compose.yml up -d
 
 ## Some cleanup
-echo "Cleanup"
+echo "Cleanup..."
 
 docker builder prune -f
 docker image prune -f
