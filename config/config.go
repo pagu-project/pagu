@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pactus-project/pactus/util"
 	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/utils"
 	"gopkg.in/yaml.v3"
 )
 
@@ -108,7 +108,7 @@ func (cfg *Config) BasicCheck() error {
 	}
 
 	// Check if the WalletPath exists.
-	if !util.PathExists(cfg.Wallet.Path) {
+	if !utils.PathExists(cfg.Wallet.Path) {
 		return fmt.Errorf("config: Wallet does not exist: %s", cfg.Wallet.Path)
 	}
 

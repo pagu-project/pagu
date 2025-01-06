@@ -1,10 +1,10 @@
 package network
 
 import (
-	"github.com/pactus-project/pactus/types/amount"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	utils2 "github.com/pagu-project/pagu/pkg/utils"
+	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 func (n *NetworkCmd) statusHandler(
@@ -44,12 +44,12 @@ func (n *NetworkCmd) statusHandler(
 		"Total Committee Power: %v PAC\nCirculating Supply: %v PAC\n"+
 		"\n> Note📝: This info is from one random network node. Non-calculator data may not be consistent.",
 		net.NetworkName,
-		utils2.FormatNumber(int64(net.ConnectedPeersCount)),
-		utils2.FormatNumber(int64(net.ValidatorsCount)),
-		utils2.FormatNumber(int64(net.TotalAccounts)),
-		utils2.FormatNumber(int64(net.CurrentBlockHeight)),
-		utils2.FormatNumber(net.TotalNetworkPower),
-		utils2.FormatNumber(net.TotalCommitteePower),
-		utils2.FormatNumber(net.CirculatingSupply),
+		utils.FormatNumber(int64(net.ConnectedPeersCount)),
+		utils.FormatNumber(int64(net.ValidatorsCount)),
+		utils.FormatNumber(int64(net.TotalAccounts)),
+		utils.FormatNumber(int64(net.CurrentBlockHeight)),
+		utils.FormatNumber(net.TotalNetworkPower),
+		utils.FormatNumber(net.TotalCommitteePower),
+		utils.FormatNumber(net.CirculatingSupply),
 	)
 }

@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pactus-project/pactus/crypto"
 	"github.com/pagu-project/pagu"
 	pagucmd "github.com/pagu-project/pagu/cmd"
 	"github.com/pagu-project/pagu/config"
@@ -24,10 +23,6 @@ func run(cmd *cobra.Command, _ []string) {
 	pagucmd.ExitOnError(cmd, err)
 
 	log.InitGlobalLogger(configs.Logger)
-
-	if configs.Network == "Localnet" {
-		crypto.AddressHRP = "tpc"
-	}
 
 	botEngine, err := engine.NewBotEngine(configs)
 	pagucmd.ExitOnError(cmd, err)

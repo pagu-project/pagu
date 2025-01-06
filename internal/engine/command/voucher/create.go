@@ -10,10 +10,10 @@ import (
 	"strconv"
 
 	"github.com/jszwec/csvutil"
-	"github.com/pactus-project/pactus/util/logger"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/notification"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
@@ -80,14 +80,14 @@ func (v *VoucherCmd) createBulkHandler(
 	httpClient := new(http.Client)
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fileURL, http.NoBody)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Error(err.Error())
 
 		return cmd.ErrorResult(errors.New("failed to fetch attachment content"))
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Error(err.Error())
 
 		return cmd.ErrorResult(errors.New("failed to fetch attachment content"))
 	}
@@ -99,7 +99,7 @@ func (v *VoucherCmd) createBulkHandler(
 	csvReader := csv.NewReader(resp.Body)
 	dec, err := csvutil.NewDecoder(csvReader)
 	if err != nil {
-		logger.Error(err.Error())
+		log.Error(err.Error())
 
 		return cmd.ErrorResult(errors.New("failed to read csv content"))
 	}
@@ -110,7 +110,7 @@ func (v *VoucherCmd) createBulkHandler(
 		if err = dec.Decode(&r); errors.Is(err, io.EOF) {
 			break
 		} else if err != nil {
-			logger.Error(err.Error())
+			log.Error(err.Error())
 
 			return cmd.ErrorResult(errors.New("failed to parse csv content"))
 		}

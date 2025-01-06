@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/pactus-project/pactus/util/logger"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/repository"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/notification"
 )
 
@@ -40,29 +40,29 @@ func (p *mailSenderJob) Start() {
 func (p *mailSenderJob) sendVoucherNotifications() {
 	notif, err := p.db.GetPendingMailNotification()
 	if err != nil {
-		logger.Error("failed to get pending mail from db", "err", err)
+		log.Error("failed to get pending mail from db", "err", err)
 
 		return
 	}
 
 	tmpl, err := notification.LoadMailTemplate(p.templates["voucher"])
 	if err != nil {
-		logger.Fatal("failed to load mail template", "err", err)
+		log.Fatal("failed to load mail template", "err", err)
 	}
 
 	err = p.mailSender.SendTemplateMail(
 		notification.NotificationProviderZapToMail,
 		"pagu@pactus.org", []string{notif.Recipient}, tmpl, notif.Data)
 	if err != nil {
-		logger.Error("failed to send mail notification", "err", err)
+		log.Error("failed to send mail notification", "err", err)
 		err = p.db.UpdateNotificationStatus(notif.ID, entity.NotificationStatusFail)
 		if err != nil {
-			logger.Error("failed to update status of sent mail", "err", err)
+			log.Error("failed to update status of sent mail", "err", err)
 		}
 	} else {
 		err = p.db.UpdateNotificationStatus(notif.ID, entity.NotificationStatusDone)
 		if err != nil {
-			logger.Error("failed to update status of sent mail", "err", err)
+			log.Error("failed to update status of sent mail", "err", err)
 		}
 	}
 }

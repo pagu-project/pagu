@@ -3,9 +3,9 @@ package network
 import (
 	"fmt"
 
-	"github.com/pactus-project/pactus/types/amount"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/amount"
 	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 

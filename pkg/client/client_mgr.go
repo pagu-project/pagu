@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pactus-project/pactus/util/logger"
 	pactus "github.com/pactus-project/pactus/www/grpc/gen/go"
 	"github.com/pagu-project/pagu/pkg/log"
 )
@@ -39,7 +38,7 @@ func (cm *Manager) Start() {
 				return
 
 			case <-ticker.C:
-				logger.Info("updating validator map started")
+				log.Info("updating validator map started")
 				cm.updateValMap()
 			}
 		}
@@ -62,24 +61,24 @@ func (cm *Manager) updateValMap() {
 	for _, client := range cm.clients {
 		networkInfo, err := client.GetNetworkInfo(cm.ctx)
 		if err != nil {
-			logger.Warn("cannot connect to client", "err", err, "target", client.Target())
+			log.Warn("cannot connect to client", "err", err, "target", client.Target())
 
 			continue
 		}
 
 		if networkInfo == nil {
-			logger.Warn("network info is nil", "target", client.Target())
+			log.Warn("network info is nil", "target", client.Target())
 
 			continue
 		}
 
 		if len(networkInfo.GetConnectedPeers()) == 0 {
-			logger.Warn("no connected peers", "target", client.Target())
+			log.Warn("no connected peers", "target", client.Target())
 
 			continue
 		}
 
-		logger.Info("fetching network information", "target", client.Target(), "connected", networkInfo.ConnectedPeersCount)
+		log.Info("fetching network information", "target", client.Target(), "connected", networkInfo.ConnectedPeersCount)
 		for _, peer := range networkInfo.ConnectedPeers {
 			for _, addr := range peer.ConsensusAddresses {
 				current := freshValMap[addr]
@@ -99,7 +98,7 @@ func (cm *Manager) updateValMap() {
 	cm.valMap = freshValMap
 	cm.valMapLock.Unlock()
 
-	logger.Info("validator map updated successfully")
+	log.Info("validator map updated successfully")
 }
 
 // AddClient should call before Start.

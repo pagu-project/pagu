@@ -12,7 +12,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/pactus-project/pactus/util/logger"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 type NowPayments struct {
@@ -45,10 +45,10 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 	//
 	// go func() {
 	// 	for {
-	// 		logger.Info("starting NowPayments webhook", "port", cfg.ListenPort)
+	// 		log.Info("starting NowPayments webhook", "port", cfg.ListenPort)
 	// 		err = http.ListenAndServe(fmt.Sprintf(":%v", cfg.ListenPort), nil)
 	// 		if err != nil {
-	// 			logger.Error("unable to start NowPayments webhook", "error", err)
+	// 			log.Error("unable to start NowPayments webhook", "error", err)
 	// 		}
 	// 	}
 	// }()
@@ -57,21 +57,21 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 }
 
 func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
-	logger.Debug("NowPayment webhook called")
+	log.Debug("NowPayment webhook called")
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		logger.Error("Callback read error", "error", err)
+		log.Error("Callback read error", "error", err)
 
 		return
 	}
 
-	logger.Debug("Callback result", "data", data)
+	log.Debug("Callback result", "data", data)
 	msgMACHex := r.Header.Get("x-nowpayments-sig")
 	msgMAC, err := hex.DecodeString(msgMACHex)
 	if err != nil {
-		logger.Error("Invalid sig hex", "error", err)
+		log.Error("Invalid sig hex", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 
 		return
@@ -83,7 +83,7 @@ func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(data, &result)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		logger.Error("json.Unmarshal read error", "error", err)
+		log.Error("json.Unmarshal read error", "error", err)
 
 		return
 	}
@@ -91,14 +91,14 @@ func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
 	_, err = mac.Write(data)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		logger.Error("mac.Write read error", "error", err)
+		log.Error("mac.Write read error", "error", err)
 
 		return
 	}
 	expectedMAC := mac.Sum(nil)
 	if !hmac.Equal(expectedMAC, msgMAC) {
 		w.WriteHeader(http.StatusBadRequest)
-		logger.Error("HMAC is invalid", "expectedMAC", expectedMAC, "msgMAC", msgMAC)
+		log.Error("HMAC is invalid", "expectedMAC", expectedMAC, "msgMAC", msgMAC)
 
 		return
 	}
@@ -131,7 +131,7 @@ func (s *NowPayments) CreateInvoice(priceUSD int, orderID string) (string, error
 		return "", err
 	}
 
-	logger.Debug("CreatePayment Response", "res", string(data))
+	log.Debug("CreatePayment Response", "res", string(data))
 	if res.StatusCode != http.StatusOK {
 		return "", NowPaymentsError{
 			StatusCode: res.StatusCode,
@@ -174,7 +174,7 @@ func (s *NowPayments) IsPaid(invoiceID string) (bool, error) {
 		return false, err
 	}
 
-	logger.Debug("ListOfPayments Response", "res", string(data))
+	log.Debug("ListOfPayments Response", "res", string(data))
 	if res.StatusCode != http.StatusOK {
 		return false, NowPaymentsError{
 			StatusCode: res.StatusCode,
@@ -210,7 +210,7 @@ func (s *NowPayments) getJWTToken() (string, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 
-	logger.Info("calling NowPayments:auth")
+	log.Info("calling NowPayments:auth")
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
