@@ -1,93 +1,41 @@
 services:
-  pagu_mysql:
-    image: mysql:8.0.40-debian
-    hostname: pagu_mysql
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    container_name: pagu_mysql
-    volumes:
-      - ${HOME}/mysql_data:/var/lib/mysql
-    networks:
-      - pagu_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", pagu_mysql]
-      timeout: 5s
-      retries: 10
-
-  pagu_phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    environment:
-      PMA_HOST: pagu_mysql
-    container_name: pagu_phpmyadmin
-    ports:
-      - "${PHPMYADMIN_PORT}:80"
-    depends_on:
-      pagu_mysql:
-        condition: service_healthy
-    networks:
-      - pagu_network
-
   pagu_discord_mainnet:
-    image: pagu:stable
-    container_name: pagu_discord_mainnet
-    command: "./pagu-discord -c /pagu/config_discord_mainnet.yml run"
+    image: pagu:${DEPLOY_TAG}
+    container_name: pagu_discord_mainnet_${DEPLOY_TAG}
+    command: "./pagu-discord -c /pagu/config_discord_mainnet.${DEPLOY_TAG}.yml run"
     networks:
-      pagu_network:
-    depends_on:
-      - pagu_phpmyadmin
-    volumes:
-      - ${HOME}/pagu:/pagu
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  pagu_discord_staging:
-    image: pagu:latest
-    container_name: pagu_discord_staging
-    command: "./pagu-discord -c /pagu/config_discord_staging.yml run"
-    networks:
-      pagu_network:
-    depends_on:
-      - pagu_phpmyadmin
+      - pagu_network
     volumes:
       - ${HOME}/pagu:/pagu
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   pagu_discord_moderator:
-    image: pagu:latest
-    container_name: pagu_discord_moderator
-    command: "./pagu-discord -c /pagu/config_discord_moderator.yml run"
+    image: pagu:${DEPLOY_TAG}
+    container_name: pagu_discord_moderator_${DEPLOY_TAG}
+    command: "./pagu-discord -c /pagu/config_discord_moderator.${DEPLOY_TAG}.yml run"
     networks:
-      pagu_network:
-    depends_on:
-      - pagu_phpmyadmin
+      - pagu_network
     volumes:
       - ${HOME}/pagu:/pagu
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   pagu_discord_testnet:
-    image: pagu:stable
-    container_name: pagu_discord_testnet
-    command: "./pagu-discord -c /pagu/config_discord_testnet.yml run"
+    image: pagu:${DEPLOY_TAG}
+    container_name: pagu_discord_testnet_${DEPLOY_TAG}
+    command: "./pagu-discord -c /pagu/config_discord_testnet.${DEPLOY_TAG}.yml run"
     networks:
-      pagu_network:
-    depends_on:
-      - pagu_phpmyadmin
+      - pagu_network
     volumes:
       - ${HOME}/pagu:/pagu
 
   pagu_telegram_mainnet:
-    image: pagu:stable
-    container_name: pagu_telegram_mainnet
-    command: "./pagu-telegram -c /pagu/config_telegram_mainnet.yml run"
+    image: pagu:${DEPLOY_TAG}
+    container_name: pagu_telegram_mainnet_${DEPLOY_TAG}
+    command: "./pagu-telegram -c /pagu/config_telegram_mainnet.${DEPLOY_TAG}.yml run"
     networks:
-      pagu_network:
-    depends_on:
-      - pagu_phpmyadmin
+      - pagu_network
     volumes:
       - ${HOME}/pagu:/pagu
     extra_hosts:
@@ -98,3 +46,5 @@ volumes:
 
 networks:
   pagu_network:
+    external: true
+

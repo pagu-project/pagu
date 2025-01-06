@@ -1,0 +1,30 @@
+services:
+  pagu_mysql:
+    image: mysql:8.0.40-debian
+    hostname: pagu_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    container_name: pagu_mysql
+    volumes:
+      - ${HOME}/mysql_data:/var/lib/mysql
+    networks:
+      - pagu_network
+
+  pagu_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: pagu_mysql
+    container_name: pagu_phpmyadmin
+    ports:
+      - "${PHPMYADMIN_PORT}:80"
+    networks:
+      - pagu_network
+
+volumes:
+  pagu-volume:
+
+networks:
+  pagu_network:
+    external: true
