@@ -33,14 +33,16 @@ type InputBox int
 const (
 	InputBoxText InputBox = iota
 	InputBoxMultilineText
-	InputBoxNumber
+	InputBoxInteger
+	InputBoxFloat
 	InputBoxFile
-	InputBoxAmount
 	InputBoxToggle
+	InputBoxChoice
 )
 
-func (i InputBox) Int() int {
-	return int(i)
+type Choice struct {
+	Name  string
+	Value int
 }
 
 type Args struct {
@@ -48,6 +50,7 @@ type Args struct {
 	Desc     string
 	InputBox InputBox
 	Optional bool
+	Choices  []Choice
 }
 
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult

@@ -56,13 +56,13 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 			{
 				Name:     "amount",
 				Desc:     "The amount of PAC to bond",
-				InputBox: command.InputBoxAmount,
+				InputBox: command.InputBoxFloat,
 				Optional: false,
 			},
 			{
 				Name:     "valid-months",
 				Desc:     "Number of months the voucher remains valid after issuance",
-				InputBox: command.InputBoxNumber,
+				InputBox: command.InputBoxInteger,
 				Optional: false,
 			},
 			{
