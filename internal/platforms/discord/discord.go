@@ -182,10 +182,6 @@ func (bot *Bot) registerCommands() error {
 	return nil
 }
 
-func (bot *Bot) commandHandleraaa(arg command.Args) {
-
-}
-
 func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if i.GuildID != bot.cfg.GuildID {
 		bot.respondErrMsg("Please send messages on server chat", s, i)
