@@ -7,12 +7,11 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/pactus-project/pactus/types/amount"
-	"github.com/pactus-project/pactus/util"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/color"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/utils"
@@ -82,58 +81,58 @@ func (bot *Bot) registerCommands() error {
 		bot.commandHandler(s, i)
 	})
 
-	beCmds := bot.engine.Commands()
-	for i, beCmd := range beCmds {
-		if !beCmd.HasAppID(entity.PlatformIDDiscord) {
+	cmds := bot.engine.Commands()
+	for i, cmd := range cmds {
+		if !cmd.HasAppID(entity.PlatformIDDiscord) {
 			continue
 		}
 
 		switch bot.target {
 		case config.BotNamePaguMainnet,
 			config.BotNamePaguStaging:
-			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskMainnet) {
+			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskMainnet) {
 				continue
 			}
 
 		case config.BotNamePaguTestnet:
-			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskTestnet) {
+			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskTestnet) {
 				continue
 			}
 
 		case config.BotNamePaguModerator:
-			if !util.IsFlagSet(beCmd.TargetFlag, command.TargetMaskModerator) {
+			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
 				continue
 			}
 		}
 
-		log.Info("registering new command", "name", beCmd.Name, "desc", beCmd.Help, "index", i, "object", beCmd)
+		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
 
 		discordCmd := discordgo.ApplicationCommand{
 			Type:        discordgo.ChatApplicationCommand,
-			Name:        beCmd.Name,
-			Description: beCmd.Help,
+			Name:        cmd.Name,
+			Description: cmd.Help,
 		}
 
-		if beCmd.HasSubCommand() {
-			for _, sCmd := range beCmd.SubCommands {
+		if cmd.HasSubCommand() {
+			for _, sCmd := range cmd.SubCommands {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
-					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskMainnet) {
+					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskMainnet) {
 						continue
 					}
 
 				case config.BotNamePaguTestnet:
-					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskTestnet) {
+					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskTestnet) {
 						continue
 					}
 
 				case config.BotNamePaguModerator:
-					if !util.IsFlagSet(sCmd.TargetFlag, command.TargetMaskModerator) {
+					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskModerator) {
 						continue
 					}
 				}
 
-				log.Info("adding command sub-command", "command", beCmd.Name,
+				log.Info("adding sub-command", "command", cmd.Name,
 					"sub-command", sCmd.Name, "desc", sCmd.Help)
 
 				subCmd := &discordgo.ApplicationCommandOption{
@@ -147,26 +146,27 @@ func (bot *Bot) registerCommands() error {
 						continue
 					}
 
-					log.Info("adding sub command argument", "command", beCmd.Name,
+					log.Info("adding sub command argument", "command", cmd.Name,
 						"sub-command", sCmd.Name, "argument", arg.Name, "desc", arg.Desc)
 
-					subCmd.Options = append(subCmd.Options, &discordgo.ApplicationCommandOption{
-						Type:        setCommandArgType(arg.InputBox.Int()),
-						Name:        arg.Name,
-						Description: arg.Desc,
-						Required:    !arg.Optional,
-					})
+					subCmd.Options = append(subCmd.Options,
+						&discordgo.ApplicationCommandOption{
+							Type:        setCommandArgType(arg.InputBox.Int()),
+							Name:        arg.Name,
+							Description: arg.Desc,
+							Required:    !arg.Optional,
+						})
 				}
 
 				discordCmd.Options = append(discordCmd.Options, subCmd)
 			}
 		} else {
-			for _, arg := range beCmd.Args {
+			for _, arg := range cmd.Args {
 				if arg.Desc == "" || arg.Name == "" {
 					continue
 				}
 
-				log.Info("adding command argument", "command", beCmd.Name,
+				log.Info("adding command argument", "command", cmd.Name,
 					"argument", arg.Name, "desc", arg.Desc)
 
 				discordCmd.Options = append(discordCmd.Options, &discordgo.ApplicationCommandOption{
