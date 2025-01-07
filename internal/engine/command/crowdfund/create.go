@@ -8,7 +8,7 @@ import (
 )
 
 func (c *CrowdfundCmd) createHandler(
-	_ *entity.User,
+	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
@@ -31,9 +31,10 @@ func (c *CrowdfundCmd) createHandler(
 	}
 
 	campaign := &entity.CrowdfundCampaign{
-		Title:    title,
-		Desc:     desc,
-		Packages: packages,
+		CreatorID: caller.ID,
+		Title:     title,
+		Desc:      desc,
+		Packages:  packages,
 	}
 	err = c.db.AddCrowdfundCampaign(campaign)
 	if err != nil {
