@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInf(t *testing.T) {
+func TestInfo(t *testing.T) {
 	td := setup(t)
 
 	testCampaign := td.createTestCampaign(t)
@@ -18,7 +18,7 @@ func TestInf(t *testing.T) {
 	t.Run("No active Campaign", func(t *testing.T) {
 		result := td.crowdfundCmd.infoHandler(caller, cmd, nil)
 		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "Read error: record not found")
+		assert.Contains(t, result.Message, "No active campaign")
 	})
 
 	t.Run("No active Campaign", func(t *testing.T) {
