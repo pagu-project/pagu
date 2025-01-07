@@ -1,5 +1,11 @@
 package entity
 
+import (
+	"fmt"
+
+	"github.com/pagu-project/pagu/pkg/utils"
+)
+
 type PlatformID int
 
 const (
@@ -10,21 +16,35 @@ const (
 	PlatformIDTelegram PlatformID = 5
 )
 
-func (appID PlatformID) String() string {
-	switch appID {
-	case PlatformIDCLI:
-		return "CLI"
-	case PlatformIDDiscord:
-		return "Discord"
-	case PlatformIDWeb:
-		return "Web"
-	case PlatformIDReserved:
-		return "Reserved"
-	case PlatformIDTelegram:
-		return "Telegram"
+var platformIDToString = map[PlatformID]string{
+	PlatformIDCLI:      "CLI",
+	PlatformIDDiscord:  "Discord",
+	PlatformIDWeb:      "Web",
+	PlatformIDReserved: "Reserved",
+	PlatformIDTelegram: "Telegram",
+}
+
+func (pid PlatformID) String() string {
+	str, ok := platformIDToString[pid]
+	if ok {
+		return str
 	}
 
-	return ""
+	return fmt.Sprintf("%d", pid)
+}
+
+func (pid PlatformID) MarshalJSON() ([]byte, error) {
+	return utils.MarshalEnum(pid, platformIDToString)
+}
+
+func (pid *PlatformID) UnmarshalJSON(data []byte) error {
+	val, err := utils.UnmarshalEnum(data, platformIDToString)
+	if err != nil {
+		return err
+	}
+	*pid = val
+
+	return nil
 }
 
 func AllAppIDs() []PlatformID {

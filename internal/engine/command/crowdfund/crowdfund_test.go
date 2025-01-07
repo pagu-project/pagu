@@ -33,7 +33,7 @@ func setup(t *testing.T) *testData {
 	mockWallet := wallet.NewMockIWallet(ctrl)
 
 	crowdfundCmd := NewCrowdfundCmd(context.Background(),
-		&Config{}, testDB, mockWallet, mockNowpayments)
+		testDB, mockWallet, mockNowpayments)
 
 	return &testData{
 		TestSuite:    ts,

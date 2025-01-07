@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/pagu-project/pagu/pkg/color"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 const failedTemplate = `
@@ -31,45 +31,76 @@ var (
 type InputBox int
 
 const (
-	InputBoxText InputBox = iota
-	InputBoxMultilineText
-	InputBoxInteger
-	InputBoxFloat
-	InputBoxFile
-	InputBoxToggle
-	InputBoxChoice
+	InputBoxText          InputBox = 1
+	InputBoxMultilineText InputBox = 2
+	InputBoxInteger       InputBox = 3
+	InputBoxFloat         InputBox = 4
+	InputBoxFile          InputBox = 5
+	InputBoxToggle        InputBox = 6
+	InputBoxChoice        InputBox = 7
 )
 
+var inputBoxToString = map[InputBox]string{
+	InputBoxText:          "Text",
+	InputBoxMultilineText: "MultilineText",
+	InputBoxInteger:       "Integer",
+	InputBoxFloat:         "Float",
+	InputBoxFile:          "File",
+	InputBoxToggle:        "Toggle",
+	InputBoxChoice:        "Choice",
+}
+
+func (ib InputBox) String() string {
+	str, ok := inputBoxToString[ib]
+	if ok {
+		return str
+	}
+
+	return fmt.Sprintf("%d", ib)
+}
+
+func (ib InputBox) MarshalJSON() ([]byte, error) {
+	return utils.MarshalEnum(ib, inputBoxToString)
+}
+
+func (ib *InputBox) UnmarshalJSON(data []byte) error {
+	val, err := utils.UnmarshalEnum(data, inputBoxToString)
+	if err != nil {
+		return err
+	}
+	*ib = val
+
+	return nil
+}
+
 type Choice struct {
-	Name  string
-	Value int
+	Name  string `json:"name"`
+	Value int    `json:"value"`
 }
 
 type Args struct {
-	Name     string
-	Desc     string
-	InputBox InputBox
-	Optional bool
-	Choices  []Choice
+	Name     string   `json:"name"`
+	Desc     string   `json:"desc"`
+	InputBox InputBox `json:"input_box"`
+	Optional bool     `json:"optional"`
+	Choices  []Choice `json:"choices"`
 }
 
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji       string
-	Color       color.ColorCode
-	Name        string
-	Help        string
-	Args        []Args
-	AppIDs      []entity.PlatformID
-	SubCommands []*Command
-	Middlewares []MiddlewareFunc
-	Handler     HandlerFunc
-	TargetFlag  int
+	Emoji       string              `json:"emoji"`
+	Name        string              `json:"name"`
+	Help        string              `json:"help"`
+	Args        []Args              `json:"args"`
+	AppIDs      []entity.PlatformID `json:"-"`
+	SubCommands []*Command          `json:"sub_commands"`
+	Middlewares []MiddlewareFunc    `json:"-"`
+	Handler     HandlerFunc         `json:"-"`
+	TargetFlag  int                 `json:"-"`
 }
 
 type CommandResult struct {
-	Color      color.ColorCode
 	Title      string
 	Message    string
 	Successful bool
@@ -79,7 +110,6 @@ func (cmd *Command) RenderFailedTemplate(reason string) CommandResult {
 	msg, _ := cmd.executeTemplate(failedTemplate, map[string]any{"reason": reason})
 
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
 		Successful: false,
@@ -90,7 +120,6 @@ func (cmd *Command) RenderErrorTemplate(err error) CommandResult {
 	msg, _ := cmd.executeTemplate(errorTemplate, map[string]any{"err": err})
 
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
 		Successful: false,
@@ -116,7 +145,6 @@ func (cmd *Command) RenderResultTemplate(templateContent string, keyvals ...any)
 	}
 
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
 		Successful: true,
@@ -143,7 +171,6 @@ func (cmd *Command) SuccessfulResult(msg string) CommandResult {
 // Deprecated: Use RenderResultTemplate.
 func (cmd *Command) SuccessfulResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    fmt.Sprintf(msg, a...),
 		Successful: true,
@@ -158,7 +185,6 @@ func (cmd *Command) FailedResult(msg string) CommandResult {
 // Deprecated: Use RenderFailedTemplate.
 func (cmd *Command) FailedResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    fmt.Sprintf(msg, a...),
 		Successful: false,
@@ -172,7 +198,6 @@ func (cmd *Command) ErrorResult(err error) CommandResult {
 
 func (cmd *Command) HelpResult() CommandResult {
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
 		Message:    cmd.HelpMessage(),
 		Successful: false,
@@ -198,6 +223,10 @@ func (cmd *Command) HelpMessage() string {
 }
 
 func (cmd *Command) AddSubCommand(subCmd *Command) {
+	if subCmd == nil {
+		return
+	}
+
 	if subCmd.HasSubCommand() {
 		subCmd.AddHelpSubCommand()
 	}

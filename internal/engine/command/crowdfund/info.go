@@ -21,10 +21,5 @@ func (c *CrowdfundCmd) infoHandler(
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	campaign, err := c.db.GetCrowdfundCampaign(c.config.ActiveCampaignID)
-	if err != nil {
-		return cmd.RenderErrorTemplate(err)
-	}
-
-	return cmd.RenderResultTemplate(infoResponseTemplate, "campaign", campaign)
+	return cmd.RenderResultTemplate(infoResponseTemplate, "campaign", c.activeCampaign)
 }

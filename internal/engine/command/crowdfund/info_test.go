@@ -11,8 +11,7 @@ import (
 func TestInf(t *testing.T) {
 	td := setup(t)
 
-	campaign := td.createTestCampaign(t)
-
+	testCampaign := td.createTestCampaign(t)
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 	cmd := &command.Command{}
 
@@ -23,11 +22,11 @@ func TestInf(t *testing.T) {
 	})
 
 	t.Run("No active Campaign", func(t *testing.T) {
-		td.crowdfundCmd.config.ActiveCampaignID = campaign.ID
+		td.crowdfundCmd.activeCampaign = testCampaign
 
 		result := td.crowdfundCmd.infoHandler(caller, cmd, nil)
 		assert.True(t, result.Successful)
-		assert.Contains(t, result.Message, campaign.Title)
-		assert.Contains(t, result.Message, campaign.Desc)
+		assert.Contains(t, result.Message, testCampaign.Title)
+		assert.Contains(t, result.Message, testCampaign.Desc)
 	})
 }
