@@ -24,13 +24,13 @@ func (c *CalculatorCmd) GetCommand() *command.Command {
 			{
 				Name:     "stake",
 				Desc:     "The amount of stake in your validator",
-				InputBox: command.InputBoxAmount,
+				InputBox: command.InputBoxInteger,
 				Optional: false,
 			},
 			{
 				Name:     "days",
 				Desc:     "The number of days to calculate rewards for (range: 1-365)",
-				InputBox: command.InputBoxNumber,
+				InputBox: command.InputBoxInteger,
 				Optional: false,
 			},
 		},

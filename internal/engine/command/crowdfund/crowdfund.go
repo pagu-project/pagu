@@ -60,7 +60,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     c.createHandler,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 	subCmdDisable := &command.Command{
 		Name:        "disable",
@@ -69,7 +69,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     c.disableHandler,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 	subCmdReport := &command.Command{
 		Name:        "report",
@@ -78,7 +78,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     c.reportHandler,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 	subCmdInfo := &command.Command{
 		Name:        "info",
@@ -87,16 +87,28 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     c.infoHandler,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 	subCmdPurchase := &command.Command{
-		Name:        "purchase",
-		Help:        "Make a purchase in a crowdfunding campaign",
-		Args:        []command.Args{},
+		Name: "purchase",
+		Help: "Make a purchase in a crowdfunding campaign",
+		Args: []command.Args{
+			{
+				Name:     "package",
+				Desc:     "Select the crowdfunding package",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
+				Choices: []command.Choice{
+					{Name: "Package 1", Value: 1},
+					{Name: "Package 2", Value: 2},
+					{Name: "Package 3", Value: 3},
+				},
+			},
+		},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     c.purchaseHandler,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 	subCmdClaim := &command.Command{
 		Name:        "claim",
@@ -105,7 +117,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     c.claimHandler,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 
 	cmdCrowdfund := &command.Command{
@@ -115,7 +127,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
-		TargetFlag:  command.TargetMaskAll,
+		TargetFlag:  command.TargetMaskModerator,
 	}
 
 	cmdCrowdfund.AddSubCommand(subCmdCreate)

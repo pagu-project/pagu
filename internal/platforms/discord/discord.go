@@ -114,67 +114,59 @@ func (bot *Bot) registerCommands() error {
 		}
 
 		if cmd.HasSubCommand() {
-			for _, sCmd := range cmd.SubCommands {
+			for _, subCmd := range cmd.SubCommands {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
-					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskMainnet) {
+					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskMainnet) {
 						continue
 					}
 
 				case config.BotNamePaguTestnet:
-					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskTestnet) {
+					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskTestnet) {
 						continue
 					}
 
 				case config.BotNamePaguModerator:
-					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskModerator) {
+					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskModerator) {
 						continue
 					}
 				}
 
 				log.Info("adding sub-command", "command", cmd.Name,
-					"sub-command", sCmd.Name, "desc", sCmd.Help)
+					"sub-command", subCmd.Name, "desc", subCmd.Help)
 
-				subCmd := &discordgo.ApplicationCommandOption{
+				discordSubCmd := &discordgo.ApplicationCommandOption{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
-					Name:        sCmd.Name,
-					Description: sCmd.Help,
+					Name:        subCmd.Name,
+					Description: subCmd.Help,
 				}
 
-				for _, arg := range sCmd.Args {
-					if arg.Desc == "" || arg.Name == "" {
-						continue
+				for _, arg := range subCmd.Args {
+					log.Info("adding sub command argument", "command", cmd.Name,
+						"sub-command", subCmd.Name, "argument", arg.Name, "desc", arg.Desc)
+
+					opt := &discordgo.ApplicationCommandOption{
+						Type:        discordOptionType(arg.InputBox),
+						Name:        arg.Name,
+						Description: arg.Desc,
+						Required:    !arg.Optional,
 					}
 
-					log.Info("adding sub command argument", "command", cmd.Name,
-						"sub-command", sCmd.Name, "argument", arg.Name, "desc", arg.Desc)
+					if len(arg.Choices) > 0 {
+						opt.Choices = make([]*discordgo.ApplicationCommandOptionChoice, len(arg.Choices))
 
-					subCmd.Options = append(subCmd.Options,
-						&discordgo.ApplicationCommandOption{
-							Type:        setCommandArgType(arg.InputBox.Int()),
-							Name:        arg.Name,
-							Description: arg.Desc,
-							Required:    !arg.Optional,
-						})
+						for i, choice := range arg.Choices {
+							opt.Choices[i] = &discordgo.ApplicationCommandOptionChoice{
+								Name:  choice.Name,
+								Value: choice.Value,
+							}
+						}
+					}
+
+					discordSubCmd.Options = append(discordSubCmd.Options, opt)
 				}
 
-				discordCmd.Options = append(discordCmd.Options, subCmd)
-			}
-		} else {
-			for _, arg := range cmd.Args {
-				if arg.Desc == "" || arg.Name == "" {
-					continue
-				}
-
-				log.Info("adding command argument", "command", cmd.Name,
-					"argument", arg.Name, "desc", arg.Desc)
-
-				discordCmd.Options = append(discordCmd.Options, &discordgo.ApplicationCommandOption{
-					Type:        setCommandArgType(arg.InputBox.Int()),
-					Name:        arg.Name,
-					Description: arg.Desc,
-					Required:    !arg.Optional,
-				})
+				discordCmd.Options = append(discordCmd.Options, discordSubCmd)
 			}
 		}
 
@@ -368,18 +360,21 @@ func (bot *Bot) UpdateStatusInfo() {
 	}
 }
 
-func setCommandArgType(inputBox int) discordgo.ApplicationCommandOptionType {
+func discordOptionType(inputBox command.InputBox) discordgo.ApplicationCommandOptionType {
 	switch inputBox {
-	case 0:
+	case command.InputBoxText,
+		command.InputBoxMultilineText:
 		return discordgo.ApplicationCommandOptionString
-	case 1:
+	case command.InputBoxInteger:
 		return discordgo.ApplicationCommandOptionInteger
-	case 2:
-		return discordgo.ApplicationCommandOptionAttachment
-	case 3:
+	case command.InputBoxFloat:
 		return discordgo.ApplicationCommandOptionNumber
-	case 4:
+	case command.InputBoxFile:
+		return discordgo.ApplicationCommandOptionAttachment
+	case command.InputBoxToggle:
 		return discordgo.ApplicationCommandOptionBoolean
+	case command.InputBoxChoice:
+		return discordgo.ApplicationCommandOptionInteger
 	default:
 		return discordgo.ApplicationCommandOptionString
 	}
