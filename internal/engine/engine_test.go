@@ -31,6 +31,55 @@ func TestParseCommand(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
+			name:     "arguments with quotation",
+			input:    "command1 --arg1='val1' --arg2=\"val2\"",
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": "val1", "arg2": "val2"},
+			wantErr:  nil,
+		},
+		{
+			name:     "arguments with quotation inside value",
+			input:    "command1 --arg1='val ' 1' --arg2=\"val \" 2\"",
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": "val ' 1", "arg2": "val \" 2"},
+			wantErr:  nil,
+		},
+		{
+			name:     "arguments with quotation and spaces",
+			input:    "command1 --arg1='val 1' --arg2=\"val 2\" --arg3=val3",
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": "val 1", "arg2": "val 2", "arg3": "val3"},
+			wantErr:  nil,
+		},
+		{
+			name:     "arguments with = inside value",
+			input:    "command1 --arg1='val=1'",
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": "val=1"},
+			wantErr:  nil,
+		},
+		{
+			name:     "extra spaces",
+			input:    "command1    command2   --arg1=' val 1'    --arg2=\"val 2 \"",
+			wantCmds: []string{"command1", "command2"},
+			wantArgs: map[string]string{"arg1": "val 1", "arg2": "val 2"},
+			wantErr:  nil,
+		},
+		{
+			name:     "with tabs",
+			input:    "command1		--arg1='val	1	'	--arg2=\"	val	2\"",
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": "val 1", "arg2": "val 2"},
+			wantErr:  nil,
+		},
+		{
+			name:     "argument with empty value",
+			input:    "command1 --arg1=\"\"",
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": ""},
+			wantErr:  nil,
+		},
+		{
 			name:     "input with no arguments",
 			input:    "command1 command2",
 			wantCmds: []string{"command1", "command2"},
@@ -47,9 +96,9 @@ func TestParseCommand(t *testing.T) {
 		{
 			name:     "invalid argument format (missing =)",
 			input:    "command1 --arg1",
-			wantCmds: nil,
-			wantArgs: nil,
-			wantErr:  fmt.Errorf("invalid argument format: --arg1"),
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": "true"},
+			wantErr:  nil,
 		},
 		{
 			name:     "invalid argument format (empty key)",
@@ -61,9 +110,9 @@ func TestParseCommand(t *testing.T) {
 		{
 			name:     "invalid argument format (empty value)",
 			input:    "command1 --arg1=",
-			wantCmds: nil,
-			wantArgs: nil,
-			wantErr:  fmt.Errorf("invalid argument format: --arg1="),
+			wantCmds: []string{"command1"},
+			wantArgs: map[string]string{"arg1": ""},
+			wantErr:  nil,
 		},
 		{
 			name:     "empty input",
@@ -76,7 +125,7 @@ func TestParseCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotCmds, gotArgs, gotErr := parseCommand(tt.input)
+			gotCmds, gotArgs, gotErr := parseInput(tt.input)
 
 			// Compare commands
 			assert.Equal(t, tt.wantCmds, gotCmds, "commands mismatch: got %v, want %v", gotCmds, tt.wantCmds)
