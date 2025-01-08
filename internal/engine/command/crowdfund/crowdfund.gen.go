@@ -6,20 +6,12 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-var (
-	//
-	subCmdCreate *command.Command
-	//
-	subCmdDisable *command.Command
-	//
-	subCmdReport *command.Command
-	//
-	subCmdInfo *command.Command
-	//
-	subCmdPurchase *command.Command
-	//
-	subCmdClaim *command.Command
-)
+var subCmdCreate *command.Command
+var subCmdDisable *command.Command
+var subCmdReport *command.Command
+var subCmdInfo *command.Command
+var subCmdPurchase *command.Command
+var subCmdClaim *command.Command
 
 func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 	crowdfundCmd := &command.Command{
@@ -28,6 +20,7 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		TargetFlag:  command.TargetMaskAll,
 		SubCommands: make([]*command.Command, 0),
 	}
+
 	subCmdCreate = &command.Command{
 		Name:       "create",
 		Help:       "Create a new crowdfunding campaign",

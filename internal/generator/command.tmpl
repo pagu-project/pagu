@@ -5,13 +5,9 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 )
-
-var (
-{{- range .SubCommands}}
-	//
-	subCmd{{.Name | title}} *command.Command
+{{ range .SubCommands}}
+var subCmd{{.Name | title}} *command.Command
 {{- end}}
-)
 
 func (c *{{.Name | title}}Cmd) {{.Name}}Command() *command.Command {
 	{{.Name}}Cmd := &command.Command{
@@ -20,8 +16,7 @@ func (c *{{.Name | title}}Cmd) {{.Name}}Command() *command.Command {
 		TargetFlag:  command.TargetMaskAll,
 		SubCommands: make([]*command.Command, 0),
 	}
-
-{{- range .SubCommands }}
+{{ range .SubCommands }}
 	subCmd{{.Name | title}} = &command.Command{
 		Name:       "{{.Name}}",
 		Help:       "{{.Help}}",

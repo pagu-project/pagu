@@ -3,7 +3,6 @@ package main
 
 import (
 	_ "embed"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"gopkg.in/yaml.v3"
 )
 
 //go:embed command.tmpl
@@ -21,21 +21,21 @@ var commandTemplate string
 
 func main() {
 	flag.Usage = func() {
-		fmt.Println("Usage: generator <path_to_json_file> ...")
+		fmt.Println("Usage: generator <path_to_yml_file> ...")
 	}
 	flag.Parse()
 	args := flag.Args()
 
-	for _, jsonPath := range args {
-		jsonData, err := os.ReadFile(jsonPath)
+	for _, ymlPath := range args {
+		data, err := os.ReadFile(ymlPath)
 		if err != nil {
-			fmt.Printf("Error reading JSON file %s: %v\n", jsonPath, err)
+			fmt.Printf("Error reading YAML file %s: %v\n", ymlPath, err)
 			os.Exit(1)
 		}
 
 		cmd := new(command.Command)
-		if err := json.Unmarshal(jsonData, &cmd); err != nil {
-			fmt.Printf("Error unmarshalling JSON file %s: %v\n", jsonPath, err)
+		if err := yaml.Unmarshal(data, &cmd); err != nil {
+			fmt.Printf("Error unmarshalling YAML file %s: %v\n", ymlPath, err)
 			os.Exit(1)
 		}
 
@@ -45,8 +45,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		baseName := strings.TrimSuffix(filepath.Base(jsonPath), ".json")
-		outputFile := filepath.Join(filepath.Dir(jsonPath), baseName+".gen.go")
+		baseName := strings.TrimSuffix(filepath.Base(ymlPath), ".yml")
+		outputFile := filepath.Join(filepath.Dir(ymlPath), baseName+".gen.go")
 		if err := os.WriteFile(outputFile, []byte(code), 0o600); err != nil {
 			fmt.Printf("Error writing Go file %s: %v\n", outputFile, err)
 			os.Exit(1)

@@ -1,13 +1,13 @@
 package command
 
 import (
-	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v3"
 )
 
-func TestInputBox_MarshalJSON(t *testing.T) {
+func TestInputBox_MarshalYAML(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    InputBox
@@ -26,18 +26,18 @@ func TestInputBox_MarshalJSON(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			data, err := json.Marshal(tt.input)
+			data, err := yaml.Marshal(tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
-				assert.JSONEq(t, tt.expected, string(data))
+				assert.YAMLEq(t, tt.expected, string(data))
 			}
 		})
 	}
 }
 
-func TestInputBox_UnmarshalJSON(t *testing.T) {
+func TestInputBox_UnmarshalYAML(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -52,13 +52,13 @@ func TestInputBox_UnmarshalJSON(t *testing.T) {
 		{"Unmarshal Toggle", `"Toggle"`, InputBoxToggle, false},
 		{"Unmarshal Choice", `"Choice"`, InputBoxChoice, false},
 		{"Unmarshal Unknown", `"Unknown"`, InputBox(0), true},
-		{"Unmarshal Invalid JSON", `123`, InputBox(0), true},
+		{"Unmarshal Invalid YAML", `123`, InputBox(0), true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var box InputBox
-			err := json.Unmarshal([]byte(tt.input), &box)
+			err := yaml.Unmarshal([]byte(tt.input), &box)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

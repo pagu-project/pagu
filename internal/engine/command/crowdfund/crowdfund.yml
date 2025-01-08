@@ -1,0 +1,35 @@
+---
+name: crowdfund
+help: Commands for managing crowdfunding campaigns
+sub_commands:
+- name: create
+  help: Create a new crowdfunding campaign
+  result_template:
+  args:
+  - name: title
+    desc: The title of this crowdfunding campaign
+    input_box: Text
+    optional: false
+  - name: desc
+    desc: A description of this crowdfunding campaign
+    input_box: MultilineText
+    optional: false
+  - name: packages
+    desc: The packages for this campaign in JSON format
+    input_box: MultilineText
+    optional: false
+- name: disable
+  help: Disable an existing crowdfunding campaign
+- name: report
+  help: View reports of a crowdfunding campaign
+- name: info
+  help: Get detailed information about a crowdfunding campaign
+- name: purchase
+  help: Make a purchase in a crowdfunding campaign
+  args:
+  - name: package
+    desc: Select the crowdfunding package
+    input_box: Choice
+    optional: false
+- name: claim
+  help: Claim packages from a crowdfunding campaign

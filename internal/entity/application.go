@@ -2,8 +2,6 @@ package entity
 
 import (
 	"fmt"
-
-	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 type PlatformID int
@@ -31,20 +29,6 @@ func (pid PlatformID) String() string {
 	}
 
 	return fmt.Sprintf("%d", pid)
-}
-
-func (pid PlatformID) MarshalJSON() ([]byte, error) {
-	return utils.MarshalEnum(pid, platformIDToString)
-}
-
-func (pid *PlatformID) UnmarshalJSON(data []byte) error {
-	val, err := utils.UnmarshalEnum(data, platformIDToString)
-	if err != nil {
-		return err
-	}
-	*pid = val
-
-	return nil
 }
 
 func AllAppIDs() []PlatformID {

@@ -59,12 +59,16 @@ func (ib InputBox) String() string {
 	return fmt.Sprintf("%d", ib)
 }
 
-func (ib InputBox) MarshalJSON() ([]byte, error) {
+func (ib InputBox) MarshalYAML() (any, error) {
 	return utils.MarshalEnum(ib, inputBoxToString)
 }
 
-func (ib *InputBox) UnmarshalJSON(data []byte) error {
-	val, err := utils.UnmarshalEnum(data, inputBoxToString)
+func (ib *InputBox) UnmarshalYAML(unmarshal func(any) error) error {
+	var str string
+	if err := unmarshal(&str); err != nil {
+		return err
+	}
+	val, err := utils.UnmarshalEnum(str, inputBoxToString)
 	if err != nil {
 		return err
 	}
@@ -74,30 +78,30 @@ func (ib *InputBox) UnmarshalJSON(data []byte) error {
 }
 
 type Choice struct {
-	Name  string `json:"name"`
-	Value int    `json:"value"`
+	Name  string `yaml:"name"`
+	Value int    `yaml:"value"`
 }
 
 type Args struct {
-	Name     string   `json:"name"`
-	Desc     string   `json:"desc"`
-	InputBox InputBox `json:"input_box"`
-	Optional bool     `json:"optional"`
-	Choices  []Choice `json:"choices"`
+	Name     string   `yaml:"name"`
+	Desc     string   `yaml:"desc"`
+	InputBox InputBox `yaml:"input_box"`
+	Optional bool     `yaml:"optional"`
+	Choices  []Choice `yaml:"choices"`
 }
 
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji       string              `json:"emoji"`
-	Name        string              `json:"name"`
-	Help        string              `json:"help"`
-	Args        []Args              `json:"args"`
-	AppIDs      []entity.PlatformID `json:"-"`
-	SubCommands []*Command          `json:"sub_commands"`
-	Middlewares []MiddlewareFunc    `json:"-"`
-	Handler     HandlerFunc         `json:"-"`
-	TargetFlag  int                 `json:"-"`
+	Emoji       string              `yaml:"emoji"`
+	Name        string              `yaml:"name"`
+	Help        string              `yaml:"help"`
+	Args        []Args              `yaml:"args"`
+	AppIDs      []entity.PlatformID `yaml:"-"`
+	SubCommands []*Command          `yaml:"sub_commands"`
+	Middlewares []MiddlewareFunc    `yaml:"-"`
+	Handler     HandlerFunc         `yaml:"-"`
+	TargetFlag  int                 `yaml:"-"`
 }
 
 type CommandResult struct {
