@@ -26,7 +26,7 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		Name:           "create",
 		Help:           "Create a new crowdfunding campaign",
 		Handler:        c.createHandler,
-		ResultTemplate: `Crowdfund campaign '{{.Name}}' created successfully with {{ len(.Packages) }} packages`,
+		ResultTemplate: `Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages`,
 		AppIDs:         entity.AllAppIDs(),
 		TargetFlag:     command.TargetMaskAll,
 		Args: []command.Args{
@@ -70,7 +70,13 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		Name:           "info",
 		Help:           "Get detailed information about a crowdfunding campaign",
 		Handler:        c.infoHandler,
-		ResultTemplate: ``,
+		ResultTemplate: `**{{.campaign.Title}}**
+{{.campaign.Desc}}
+
+Packages:
+{{range .campaign.Packages}}
+- {{.Name}}
+{{- end}}`,
 		AppIDs:         entity.AllAppIDs(),
 		TargetFlag:     command.TargetMaskAll,
 	}

@@ -5,7 +5,7 @@ sub_commands:
 - name: create
   help: Create a new crowdfunding campaign
   result_template: |
-    Crowdfund campaign '{{.Name}}' created successfully with {{ len(.Packages) }} packages
+    Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages
   args:
   - name: title
     desc: The title of this crowdfunding campaign
@@ -25,6 +25,14 @@ sub_commands:
   help: View reports of a crowdfunding campaign
 - name: info
   help: Get detailed information about a crowdfunding campaign
+  result_template: |
+    **{{.campaign.Title}}**
+    {{.campaign.Desc}}
+
+    Packages:
+    {{range .campaign.Packages}}
+    - {{.Name}}
+    {{- end}}
 - name: purchase
   help: Make a purchase in a crowdfunding campaign
   args:

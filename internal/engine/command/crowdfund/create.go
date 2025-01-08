@@ -41,5 +41,5 @@ func (c *CrowdfundCmd) createHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.RenderResultTemplate(".", campaign)
+	return cmd.RenderResultTemplate("campaign", campaign)
 }
