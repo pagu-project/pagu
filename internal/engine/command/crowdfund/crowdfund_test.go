@@ -35,6 +35,8 @@ func setup(t *testing.T) *testData {
 	crowdfundCmd := NewCrowdfundCmd(context.Background(),
 		testDB, mockWallet, mockNowpayments)
 
+	_ = crowdfundCmd.GetCommand()
+
 	return &testData{
 		TestSuite:    ts,
 		crowdfundCmd: crowdfundCmd,
