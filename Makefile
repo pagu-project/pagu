@@ -48,5 +48,10 @@ build-telegram:
 build-http:
 	go build -o build/pagu-http     ./cmd/http
 
+### Generating commands
+gen:
+	go run ./internal/generator/main.go \
+		"./internal/engine/command/crowdfund/crowdfund.yml"
+
 ###
-.PHONY: devtools mock proto fmt check test build build-cli build-discord build-grpc build-telegram build-http
+.PHONY: devtools mock proto fmt check test build build-cli build-discord build-grpc build-telegram build-http gen

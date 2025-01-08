@@ -211,6 +211,7 @@ linters-settings:
 
 issues:
   exclude-use-default: false
+  exclude-generated: lax
   exclude-rules:
     - path: _test.go
       linters:

@@ -3,7 +3,6 @@ package crowdfund
 import (
 	"testing"
 
-	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/stretchr/testify/assert"
 )
@@ -12,7 +11,6 @@ func TestCreate(t *testing.T) {
 	td := setup(t)
 
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
-	cmd := &command.Command{}
 
 	t.Run("Invalid Packages", func(t *testing.T) {
 		args := map[string]string{
@@ -20,9 +18,9 @@ func TestCreate(t *testing.T) {
 			"desc":     "crowdfund-desc",
 			"packages": "INVALID-JSON",
 		}
-		result := td.crowdfundCmd.createHandler(caller, cmd, args)
+		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
 		assert.False(t, result.Successful)
-		assert.Equal(t, result.Message, "invalid character 'I' looking for beginning of value")
+		assert.Contains(t, result.Message, "looking for beginning of value")
 	})
 
 	t.Run("Empty title", func(t *testing.T) {
@@ -31,9 +29,9 @@ func TestCreate(t *testing.T) {
 			"desc":     "",
 			"packages": "[]",
 		}
-		result := td.crowdfundCmd.createHandler(caller, cmd, args)
+		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
 		assert.False(t, result.Successful)
-		assert.Equal(t, result.Message, "The title of the crowdfunding campaign cannot be empty")
+		assert.Contains(t, result.Message, "The title of the crowdfunding campaign cannot be empty")
 	})
 
 	t.Run("Empty Packages", func(t *testing.T) {
@@ -42,9 +40,9 @@ func TestCreate(t *testing.T) {
 			"desc":     "crowdfund-desc",
 			"packages": "[]",
 		}
-		result := td.crowdfundCmd.createHandler(caller, cmd, args)
+		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
 		assert.False(t, result.Successful)
-		assert.Equal(t, result.Message, "At least 3 packages are required for the crowdfunding campaign")
+		assert.Contains(t, result.Message, "At least 3 packages are required for the crowdfunding campaign")
 	})
 
 	t.Run("Ok", func(t *testing.T) {
@@ -58,7 +56,7 @@ func TestCreate(t *testing.T) {
 			   {"name": "package-3", "usd_amount": 300, "pac_amount": 300}
 			]`,
 		}
-		result := td.crowdfundCmd.createHandler(caller, cmd, args)
+		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
 		assert.True(t, result.Successful)
 		assert.Equal(t, result.Message, "Crowdfund campaign 'crowdfund-title' created successfully with 3 packages")
 	})

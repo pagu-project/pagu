@@ -7,10 +7,7 @@ todo
 .env
 *.log
 /local
-config/config.yml
-config/config.*.yml
-config/wallets
-config/templates
+config/config.local.yml
 __debug_*
 *.sqlite*
 deployment/.env

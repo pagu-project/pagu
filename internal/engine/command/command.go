@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/pagu-project/pagu/pkg/color"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 const failedTemplate = `
@@ -31,45 +31,81 @@ var (
 type InputBox int
 
 const (
-	InputBoxText InputBox = iota
-	InputBoxMultilineText
-	InputBoxInteger
-	InputBoxFloat
-	InputBoxFile
-	InputBoxToggle
-	InputBoxChoice
+	InputBoxText          InputBox = 1
+	InputBoxMultilineText InputBox = 2
+	InputBoxInteger       InputBox = 3
+	InputBoxFloat         InputBox = 4
+	InputBoxFile          InputBox = 5
+	InputBoxToggle        InputBox = 6
+	InputBoxChoice        InputBox = 7
 )
 
+var inputBoxToString = map[InputBox]string{
+	InputBoxText:          "Text",
+	InputBoxMultilineText: "MultilineText",
+	InputBoxInteger:       "Integer",
+	InputBoxFloat:         "Float",
+	InputBoxFile:          "File",
+	InputBoxToggle:        "Toggle",
+	InputBoxChoice:        "Choice",
+}
+
+func (ib InputBox) String() string {
+	str, ok := inputBoxToString[ib]
+	if ok {
+		return str
+	}
+
+	return fmt.Sprintf("%d", ib)
+}
+
+func (ib InputBox) MarshalYAML() (any, error) {
+	return utils.MarshalEnum(ib, inputBoxToString)
+}
+
+func (ib *InputBox) UnmarshalYAML(unmarshal func(any) error) error {
+	var str string
+	if err := unmarshal(&str); err != nil {
+		return err
+	}
+	val, err := utils.UnmarshalEnum(str, inputBoxToString)
+	if err != nil {
+		return err
+	}
+	*ib = val
+
+	return nil
+}
+
 type Choice struct {
-	Name  string
-	Value int
+	Name  string `yaml:"name"`
+	Value int    `yaml:"value"`
 }
 
 type Args struct {
-	Name     string
-	Desc     string
-	InputBox InputBox
-	Optional bool
-	Choices  []Choice
+	Name     string   `yaml:"name"`
+	Desc     string   `yaml:"desc"`
+	InputBox InputBox `yaml:"input_box"`
+	Optional bool     `yaml:"optional"`
+	Choices  []Choice `yaml:"choices"`
 }
 
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji       string
-	Color       color.ColorCode
-	Name        string
-	Help        string
-	Args        []Args
-	AppIDs      []entity.PlatformID
-	SubCommands []*Command
-	Middlewares []MiddlewareFunc
-	Handler     HandlerFunc
-	TargetFlag  int
+	Emoji          string              `yaml:"emoji"`
+	Name           string              `yaml:"name"`
+	Help           string              `yaml:"help"`
+	Args           []Args              `yaml:"args"`
+	SubCommands    []*Command          `yaml:"sub_commands"`
+	ResultTemplate string              `yaml:"result_template"`
+	Middlewares    []MiddlewareFunc    `yaml:"-"`
+	Handler        HandlerFunc         `yaml:"-"`
+	AppIDs         []entity.PlatformID `yaml:"-"`
+	TargetFlag     int                 `yaml:"-"`
 }
 
 type CommandResult struct {
-	Color      color.ColorCode
 	Title      string
 	Message    string
 	Successful bool
@@ -79,7 +115,6 @@ func (cmd *Command) RenderFailedTemplate(reason string) CommandResult {
 	msg, _ := cmd.executeTemplate(failedTemplate, map[string]any{"reason": reason})
 
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
 		Successful: false,
@@ -90,14 +125,13 @@ func (cmd *Command) RenderErrorTemplate(err error) CommandResult {
 	msg, _ := cmd.executeTemplate(errorTemplate, map[string]any{"err": err})
 
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
 		Successful: false,
 	}
 }
 
-func (cmd *Command) RenderResultTemplate(templateContent string, keyvals ...any) CommandResult {
+func (cmd *Command) RenderResultTemplate(keyvals ...any) CommandResult {
 	if len(keyvals)%2 != 0 {
 		keyvals = append(keyvals, "!MISSING-VALUE!")
 	}
@@ -110,13 +144,12 @@ func (cmd *Command) RenderResultTemplate(templateContent string, keyvals ...any)
 		data[key] = val
 	}
 
-	msg, err := cmd.executeTemplate(templateContent, data)
+	msg, err := cmd.executeTemplate(cmd.ResultTemplate, data)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}
 
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
 		Successful: true,
@@ -143,7 +176,6 @@ func (cmd *Command) SuccessfulResult(msg string) CommandResult {
 // Deprecated: Use RenderResultTemplate.
 func (cmd *Command) SuccessfulResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    fmt.Sprintf(msg, a...),
 		Successful: true,
@@ -158,7 +190,6 @@ func (cmd *Command) FailedResult(msg string) CommandResult {
 // Deprecated: Use RenderFailedTemplate.
 func (cmd *Command) FailedResultF(msg string, a ...any) CommandResult {
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    fmt.Sprintf(msg, a...),
 		Successful: false,
@@ -172,7 +203,6 @@ func (cmd *Command) ErrorResult(err error) CommandResult {
 
 func (cmd *Command) HelpResult() CommandResult {
 	return CommandResult{
-		Color:      cmd.Color,
 		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
 		Message:    cmd.HelpMessage(),
 		Successful: false,
@@ -198,6 +228,10 @@ func (cmd *Command) HelpMessage() string {
 }
 
 func (cmd *Command) AddSubCommand(subCmd *Command) {
+	if subCmd == nil {
+		return
+	}
+
 	if subCmd.HasSubCommand() {
 		subCmd.AddHelpSubCommand()
 	}

@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"fmt"
+)
+
 type PlatformID int
 
 const (
@@ -10,21 +14,21 @@ const (
 	PlatformIDTelegram PlatformID = 5
 )
 
-func (appID PlatformID) String() string {
-	switch appID {
-	case PlatformIDCLI:
-		return "CLI"
-	case PlatformIDDiscord:
-		return "Discord"
-	case PlatformIDWeb:
-		return "Web"
-	case PlatformIDReserved:
-		return "Reserved"
-	case PlatformIDTelegram:
-		return "Telegram"
+var platformIDToString = map[PlatformID]string{
+	PlatformIDCLI:      "CLI",
+	PlatformIDDiscord:  "Discord",
+	PlatformIDWeb:      "Web",
+	PlatformIDReserved: "Reserved",
+	PlatformIDTelegram: "Telegram",
+}
+
+func (pid PlatformID) String() string {
+	str, ok := platformIDToString[pid]
+	if ok {
+		return str
 	}
 
-	return ""
+	return fmt.Sprintf("%d", pid)
 }
 
 func AllAppIDs() []PlatformID {

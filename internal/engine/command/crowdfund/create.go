@@ -19,15 +19,15 @@ func (c *CrowdfundCmd) createHandler(
 	packages := []entity.Package{}
 	err := json.Unmarshal([]byte(packagesJSON), &packages)
 	if err != nil {
-		return cmd.FailedResult(err.Error())
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	if title == "" {
-		return cmd.FailedResult("The title of the crowdfunding campaign cannot be empty")
+		return cmd.RenderFailedTemplate("The title of the crowdfunding campaign cannot be empty")
 	}
 
 	if len(packages) < 2 {
-		return cmd.FailedResult("At least 3 packages are required for the crowdfunding campaign")
+		return cmd.RenderFailedTemplate("At least 3 packages are required for the crowdfunding campaign")
 	}
 
 	campaign := &entity.CrowdfundCampaign{
@@ -38,10 +38,8 @@ func (c *CrowdfundCmd) createHandler(
 	}
 	err = c.db.AddCrowdfundCampaign(campaign)
 	if err != nil {
-		return cmd.FailedResult(err.Error())
+		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.SuccessfulResultF(
-		"Crowdfund campaign '%s' created successfully with %d packages",
-		title, len(packages))
+	return cmd.RenderResultTemplate("campaign", campaign)
 }
