@@ -9,7 +9,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/pagu-project/pagu/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -24,7 +23,7 @@ type logger struct {
 	writer io.Writer
 }
 
-func InitGlobalLogger(cfg *config.Logger) {
+func InitGlobalLogger(cfg *Config) {
 	if globalInst == nil {
 		writers := []io.Writer{}
 
@@ -49,7 +48,7 @@ func InitGlobalLogger(cfg *config.Logger) {
 		}
 
 		// Set the global log level from the configuration.
-		level, err := zerolog.ParseLevel(strings.ToLower(cfg.LogLevel))
+		level, err := zerolog.ParseLevel(strings.ToLower(cfg.Level))
 		if err != nil {
 			level = zerolog.InfoLevel // Default to info level if parsing fails.
 		}

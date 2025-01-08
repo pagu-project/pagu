@@ -10,6 +10,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/client"
+	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/wallet"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
@@ -159,7 +160,8 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 	testDB := ts.MakeTestDB()
 	mockClientManager := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
-	eng := newBotEngine(ctx, cancel, testDB, mockClientManager, mockWallet, 5)
+	mockNowPayments := nowpayments.NewMockINowPayments(ctrl)
+	eng := newBotEngine(ctx, cancel, testDB, mockClientManager, mockWallet, mockNowPayments, 5)
 
 	var checkCommands func(cmds []*command.Command)
 

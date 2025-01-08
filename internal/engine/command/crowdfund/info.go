@@ -10,9 +10,10 @@ func (c *CrowdfundCmd) infoHandler(
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	if c.activeCampaign == nil {
+	activeCampaign := c.activeCampaign()
+	if activeCampaign == nil {
 		return cmd.RenderFailedTemplate("No active campaign")
 	}
 
-	return cmd.RenderResultTemplate("campaign", c.activeCampaign)
+	return cmd.RenderResultTemplate("campaign", activeCampaign)
 }

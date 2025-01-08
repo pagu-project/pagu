@@ -26,7 +26,7 @@ func TestBasicCheck(t *testing.T) {
 					Password: "test_password",
 				},
 				NetworkNodes: []string{"http://127.0.0.1:8545"},
-				DiscordBot: &DiscordBot{
+				Discord: &DiscordBot{
 					Token:   "MTEabc123",
 					GuildID: "123456789",
 				},
@@ -43,7 +43,7 @@ func TestBasicCheck(t *testing.T) {
 					Password: "test_password",
 				},
 				NetworkNodes: []string{},
-				DiscordBot: &DiscordBot{
+				Discord: &DiscordBot{
 					Token:   "MTEabc123",
 					GuildID: "123456789",
 				},

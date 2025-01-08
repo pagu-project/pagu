@@ -10,7 +10,6 @@ import (
 func TestInfo(t *testing.T) {
 	td := setup(t)
 
-	testCampaign := td.createTestCampaign(t)
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 
 	t.Run("No active Campaign", func(t *testing.T) {
@@ -19,8 +18,8 @@ func TestInfo(t *testing.T) {
 		assert.Contains(t, result.Message, "No active campaign")
 	})
 
-	t.Run("No active Campaign", func(t *testing.T) {
-		td.crowdfundCmd.activeCampaign = testCampaign
+	t.Run("OK", func(t *testing.T) {
+		testCampaign := td.createTestCampaign(t)
 
 		result := td.crowdfundCmd.infoHandler(caller, subCmdInfo, nil)
 		assert.True(t, result.Successful)

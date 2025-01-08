@@ -11,31 +11,36 @@ import (
 )
 
 type CrowdfundCmd struct {
-	ctx            context.Context
-	db             *repository.Database
-	wallet         wallet.IWallet
-	nowPayments    nowpayments.INowpayments
-	activeCampaign *entity.CrowdfundCampaign
+	ctx         context.Context
+	db          *repository.Database
+	wallet      wallet.IWallet
+	nowPayments nowpayments.INowPayments
 }
 
 func NewCrowdfundCmd(ctx context.Context,
 	db *repository.Database,
 	wallet wallet.IWallet,
-	nowPayments nowpayments.INowpayments,
+	nowPayments nowpayments.INowPayments,
 ) *CrowdfundCmd {
 	return &CrowdfundCmd{
-		ctx:            ctx,
-		activeCampaign: nil,
-		db:             db,
-		wallet:         wallet,
-		nowPayments:    nowPayments,
+		ctx:         ctx,
+		db:          db,
+		wallet:      wallet,
+		nowPayments: nowPayments,
 	}
 }
 
+func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
+	return c.db.GetActiveCrowdfundCampaign()
+}
+
 func (c *CrowdfundCmd) GetCommand() *command.Command {
-	if c.activeCampaign != nil {
+	cmd := c.crowdfundCommand()
+
+	activeCampaign := c.activeCampaign()
+	if activeCampaign != nil {
 		purchaseChoices := []command.Choice{}
-		for index, pkg := range c.activeCampaign.Packages {
+		for index, pkg := range activeCampaign.Packages {
 			choice := command.Choice{
 				Name:  pkg.Name,
 				Value: index,
@@ -46,5 +51,5 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		subCmdPurchase.Args[0].Choices = purchaseChoices
 	}
 
-	return c.crowdfundCommand()
+	return cmd
 }

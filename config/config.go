@@ -5,25 +5,27 @@ import (
 	"os"
 
 	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/utils"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	BotName      string          `yaml:"bot_name"`
-	Network      string          `yaml:"network"`
-	NetworkNodes []string        `yaml:"network_nodes"`
-	LocalNode    string          `yaml:"local_node"`
-	Database     Database        `yaml:"database"`
-	AuthIDs      []string        `yaml:"auth_ids"`
-	GRPC         *GRPC           `yaml:"grpc"` // ! TODO: config for modules should moved to the module.
-	Wallet       *Wallet         `yaml:"wallet"`
-	Logger       *Logger         `yaml:"logger"`
-	HTTP         *HTTP           `yaml:"http"`
-	Phoenix      *PhoenixNetwork `yaml:"phoenix"`
-	DiscordBot   *DiscordBot     `yaml:"discord"`
-	Telegram     *Telegram       `yaml:"telegram"`
-	Notification *Notification   `yaml:"notification"`
+	BotName      string              `yaml:"bot_name"`
+	Network      string              `yaml:"network"`
+	NetworkNodes []string            `yaml:"network_nodes"`
+	LocalNode    string              `yaml:"local_node"`
+	Database     Database            `yaml:"database"`
+	GRPC         *GRPC               `yaml:"grpc"` // ! TODO: config for modules should moved to the module.
+	Wallet       *Wallet             `yaml:"wallet"`
+	Logger       *log.Config         `yaml:"logger"`
+	HTTP         *HTTP               `yaml:"http"`
+	Phoenix      *PhoenixNetwork     `yaml:"phoenix"`
+	Discord      *DiscordBot         `yaml:"discord"`
+	Telegram     *Telegram           `yaml:"telegram"`
+	Notification *Notification       `yaml:"notification"`
+	NowPayments  *nowpayments.Config `yaml:"now_payments"`
 }
 
 type Database struct {
@@ -51,15 +53,6 @@ type HTTP struct {
 
 type PhoenixNetwork struct {
 	FaucetAmount amount.Amount `yaml:"faucet_amount"`
-}
-
-type Logger struct {
-	Filename   string   `yaml:"filename"`
-	LogLevel   string   `yaml:"level"`
-	Targets    []string `yaml:"targets"`
-	MaxSize    int      `yaml:"max_size"`
-	MaxBackups int      `yaml:"max_backups"`
-	Compress   bool     `yaml:"compress"`
 }
 
 type Telegram struct {

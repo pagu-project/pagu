@@ -18,7 +18,7 @@ type testData struct {
 
 	crowdfundCmd *CrowdfundCmd
 	database     *repository.Database
-	nowpayments  *nowpayments.MockINowpayments
+	nowpayments  *nowpayments.MockINowPayments
 	wallet       *wallet.MockIWallet
 }
 
@@ -29,11 +29,11 @@ func setup(t *testing.T) *testData {
 	ctrl := gomock.NewController(t)
 
 	testDB := ts.MakeTestDB()
-	mockNowpayments := nowpayments.NewMockINowpayments(ctrl)
+	mockNowPayments := nowpayments.NewMockINowPayments(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 
 	crowdfundCmd := NewCrowdfundCmd(context.Background(),
-		testDB, mockWallet, mockNowpayments)
+		testDB, mockWallet, mockNowPayments)
 
 	_ = crowdfundCmd.GetCommand()
 
@@ -41,7 +41,7 @@ func setup(t *testing.T) *testData {
 		TestSuite:    ts,
 		crowdfundCmd: crowdfundCmd,
 		database:     testDB,
-		nowpayments:  mockNowpayments,
+		nowpayments:  mockNowPayments,
 		wallet:       mockWallet,
 	}
 }
@@ -64,8 +64,9 @@ func (td *testData) createTestCampaign(t *testing.T, opts ...CampaignOption) *en
 	t.Helper()
 
 	campaign := &entity.CrowdfundCampaign{
-		Title: td.RandString(16),
-		Desc:  td.RandString(128),
+		Title:  td.RandString(16),
+		Desc:   td.RandString(128),
+		Active: true,
 		Packages: []entity.Package{
 			{
 				Name:      td.RandString(16),

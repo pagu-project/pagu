@@ -111,6 +111,10 @@ type CommandResult struct {
 	Successful bool
 }
 
+func (cmd *Command) RenderFailedTemplateF(reason string, a ...any) CommandResult {
+	return cmd.RenderFailedTemplate(fmt.Sprintf(reason, a...))
+}
+
 func (cmd *Command) RenderFailedTemplate(reason string) CommandResult {
 	msg, _ := cmd.executeTemplate(failedTemplate, map[string]any{"reason": reason})
 

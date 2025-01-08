@@ -1,11 +1,12 @@
 package nowpayments
 
 type Config struct {
-	Webhook    string
-	ListenPort string
-	APIToken   string
-	IPNSecret  string
-	APIUrl     string
-	Username   string
-	Password   string
+	Webhook    string `yaml:"webhook"`
+	ListenPort string `yaml:"listen_port"`
+	APIToken   string `yaml:"api_token"`
+	IPNSecret  string `yaml:"ipn_secret"`
+	APIURL     string `yaml:"api_url"` //nolint:tagliatelle // unable to detect api_url
+	PaymentURL string `yaml:"payment_url"`
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password"`
 }

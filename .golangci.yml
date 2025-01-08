@@ -178,7 +178,7 @@ linters-settings:
   tagliatelle:
     # Check the struct tag name case.
     case:
-      use-field-name: false
+      use-field-name: true
       rules:
         json: snake
         yaml: snake
