@@ -169,7 +169,7 @@ func (be *BotEngine) ParseAndExecute(
 	var cmds []string
 	var args map[string]string
 
-	cmds, args, err := parseCommand(input)
+	cmds, args, err := parseInput(input)
 	if err != nil {
 		return command.CommandResult{
 			Message:    err.Error(),
@@ -180,35 +180,79 @@ func (be *BotEngine) ParseAndExecute(
 	return be.executeCommand(appID, callerID, cmds, args)
 }
 
-// parseCommand parses the input string into commands and arguments.
+func parseCommandInput(cmdInput string) []string {
+	cmds := make([]string, 0)
+
+	tokens := strings.Split(cmdInput, " ")
+	for _, token := range tokens {
+		token = strings.TrimSpace(token)
+
+		if token != "" {
+			cmds = append(cmds, token)
+		}
+	}
+
+	return cmds
+}
+
+func parseArgumentInput(argInput string) (map[string]string, error) {
+	args := make(map[string]string)
+
+	tokens := strings.Split(argInput, "--")
+	for _, token := range tokens {
+		token = strings.TrimSpace(token)
+
+		if token != "" {
+			parts := strings.SplitN(token, "=", 2)
+			key := strings.TrimSpace(parts[0])
+
+			if key == "" {
+				return nil, fmt.Errorf("invalid argument format: %s", argInput)
+			}
+
+			if len(parts) == 1 {
+				// Boolean argument
+				args[key] = "true"
+			} else {
+				value := strings.TrimSpace(parts[1])
+				value = strings.Trim(value, "\"'")
+				value = strings.TrimSpace(value)
+
+				args[key] = value
+			}
+		}
+	}
+
+	return args, nil
+}
+
+// parseInput parses the input string into commands and arguments.
 // The input string should be in the following format:
 // `command1 command2 --arg1=val1 --arg2=val2`
 // It returns an error if parsing fails.
-func parseCommand(input string) ([]string, map[string]string, error) {
-	if strings.TrimSpace(input) == "" {
+func parseInput(input string) ([]string, map[string]string, error) {
+	// normalize input
+	input = strings.ReplaceAll(input, "\t", " ")
+	input = strings.TrimSpace(input)
+	if input == "" {
 		return nil, nil, errors.New("input string cannot be empty")
 	}
 
-	// Split input by spaces while preserving argument values
-	parts := strings.Fields(input)
+	argIndex := strings.Index(input, "--")
 
-	// Prepare results
-	cmds := make([]string, 0)
-	args := make(map[string]string)
+	var cmdInput, argInput string
+	if argIndex != -1 {
+		cmdInput = input[:argIndex]
+		argInput = input[argIndex:]
+	} else {
+		cmdInput = input
+		argInput = ""
+	}
 
-	// Iterate over parts to separate commands and arguments
-	for _, part := range parts {
-		if strings.HasPrefix(part, "--") {
-			// Argument: split on '='
-			argParts := strings.SplitN(part, "=", 2)
-			key := strings.TrimPrefix(argParts[0], "--")
-			if len(argParts) != 2 || strings.TrimSpace(key) == "" || strings.TrimSpace(argParts[1]) == "" {
-				return nil, nil, fmt.Errorf("invalid argument format: %s", part)
-			}
-			args[key] = argParts[1]
-		} else {
-			cmds = append(cmds, part)
-		}
+	cmds := parseCommandInput(cmdInput)
+	args, err := parseArgumentInput(argInput)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return cmds, args, nil
