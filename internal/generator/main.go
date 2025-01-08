@@ -61,9 +61,11 @@ func generateCode(cmd *command.Command) (string, error) {
 		"title": func(str string) string {
 			return cases.Title(language.English).String(str)
 		},
-
 		"string": func(s fmt.Stringer) string {
 			return s.String()
+		},
+		"trim": func(s string) string {
+			return strings.TrimSpace(s)
 		},
 	}
 

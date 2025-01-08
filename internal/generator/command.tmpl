@@ -13,16 +13,18 @@ func (c *{{.Name | title}}Cmd) {{.Name}}Command() *command.Command {
 	{{.Name}}Cmd := &command.Command{
 		Name:        "{{.Name}}",
 		Help:        "{{.Help}}",
+		AppIDs:      entity.AllAppIDs(),
 		TargetFlag:  command.TargetMaskAll,
 		SubCommands: make([]*command.Command, 0),
 	}
 {{ range .SubCommands }}
 	subCmd{{.Name | title}} = &command.Command{
-		Name:       "{{.Name}}",
-		Help:       "{{.Help}}",
-		Handler:    c.{{.Name}}Handler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "{{.Name}}",
+		Help:           "{{.Help}}",
+		Handler:        c.{{.Name}}Handler,
+		ResultTemplate: `{{.ResultTemplate | trim}}`,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 		{{- if .Args }}
 		Args: []command.Args{
 			{{- range .Args}}

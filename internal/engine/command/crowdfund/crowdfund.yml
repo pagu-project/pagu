@@ -4,7 +4,8 @@ help: Commands for managing crowdfunding campaigns
 sub_commands:
 - name: create
   help: Create a new crowdfunding campaign
-  result_template:
+  result_template: |
+    Crowdfund campaign '{{.Name}}' created successfully with {{ len(.Packages) }} packages
   args:
   - name: title
     desc: The title of this crowdfunding campaign

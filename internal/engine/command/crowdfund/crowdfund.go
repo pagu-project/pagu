@@ -33,20 +33,18 @@ func NewCrowdfundCmd(ctx context.Context,
 }
 
 func (c *CrowdfundCmd) GetCommand() *command.Command {
-	if c.activeCampaign == nil {
-		return nil
-	}
+	if c.activeCampaign != nil {
+		purchaseChoices := []command.Choice{}
+		for index, pkg := range c.activeCampaign.Packages {
+			choice := command.Choice{
+				Name:  pkg.Name,
+				Value: index,
+			}
 
-	purchaseChoices := []command.Choice{}
-	for index, pkg := range c.activeCampaign.Packages {
-		choice := command.Choice{
-			Name:  pkg.Name,
-			Value: index,
+			purchaseChoices = append(purchaseChoices, choice)
 		}
-
-		purchaseChoices = append(purchaseChoices, choice)
+		subCmdPurchase.Args[0].Choices = purchaseChoices
 	}
-	subCmdPurchase.Args[0].Choices = purchaseChoices
 
 	return c.crowdfundCommand()
 }

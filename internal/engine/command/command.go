@@ -93,15 +93,16 @@ type Args struct {
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji       string              `yaml:"emoji"`
-	Name        string              `yaml:"name"`
-	Help        string              `yaml:"help"`
-	Args        []Args              `yaml:"args"`
-	AppIDs      []entity.PlatformID `yaml:"-"`
-	SubCommands []*Command          `yaml:"sub_commands"`
-	Middlewares []MiddlewareFunc    `yaml:"-"`
-	Handler     HandlerFunc         `yaml:"-"`
-	TargetFlag  int                 `yaml:"-"`
+	Emoji          string              `yaml:"emoji"`
+	Name           string              `yaml:"name"`
+	Help           string              `yaml:"help"`
+	Args           []Args              `yaml:"args"`
+	SubCommands    []*Command          `yaml:"sub_commands"`
+	ResultTemplate string              `yaml:"result_template"`
+	Middlewares    []MiddlewareFunc    `yaml:"-"`
+	Handler        HandlerFunc         `yaml:"-"`
+	AppIDs         []entity.PlatformID `yaml:"-"`
+	TargetFlag     int                 `yaml:"-"`
 }
 
 type CommandResult struct {
@@ -130,7 +131,7 @@ func (cmd *Command) RenderErrorTemplate(err error) CommandResult {
 	}
 }
 
-func (cmd *Command) RenderResultTemplate(templateContent string, keyvals ...any) CommandResult {
+func (cmd *Command) RenderResultTemplate(keyvals ...any) CommandResult {
 	if len(keyvals)%2 != 0 {
 		keyvals = append(keyvals, "!MISSING-VALUE!")
 	}
@@ -143,7 +144,7 @@ func (cmd *Command) RenderResultTemplate(templateContent string, keyvals ...any)
 		data[key] = val
 	}
 
-	msg, err := cmd.executeTemplate(templateContent, data)
+	msg, err := cmd.executeTemplate(cmd.ResultTemplate, data)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}

@@ -25,5 +25,5 @@ func (c *CrowdfundCmd) infoHandler(
 		return cmd.RenderFailedTemplate("No active campaign")
 	}
 
-	return cmd.RenderResultTemplate(infoResponseTemplate, "campaign", c.activeCampaign)
+	return cmd.RenderResultTemplate("campaign", c.activeCampaign)
 }

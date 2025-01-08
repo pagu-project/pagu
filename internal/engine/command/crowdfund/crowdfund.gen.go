@@ -17,16 +17,18 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 	crowdfundCmd := &command.Command{
 		Name:        "crowdfund",
 		Help:        "Commands for managing crowdfunding campaigns",
+		AppIDs:      entity.AllAppIDs(),
 		TargetFlag:  command.TargetMaskAll,
 		SubCommands: make([]*command.Command, 0),
 	}
 
 	subCmdCreate = &command.Command{
-		Name:       "create",
-		Help:       "Create a new crowdfunding campaign",
-		Handler:    c.createHandler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "create",
+		Help:           "Create a new crowdfunding campaign",
+		Handler:        c.createHandler,
+		ResultTemplate: `Crowdfund campaign '{{.Name}}' created successfully with {{ len(.Packages) }} packages`,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 		Args: []command.Args{
 			{
 				Name:     "title",
@@ -49,32 +51,36 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		},
 	}
 	subCmdDisable = &command.Command{
-		Name:       "disable",
-		Help:       "Disable an existing crowdfunding campaign",
-		Handler:    c.disableHandler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "disable",
+		Help:           "Disable an existing crowdfunding campaign",
+		Handler:        c.disableHandler,
+		ResultTemplate: ``,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 	}
 	subCmdReport = &command.Command{
-		Name:       "report",
-		Help:       "View reports of a crowdfunding campaign",
-		Handler:    c.reportHandler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "report",
+		Help:           "View reports of a crowdfunding campaign",
+		Handler:        c.reportHandler,
+		ResultTemplate: ``,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 	}
 	subCmdInfo = &command.Command{
-		Name:       "info",
-		Help:       "Get detailed information about a crowdfunding campaign",
-		Handler:    c.infoHandler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "info",
+		Help:           "Get detailed information about a crowdfunding campaign",
+		Handler:        c.infoHandler,
+		ResultTemplate: ``,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 	}
 	subCmdPurchase = &command.Command{
-		Name:       "purchase",
-		Help:       "Make a purchase in a crowdfunding campaign",
-		Handler:    c.purchaseHandler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "purchase",
+		Help:           "Make a purchase in a crowdfunding campaign",
+		Handler:        c.purchaseHandler,
+		ResultTemplate: ``,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 		Args: []command.Args{
 			{
 				Name:     "package",
@@ -85,11 +91,12 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		},
 	}
 	subCmdClaim = &command.Command{
-		Name:       "claim",
-		Help:       "Claim packages from a crowdfunding campaign",
-		Handler:    c.claimHandler,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
+		Name:           "claim",
+		Help:           "Claim packages from a crowdfunding campaign",
+		Handler:        c.claimHandler,
+		ResultTemplate: ``,
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     command.TargetMaskAll,
 	}
 	crowdfundCmd.AddSubCommand(subCmdCreate)
 	crowdfundCmd.AddSubCommand(subCmdDisable)
