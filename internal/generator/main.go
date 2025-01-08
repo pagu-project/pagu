@@ -64,9 +64,7 @@ func generateCode(cmd *command.Command) (string, error) {
 		"string": func(s fmt.Stringer) string {
 			return s.String()
 		},
-		"trim": func(s string) string {
-			return strings.TrimSpace(s)
-		},
+		"trim": strings.TrimSpace,
 	}
 
 	tml, err := template.New("code").Funcs(funcMap).Parse(commandTemplate)
