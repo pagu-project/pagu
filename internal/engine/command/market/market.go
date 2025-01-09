@@ -23,7 +23,7 @@ func (m *MarketCmd) GetCommand() *command.Command {
 	subCmdPrice := &command.Command{
 		Name:        "price",
 		Help:        "Shows the latest price of PAC coin across different markets",
-		Args:        []command.Args{},
+		Args:        []*command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     m.priceHandler,

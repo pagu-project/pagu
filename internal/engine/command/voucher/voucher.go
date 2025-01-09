@@ -28,7 +28,7 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	subCmdClaim := &command.Command{
 		Name: "claim",
 		Help: "Claim voucher coins and bond them to a validator",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "code",
 				Desc:     "The voucher code",
@@ -52,7 +52,7 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	subCmdCreateOne := &command.Command{
 		Name: "create-one",
 		Help: "Generate a single voucher code",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "amount",
 				Desc:     "The amount of PAC to bond",
@@ -88,7 +88,7 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	subCmdCreateBulk := &command.Command{
 		Name: "create-bulk",
 		Help: "Generate multiple voucher codes by importing a file",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "file",
 				Desc:     "File containing a list of voucher recipients",
@@ -112,7 +112,7 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	subCmdStatus := &command.Command{
 		Name: "status",
 		Help: "View the status of vouchers or a specific voucher",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "code",
 				Desc:     "The voucher code (8 characters)",

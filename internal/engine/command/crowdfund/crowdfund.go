@@ -37,6 +37,20 @@ func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
 func (c *CrowdfundCmd) GetCommand() *command.Command {
 	cmd := c.crowdfundCommand()
 
+	subCmdCreate.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
+	subCmdDisable.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
+	subCmdReport.AppIDs = entity.AllAppIDs()
+	subCmdInfo.AppIDs = entity.AllAppIDs()
+	subCmdPurchase.AppIDs = entity.AllAppIDs()
+	subCmdClaim.AppIDs = entity.AllAppIDs()
+
+	subCmdCreate.TargetFlag = command.TargetMaskModerator
+	subCmdDisable.TargetFlag = command.TargetMaskModerator
+	subCmdReport.TargetFlag = command.TargetMaskMainnet
+	subCmdInfo.TargetFlag = command.TargetMaskMainnet
+	subCmdPurchase.TargetFlag = command.TargetMaskMainnet
+	subCmdClaim.TargetFlag = command.TargetMaskMainnet
+
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {
 		purchaseChoices := []command.Choice{}

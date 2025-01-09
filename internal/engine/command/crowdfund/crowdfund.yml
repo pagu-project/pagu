@@ -31,7 +31,7 @@ sub_commands:
 
     Packages:
     {{range .campaign.Packages}}
-    - {{.Name}}
+    - {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount}} PAC
     {{- end}}
 - name: purchase
   help: Make a purchase in a crowdfunding campaign
