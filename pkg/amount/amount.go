@@ -8,6 +8,7 @@ package amount
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"math"
 	"strconv"
@@ -168,6 +169,8 @@ func (a *Amount) Scan(src any) error {
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
+// It parses YAML data into an Amount. It first attempts to unmarshal the data as a string,
+// and if that fails, as a float64. Returns an error if conversion fails.
 func (a *Amount) UnmarshalYAML(unmarshal func(any) error) error {
 	var s string
 	if err := unmarshal(&s); err != nil {
@@ -180,6 +183,30 @@ func (a *Amount) UnmarshalYAML(unmarshal func(any) error) error {
 	*a = val
 
 	return nil
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface.
+// It parses JSON data into an Amount, first trying as a string, then as a float64.
+// Returns an error if the data is invalid or cannot be converted.
+func (a *Amount) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		s = string(data)
+	}
+
+	val, err := FromString(s)
+	if err != nil {
+		return err
+	}
+	*a = val
+
+	return nil
+}
+
+// MarshalJSON implements the json.Marshaler interface.
+// It converts the Amount to a float64 value representing PAC.
+func (a Amount) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.ToPAC())
 }
 
 func (a Amount) ToPactusAmount() amount.Amount {

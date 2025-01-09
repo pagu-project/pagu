@@ -113,8 +113,8 @@ func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *NowPayments) CreateInvoice(priceUSD int, orderID string) (string, error) {
-	url := fmt.Sprintf("%v/v1/invoice", s.apiURL)
-	jsonStr := fmt.Sprintf(`{"price_amount":%v,"price_currency":"usd","order_id":"%v","is_fee_paid_by_user":true}`,
+	url := fmt.Sprintf("%s/v1/invoice", s.apiURL)
+	jsonStr := fmt.Sprintf(`{"price_amount":%d,"price_currency":"usd","order_id":"%q","is_fee_paid_by_user":true}`,
 		priceUSD, orderID)
 
 	req, err := http.NewRequestWithContext(s.ctx, http.MethodPost, url, bytes.NewBufferString(jsonStr))
@@ -159,7 +159,7 @@ func (s *NowPayments) IsPaid(invoiceID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	url := fmt.Sprintf("%v/v1/payment/?invoiceId=%v", s.apiURL, invoiceID)
+	url := fmt.Sprintf("%s/v1/payment/?invoiceId=%s", s.apiURL, invoiceID)
 	req, err := http.NewRequestWithContext(s.ctx, http.MethodGet, url, http.NoBody)
 	if err != nil {
 		return false, err

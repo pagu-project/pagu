@@ -6,6 +6,7 @@ import (
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 func (c *CrowdfundCmd) purchaseHandler(
@@ -32,18 +33,25 @@ func (c *CrowdfundCmd) purchaseHandler(
 	}
 	err := c.db.AddCrowdfundPurchase(purchase)
 	if err != nil {
-		return cmd.RenderErrorTemplate(err)
+		log.Error("database failed", "error", err, "purchase", purchase)
+
+		return cmd.RenderInternalFailure()
 	}
+
 	orderID := fmt.Sprintf("crowdfund/%d", purchase.ID)
 	invoiceID, err := c.nowPayments.CreateInvoice(pkg.USDAmount, orderID)
 	if err != nil {
-		return cmd.RenderErrorTemplate(err)
+		log.Error("NowPayments failed", "error", err, "orderID", orderID)
+
+		return cmd.RenderInternalFailure()
 	}
 
 	purchase.InvoiceID = invoiceID
 	err = c.db.UpdateCrowdfundPurchase(purchase)
 	if err != nil {
-		return cmd.RenderErrorTemplate(err)
+		log.Error("database failed", "error", err, "purchase", purchase)
+
+		return cmd.RenderInternalFailure()
 	}
 
 	return cmd.RenderResultTemplate(
