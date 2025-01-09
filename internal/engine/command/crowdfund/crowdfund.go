@@ -2,6 +2,7 @@ package crowdfund
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
@@ -69,7 +70,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		for index, pkg := range activeCampaign.Packages {
 			choice := command.Choice{
 				Name:  pkg.Name,
-				Value: index + 1,
+				Value: fmt.Sprintf("%d", index+1),
 			}
 
 			purchaseChoices = append(purchaseChoices, choice)

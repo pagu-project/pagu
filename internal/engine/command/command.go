@@ -79,7 +79,7 @@ func (ib *InputBox) UnmarshalYAML(unmarshal func(any) error) error {
 
 type Choice struct {
 	Name  string `yaml:"name"`
-	Value int    `yaml:"value"`
+	Value string `yaml:"value"`
 }
 
 type Args struct {
