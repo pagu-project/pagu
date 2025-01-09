@@ -117,6 +117,7 @@ func (bot *Bot) registerCommands() error {
 
 		default:
 			log.Warn("invalid target", "target", bot.target)
+
 			continue
 		}
 
@@ -147,6 +148,7 @@ func (bot *Bot) registerCommands() error {
 
 				default:
 					log.Warn("invalid target", "target", bot.target)
+
 					continue
 				}
 
