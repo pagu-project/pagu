@@ -26,19 +26,7 @@ func (c *CrowdfundCmd) purchaseHandler(
 	}
 	pkg := activeCampaign.Packages[pkgIndex]
 
-	purchase := &entity.CrowdfundPurchase{
-		UserID:    user.ID,
-		USDAmount: pkg.USDAmount,
-		PACAmount: pkg.PACAmount,
-	}
-	err := c.db.AddCrowdfundPurchase(purchase)
-	if err != nil {
-		log.Error("database failed", "error", err, "purchase", purchase)
-
-		return cmd.RenderInternalFailure()
-	}
-
-	orderID := fmt.Sprintf("crowdfund/%d", purchase.ID)
+	orderID := fmt.Sprintf("crowdfund/%d", user.ID)
 	invoiceID, err := c.nowPayments.CreateInvoice(pkg.USDAmount, orderID)
 	if err != nil {
 		log.Error("NowPayments failed", "error", err, "orderID", orderID)
@@ -46,8 +34,14 @@ func (c *CrowdfundCmd) purchaseHandler(
 		return cmd.RenderInternalFailure()
 	}
 
-	purchase.InvoiceID = invoiceID
-	err = c.db.UpdateCrowdfundPurchase(purchase)
+	purchase := &entity.CrowdfundPurchase{
+		UserID:    user.ID,
+		USDAmount: pkg.USDAmount,
+		PACAmount: pkg.PACAmount,
+		InvoiceID: invoiceID,
+	}
+
+	err = c.db.AddCrowdfundPurchase(purchase)
 	if err != nil {
 		log.Error("database failed", "error", err, "purchase", purchase)
 
