@@ -88,8 +88,7 @@ func (bot *Bot) registerCommands() error {
 		}
 
 		switch bot.target {
-		case config.BotNamePaguMainnet,
-			config.BotNamePaguStaging:
+		case config.BotNamePaguMainnet:
 			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskMainnet) {
 				continue
 			}
@@ -103,6 +102,11 @@ func (bot *Bot) registerCommands() error {
 			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
 				continue
 			}
+
+		default:
+			log.Warn("invalid target", "target", bot.target)
+
+			continue
 		}
 
 		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
@@ -130,6 +134,11 @@ func (bot *Bot) registerCommands() error {
 					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskModerator) {
 						continue
 					}
+
+				default:
+					log.Warn("invalid target", "target", bot.target)
+
+					continue
 				}
 
 				log.Info("adding sub-command", "command", cmd.Name,

@@ -109,6 +109,16 @@ func (bot *Bot) registerCommands() error {
 			if !utils.IsFlagSet(beCmd.TargetFlag, command.TargetMaskTestnet) {
 				continue
 			}
+
+		case config.BotNamePaguModerator:
+			if !utils.IsFlagSet(beCmd.TargetFlag, command.TargetMaskModerator) {
+				continue
+			}
+
+		default:
+			log.Warn("invalid target", "target", bot.target)
+
+			continue
 		}
 
 		log.Info("registering new command", "name", beCmd.Name, "desc", beCmd.Help, "index", i, "object", beCmd)
@@ -135,6 +145,11 @@ func (bot *Bot) registerCommands() error {
 					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskModerator) {
 						continue
 					}
+
+				default:
+					log.Warn("invalid target", "target", bot.target)
+
+					continue
 				}
 
 				log.Info("adding command sub-command", "command", beCmd.Name,
