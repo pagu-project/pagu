@@ -16,13 +16,14 @@ import (
 )
 
 type NowPayments struct {
-	ctx       context.Context
-	apiToken  string
-	ipnSecret []byte
-	webhook   string
-	apiURL    string
-	username  string
-	password  string
+	ctx        context.Context
+	apiToken   string
+	ipnSecret  []byte
+	webhook    string
+	apiURL     string
+	paymentURL string
+	username   string
+	password   string
 }
 
 func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
@@ -31,13 +32,14 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 		return nil, err
 	}
 	s := &NowPayments{
-		ctx:       ctx,
-		apiToken:  cfg.APIToken,
-		ipnSecret: ipnSecret,
-		apiURL:    cfg.APIUrl,
-		webhook:   cfg.Webhook,
-		username:  cfg.Username,
-		password:  cfg.Password,
+		ctx:        ctx,
+		apiToken:   cfg.APIToken,
+		ipnSecret:  ipnSecret,
+		apiURL:     cfg.APIURL,
+		paymentURL: cfg.PaymentURL,
+		webhook:    cfg.Webhook,
+		username:   cfg.Username,
+		password:   cfg.Password,
 	}
 
 	// Web hook has issue
@@ -56,8 +58,12 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 	return s, nil
 }
 
+func (s *NowPayments) PaymentLink(invoiceID string) string {
+	return fmt.Sprintf("%s/payment?iid=%s", s.paymentURL, invoiceID)
+}
+
 func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
-	log.Debug("NowPayment webhook called")
+	log.Debug("NowPayments webhook called")
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -108,7 +114,7 @@ func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
 
 func (s *NowPayments) CreateInvoice(priceUSD int, orderID string) (string, error) {
 	url := fmt.Sprintf("%v/v1/invoice", s.apiURL)
-	jsonStr := fmt.Sprintf(`{"price_amount":%v,"price_currency":"usd","order_id":"%v"}`,
+	jsonStr := fmt.Sprintf(`{"price_amount":%v,"price_currency":"usd","order_id":"%v","is_fee_paid_by_user":true}`,
 		priceUSD, orderID)
 
 	req, err := http.NewRequestWithContext(s.ctx, http.MethodPost, url, bytes.NewBufferString(jsonStr))

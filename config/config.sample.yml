@@ -60,6 +60,17 @@ telegram:
   # Telegram bot token for authentication.
   bot_token:
 
+# NowPayments configuration.
+now_payments:
+  webhook:
+  listen_port:
+  api_token:
+  ipn_secret:
+  api_url: "https://api.nowpayments.io"
+  payment_url: "https://nowpayments.io"
+  username:
+  password:
+
 # Logger configuration
 logger:
   level: "info" # Logging level: debug, info, warn, error, or fatal.

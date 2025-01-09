@@ -60,4 +60,20 @@ func TestCreate(t *testing.T) {
 		assert.True(t, result.Successful)
 		assert.Equal(t, result.Message, "Crowdfund campaign 'crowdfund-title' created successfully with 3 packages")
 	})
+
+	t.Run("Has active campaign", func(t *testing.T) {
+		args := map[string]string{
+			"title": "crowdfund-title 2",
+			"desc":  "crowdfund-desc 2",
+			"packages": `
+			[
+			   {"name": "package-1", "usd_amount": 100, "pac_amount": 100},
+			   {"name": "package-2", "usd_amount": 200, "pac_amount": 200},
+			   {"name": "package-3", "usd_amount": 300, "pac_amount": 300}
+			]`,
+		}
+		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
+		assert.False(t, result.Successful)
+		assert.Contains(t, result.Message, "There is an active campaign: crowdfund-title")
+	})
 }

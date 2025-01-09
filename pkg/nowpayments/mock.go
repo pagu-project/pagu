@@ -15,32 +15,32 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockINowpayments is a mock of INowpayments interface.
-type MockINowpayments struct {
+// MockINowPayments is a mock of INowPayments interface.
+type MockINowPayments struct {
 	ctrl     *gomock.Controller
-	recorder *MockINowpaymentsMockRecorder
+	recorder *MockINowPaymentsMockRecorder
 	isgomock struct{}
 }
 
-// MockINowpaymentsMockRecorder is the mock recorder for MockINowpayments.
-type MockINowpaymentsMockRecorder struct {
-	mock *MockINowpayments
+// MockINowPaymentsMockRecorder is the mock recorder for MockINowPayments.
+type MockINowPaymentsMockRecorder struct {
+	mock *MockINowPayments
 }
 
-// NewMockINowpayments creates a new mock instance.
-func NewMockINowpayments(ctrl *gomock.Controller) *MockINowpayments {
-	mock := &MockINowpayments{ctrl: ctrl}
-	mock.recorder = &MockINowpaymentsMockRecorder{mock}
+// NewMockINowPayments creates a new mock instance.
+func NewMockINowPayments(ctrl *gomock.Controller) *MockINowPayments {
+	mock := &MockINowPayments{ctrl: ctrl}
+	mock.recorder = &MockINowPaymentsMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockINowpayments) EXPECT() *MockINowpaymentsMockRecorder {
+func (m *MockINowPayments) EXPECT() *MockINowPaymentsMockRecorder {
 	return m.recorder
 }
 
 // CreateInvoice mocks base method.
-func (m *MockINowpayments) CreateInvoice(priceUSD int, orderID string) (string, error) {
+func (m *MockINowPayments) CreateInvoice(priceUSD int, orderID string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateInvoice", priceUSD, orderID)
 	ret0, _ := ret[0].(string)
@@ -49,13 +49,13 @@ func (m *MockINowpayments) CreateInvoice(priceUSD int, orderID string) (string, 
 }
 
 // CreateInvoice indicates an expected call of CreateInvoice.
-func (mr *MockINowpaymentsMockRecorder) CreateInvoice(priceUSD, orderID any) *gomock.Call {
+func (mr *MockINowPaymentsMockRecorder) CreateInvoice(priceUSD, orderID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateInvoice", reflect.TypeOf((*MockINowpayments)(nil).CreateInvoice), priceUSD, orderID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateInvoice", reflect.TypeOf((*MockINowPayments)(nil).CreateInvoice), priceUSD, orderID)
 }
 
 // IsPaid mocks base method.
-func (m *MockINowpayments) IsPaid(invoiceID string) (bool, error) {
+func (m *MockINowPayments) IsPaid(invoiceID string) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IsPaid", invoiceID)
 	ret0, _ := ret[0].(bool)
@@ -64,7 +64,21 @@ func (m *MockINowpayments) IsPaid(invoiceID string) (bool, error) {
 }
 
 // IsPaid indicates an expected call of IsPaid.
-func (mr *MockINowpaymentsMockRecorder) IsPaid(invoiceID any) *gomock.Call {
+func (mr *MockINowPaymentsMockRecorder) IsPaid(invoiceID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPaid", reflect.TypeOf((*MockINowpayments)(nil).IsPaid), invoiceID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPaid", reflect.TypeOf((*MockINowPayments)(nil).IsPaid), invoiceID)
+}
+
+// PaymentLink mocks base method.
+func (m *MockINowPayments) PaymentLink(invoiceID string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PaymentLink", invoiceID)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// PaymentLink indicates an expected call of PaymentLink.
+func (mr *MockINowPaymentsMockRecorder) PaymentLink(invoiceID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PaymentLink", reflect.TypeOf((*MockINowPayments)(nil).PaymentLink), invoiceID)
 }

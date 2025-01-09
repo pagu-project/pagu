@@ -12,9 +12,14 @@ func (c *CrowdfundCmd) createHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	title := args["title"]
-	desc := args["desc"]
-	packagesJSON := args["packages"]
+	activeCampaign := c.activeCampaign()
+	if activeCampaign != nil {
+		return cmd.RenderFailedTemplateF("There is an active campaign: %s", activeCampaign.Title)
+	}
+
+	title := args[argNameCreateTitle]
+	desc := args[argNameCreateDesc]
+	packagesJSON := args[argNameCreatePackages]
 
 	packages := []entity.Package{}
 	err := json.Unmarshal([]byte(packagesJSON), &packages)
@@ -35,6 +40,7 @@ func (c *CrowdfundCmd) createHandler(
 		Title:     title,
 		Desc:      desc,
 		Packages:  packages,
+		Active:    true,
 	}
 	err = c.db.AddCrowdfundCampaign(campaign)
 	if err != nil {

@@ -35,7 +35,7 @@ func runCommand(parentCmd *cobra.Command) {
 
 		botEngine.Start()
 
-		discordBot, err := discord.NewDiscordBot(botEngine, configs.DiscordBot, configs.BotName)
+		discordBot, err := discord.NewDiscordBot(botEngine, configs.Discord, configs.BotName)
 		pagucmd.ExitOnError(cmd, err)
 
 		err = discordBot.Start()

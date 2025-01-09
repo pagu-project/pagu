@@ -6,6 +6,11 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
+var argNameCreateTitle = "title"
+var argNameCreateDesc = "desc"
+var argNameCreatePackages = "packages"
+var argNamePurchasePackage = "package"
+
 var subCmdCreate *command.Command
 var subCmdDisable *command.Command
 var subCmdReport *command.Command
@@ -67,9 +72,9 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		TargetFlag:     command.TargetMaskAll,
 	}
 	subCmdInfo = &command.Command{
-		Name:           "info",
-		Help:           "Get detailed information about a crowdfunding campaign",
-		Handler:        c.infoHandler,
+		Name:    "info",
+		Help:    "Get detailed information about a crowdfunding campaign",
+		Handler: c.infoHandler,
 		ResultTemplate: `**{{.campaign.Title}}**
 {{.campaign.Desc}}
 
@@ -77,16 +82,21 @@ Packages:
 {{range .campaign.Packages}}
 - {{.Name}}
 {{- end}}`,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
+		AppIDs:     entity.AllAppIDs(),
+		TargetFlag: command.TargetMaskAll,
 	}
 	subCmdPurchase = &command.Command{
-		Name:           "purchase",
-		Help:           "Make a purchase in a crowdfunding campaign",
-		Handler:        c.purchaseHandler,
-		ResultTemplate: ``,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
+		Name:    "purchase",
+		Help:    "Make a purchase in a crowdfunding campaign",
+		Handler: c.purchaseHandler,
+		ResultTemplate: `Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} PAC successfully registered in our database.
+Please visit {{ .paymentLink }} to make the payment.
+
+Once the payment is done, you can claim your PAC coins using "claim" command.
+
+Thanks`,
+		AppIDs:     entity.AllAppIDs(),
+		TargetFlag: command.TargetMaskAll,
 		Args: []command.Args{
 			{
 				Name:     "package",

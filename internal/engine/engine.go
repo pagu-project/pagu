@@ -25,6 +25,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/notification"
 	"github.com/pagu-project/pagu/pkg/notification/zoho"
+	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
@@ -101,7 +102,14 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		go mailSenderSched.Run()
 	}
 
-	return newBotEngine(ctx, cancel, db, mgr, wlt, cfg.Phoenix.FaucetAmount), nil
+	nowPayments, err := nowpayments.NewNowPayments(ctx, cfg.NowPayments)
+	if err != nil {
+		cancel()
+
+		return nil, err
+	}
+
+	return newBotEngine(ctx, cancel, db, mgr, wlt, nowPayments, cfg.Phoenix.FaucetAmount), nil
 }
 
 func newBotEngine(ctx context.Context,
@@ -109,6 +117,7 @@ func newBotEngine(ctx context.Context,
 	db *repository.Database,
 	mgr client.IManager,
 	wlt wallet.IWallet,
+	nowPayments nowpayments.INowPayments,
 	phoenixFaucetAmount amount.Amount,
 ) *BotEngine {
 	// price caching job
@@ -118,7 +127,7 @@ func newBotEngine(ctx context.Context,
 	priceJobSched.Submit(priceJob)
 	go priceJobSched.Run()
 
-	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, db, wlt, nil)
+	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, db, wlt, nowPayments)
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
 	phoenixCmd := phoenixtestnet.NewPhoenixCmd(ctx, wlt, phoenixFaucetAmount, mgr, db)

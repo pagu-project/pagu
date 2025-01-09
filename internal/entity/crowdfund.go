@@ -9,10 +9,11 @@ type Package struct {
 type CrowdfundCampaign struct {
 	DBModel
 
-	CreatorID uint      // TODO: define foreign key here
 	Title     string    `gorm:"type:char(128);not null"`
 	Desc      string    `gorm:"type:text;not null"`
 	Packages  []Package `gorm:"serializer:json"`
+	CreatorID uint      // TODO: define foreign key here
+	Active    bool
 }
 
 type CrowdfundPurchase struct {
@@ -20,8 +21,10 @@ type CrowdfundPurchase struct {
 
 	UserID    uint
 	InvoiceID string
+	USDAmount int
+	PACAmount int
 	TxHash    string `gorm:"type:char(64);default:null"`
-	Recipient string `gorm:"type:char(42)"`
+	Recipient string `gorm:"type:char(42);default:null"`
 }
 
 func (p *CrowdfundPurchase) IsClaimed() bool {

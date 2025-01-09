@@ -6,6 +6,12 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 {{ range .SubCommands}}
+{{- $subCmdName := .Name }}
+{{- range .Args}}
+var argName{{$subCmdName | title}}{{.Name | title}} = "{{.Name}}"
+{{- end}}
+{{- end}}
+{{ range .SubCommands}}
 var subCmd{{.Name | title}} *command.Command
 {{- end}}
 
