@@ -40,4 +40,14 @@ func TestPurchase(t *testing.T) {
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "payment-link")
 	})
+
+	t.Run("Invalid Package Number", func(t *testing.T) {
+		args := map[string]string{
+			"package": "0",
+		}
+		result := td.crowdfundCmd.purchaseHandler(caller, subCmdPurchase, args)
+
+		assert.False(t, result.Successful)
+		assert.Contains(t, result.Message, "Invalid package number: 0")
+	})
 }

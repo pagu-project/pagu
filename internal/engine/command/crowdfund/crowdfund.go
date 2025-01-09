@@ -69,7 +69,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		for index, pkg := range activeCampaign.Packages {
 			choice := command.Choice{
 				Name:  pkg.Name,
-				Value: index,
+				Value: index + 1,
 			}
 
 			purchaseChoices = append(purchaseChoices, choice)
