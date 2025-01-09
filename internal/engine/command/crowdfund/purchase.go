@@ -18,7 +18,11 @@ func (c *CrowdfundCmd) purchaseHandler(
 		return cmd.RenderFailedTemplate("No active campaign")
 	}
 
-	pkgIndex, _ := strconv.Atoi(args[argNamePurchasePackage])
+	pkgNumber, _ := strconv.Atoi(args[argNamePurchasePackage])
+	pkgIndex := pkgNumber - 1
+	if pkgIndex == -1 || pkgIndex >= len(activeCampaign.Packages) {
+		return cmd.RenderFailedTemplateF("Invalid package number: %d", pkgNumber)
+	}
 	pkg := activeCampaign.Packages[pkgIndex]
 
 	purchase := &entity.CrowdfundPurchase{

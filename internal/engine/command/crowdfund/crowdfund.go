@@ -52,16 +52,16 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 	c.subCmdDisable.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
 	c.subCmdReport.AppIDs = entity.AllAppIDs()
-	c.subCmdReport.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+	c.subCmdReport.TargetFlag = command.TargetMaskMainnet
 
 	c.subCmdInfo.AppIDs = entity.AllAppIDs()
-	c.subCmdInfo.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+	c.subCmdInfo.TargetFlag = command.TargetMaskMainnet
 
 	c.subCmdPurchase.AppIDs = entity.AllAppIDs()
-	c.subCmdPurchase.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+	c.subCmdPurchase.TargetFlag = command.TargetMaskMainnet
 
 	c.subCmdClaim.AppIDs = entity.AllAppIDs()
-	c.subCmdClaim.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+	c.subCmdClaim.TargetFlag = command.TargetMaskMainnet
 
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {
@@ -69,7 +69,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		for index, pkg := range activeCampaign.Packages {
 			choice := command.Choice{
 				Name:  pkg.Name,
-				Value: index,
+				Value: index + 1,
 			}
 
 			purchaseChoices = append(purchaseChoices, choice)
