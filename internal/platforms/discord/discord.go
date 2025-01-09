@@ -374,7 +374,7 @@ func discordOptionType(inputBox command.InputBox) discordgo.ApplicationCommandOp
 	case command.InputBoxToggle:
 		return discordgo.ApplicationCommandOptionBoolean
 	case command.InputBoxChoice:
-		return discordgo.ApplicationCommandOptionInteger
+		return discordgo.ApplicationCommandOptionString
 	default:
 		return discordgo.ApplicationCommandOptionString
 	}
