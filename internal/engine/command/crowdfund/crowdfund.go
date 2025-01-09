@@ -69,7 +69,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 		purchaseChoices := []command.Choice{}
 		for index, pkg := range activeCampaign.Packages {
 			choice := command.Choice{
-				Name:  pkg.Name,
+				Name:  fmt.Sprintf("%s (%d USDT to %s)", pkg.Name, pkg.USDAmount, pkg.PACAmount),
 				Value: fmt.Sprintf("%d", index+1),
 			}
 

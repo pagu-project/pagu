@@ -207,8 +207,8 @@ func (s *NowPayments) IsPaid(invoiceID string) (bool, error) {
 }
 
 func (s *NowPayments) getJWTToken() (string, error) {
-	url := fmt.Sprintf("%v/v1/auth", s.apiURL)
-	jsonStr := fmt.Sprintf(`{"email":"%v","password":"%v"}`, s.username, s.password)
+	url := fmt.Sprintf("%s/v1/auth", s.apiURL)
+	jsonStr := fmt.Sprintf(`{"email":%q,"password":%q}`, s.username, s.password)
 	req, err := http.NewRequestWithContext(s.ctx, http.MethodPost, url, bytes.NewBufferString(jsonStr))
 	if err != nil {
 		return "", err

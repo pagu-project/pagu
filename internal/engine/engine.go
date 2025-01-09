@@ -15,7 +15,6 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command/network"
 	phoenixtestnet "github.com/pagu-project/pagu/internal/engine/command/phoenix"
 	"github.com/pagu-project/pagu/internal/engine/command/voucher"
-	"github.com/pagu-project/pagu/internal/engine/command/zealy"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/job"
 	"github.com/pagu-project/pagu/internal/repository"
@@ -133,7 +132,6 @@ func newBotEngine(ctx context.Context,
 	phoenixCmd := phoenixtestnet.NewPhoenixCmd(ctx, wlt, phoenixFaucetAmount, mgr, db)
 	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr)
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
-	zealyCmd := zealy.NewZealyCmd(db, wlt)
 
 	rootCmd := &command.Command{
 		Emoji:       "🤖",
@@ -148,7 +146,6 @@ func newBotEngine(ctx context.Context,
 	rootCmd.AddSubCommand(networkCmd.GetCommand())
 	rootCmd.AddSubCommand(voucherCmd.GetCommand())
 	rootCmd.AddSubCommand(marketCmd.GetCommand())
-	rootCmd.AddSubCommand(zealyCmd.GetCommand())
 	rootCmd.AddSubCommand(phoenixCmd.GetCommand())
 
 	rootCmd.AddHelpSubCommand()

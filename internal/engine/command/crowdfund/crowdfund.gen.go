@@ -70,14 +70,14 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 
 Packages:
 {{range .campaign.Packages}}
-- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }} PAC
+- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}
 {{- end}}`,
 	}
 	subCmdPurchase := &command.Command{
 		Name:    "purchase",
 		Help:    "Make a purchase in a crowdfunding campaign",
 		Handler: c.purchaseHandler,
-		ResultTemplate: `Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} PAC successfully registered in our database.
+		ResultTemplate: `Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.
 Please visit {{ .paymentLink }} to make the payment.
 
 Once the payment is done, you can claim your PAC coins using "claim" command.
