@@ -33,9 +33,10 @@ type Database struct {
 }
 
 type Wallet struct {
-	Address  string `yaml:"address"`
-	Path     string `yaml:"path"`
-	Password string `yaml:"password"`
+	Address  string        `yaml:"address"`
+	Path     string        `yaml:"path"`
+	Password string        `yaml:"password"`
+	Fee      amount.Amount `yaml:"fee"`
 }
 
 type DiscordBot struct {
