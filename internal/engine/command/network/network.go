@@ -54,7 +54,7 @@ func (n *NetworkCmd) GetCommand() *command.Command {
 	subCmdNodeInfo := &command.Command{
 		Name: "node-info",
 		Help: "View information about a specific node",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "validator_address",
 				Desc:     "The validator address",
@@ -71,7 +71,7 @@ func (n *NetworkCmd) GetCommand() *command.Command {
 	subCmdHealth := &command.Command{
 		Name:        "health",
 		Help:        "Check the network health status",
-		Args:        []command.Args{},
+		Args:        []*command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     n.healthHandler,
@@ -81,7 +81,7 @@ func (n *NetworkCmd) GetCommand() *command.Command {
 	subCmdStatus := &command.Command{
 		Name:        "status",
 		Help:        "View network statistics",
-		Args:        []command.Args{},
+		Args:        []*command.Args{},
 		SubCommands: nil,
 		AppIDs:      entity.AllAppIDs(),
 		Handler:     n.statusHandler,

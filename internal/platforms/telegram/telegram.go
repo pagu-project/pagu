@@ -220,7 +220,7 @@ func (bot *Bot) parsTextMessage(ctx tele.Context) error {
 	return ctx.Send(fmt.Sprintf("Please Enter %s", cmd.Args[currentArgsIndex+1].Name))
 }
 
-func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []command.Args) error {
+func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*command.Args) error {
 	msgCtx := &BotContext{Commands: commands}
 	argsContext[ctx.Sender().ID] = msgCtx
 	argsValue[ctx.Sender().ID] = nil

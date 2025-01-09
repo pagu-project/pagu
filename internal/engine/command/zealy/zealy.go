@@ -23,7 +23,7 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 	subCmdClaim := &command.Command{
 		Name: "claim",
 		Help: "Claim your Zealy reward",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "address",
 				Desc:     "The Pactus address where the reward will be claimed",

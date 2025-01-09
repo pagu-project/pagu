@@ -34,7 +34,7 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 		ResultTemplate: `Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages`,
 		AppIDs:         entity.AllAppIDs(),
 		TargetFlag:     command.TargetMaskAll,
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "title",
 				Desc:     "The title of this crowdfunding campaign",
@@ -97,7 +97,7 @@ Once the payment is done, you can claim your PAC coins using "claim" command.
 Thanks`,
 		AppIDs:     entity.AllAppIDs(),
 		TargetFlag: command.TargetMaskAll,
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "package",
 				Desc:     "Select the crowdfunding package",

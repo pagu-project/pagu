@@ -20,7 +20,7 @@ func (c *CalculatorCmd) GetCommand() *command.Command {
 	subCmdCalcReward := &command.Command{
 		Name: "reward",
 		Help: "Calculate the PAC coins you can earn based on your validator stake",
-		Args: []command.Args{
+		Args: []*command.Args{
 			{
 				Name:     "stake",
 				Desc:     "The amount of stake in your validator",

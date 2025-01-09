@@ -96,7 +96,7 @@ type Command struct {
 	Emoji          string              `yaml:"emoji"`
 	Name           string              `yaml:"name"`
 	Help           string              `yaml:"help"`
-	Args           []Args              `yaml:"args"`
+	Args           []*Args             `yaml:"args"`
 	SubCommands    []*Command          `yaml:"sub_commands"`
 	ResultTemplate string              `yaml:"result_template"`
 	Middlewares    []MiddlewareFunc    `yaml:"-"`
