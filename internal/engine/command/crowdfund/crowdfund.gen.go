@@ -3,37 +3,30 @@ package crowdfund
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
-	"github.com/pagu-project/pagu/internal/entity"
 )
 
-var argNameCreateTitle = "title"
-var argNameCreateDesc = "desc"
-var argNameCreatePackages = "packages"
-var argNamePurchasePackage = "package"
+const (
+	argNameCreateTitle     = "title"
+	argNameCreateDesc      = "desc"
+	argNameCreatePackages  = "packages"
+	argNamePurchasePackage = "package"
+)
 
-var subCmdCreate *command.Command
-var subCmdDisable *command.Command
-var subCmdReport *command.Command
-var subCmdInfo *command.Command
-var subCmdPurchase *command.Command
-var subCmdClaim *command.Command
+type crowdfundSubCmds struct {
+	subCmdCreate   *command.Command
+	subCmdDisable  *command.Command
+	subCmdReport   *command.Command
+	subCmdInfo     *command.Command
+	subCmdPurchase *command.Command
+	subCmdClaim    *command.Command
+}
 
-func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
-	crowdfundCmd := &command.Command{
-		Name:        "crowdfund",
-		Help:        "Commands for managing crowdfunding campaigns",
-		AppIDs:      entity.AllAppIDs(),
-		TargetFlag:  command.TargetMaskAll,
-		SubCommands: make([]*command.Command, 0),
-	}
-
-	subCmdCreate = &command.Command{
+func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
+	subCmdCreate := &command.Command{
 		Name:           "create",
 		Help:           "Create a new crowdfunding campaign",
 		Handler:        c.createHandler,
 		ResultTemplate: `Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages`,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
 		Args: []*command.Args{
 			{
 				Name:     "title",
@@ -55,23 +48,19 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 			},
 		},
 	}
-	subCmdDisable = &command.Command{
+	subCmdDisable := &command.Command{
 		Name:           "disable",
 		Help:           "Disable an existing crowdfunding campaign",
 		Handler:        c.disableHandler,
 		ResultTemplate: ``,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
 	}
-	subCmdReport = &command.Command{
+	subCmdReport := &command.Command{
 		Name:           "report",
 		Help:           "View reports of a crowdfunding campaign",
 		Handler:        c.reportHandler,
 		ResultTemplate: ``,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
 	}
-	subCmdInfo = &command.Command{
+	subCmdInfo := &command.Command{
 		Name:    "info",
 		Help:    "Get detailed information about a crowdfunding campaign",
 		Handler: c.infoHandler,
@@ -80,12 +69,10 @@ func (c *CrowdfundCmd) crowdfundCommand() *command.Command {
 
 Packages:
 {{range .campaign.Packages}}
-- {{.Name}}
+- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount}} PAC
 {{- end}}`,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
 	}
-	subCmdPurchase = &command.Command{
+	subCmdPurchase := &command.Command{
 		Name:    "purchase",
 		Help:    "Make a purchase in a crowdfunding campaign",
 		Handler: c.purchaseHandler,
@@ -95,8 +82,6 @@ Please visit {{ .paymentLink }} to make the payment.
 Once the payment is done, you can claim your PAC coins using "claim" command.
 
 Thanks`,
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: command.TargetMaskAll,
 		Args: []*command.Args{
 			{
 				Name:     "package",
@@ -106,20 +91,38 @@ Thanks`,
 			},
 		},
 	}
-	subCmdClaim = &command.Command{
+	subCmdClaim := &command.Command{
 		Name:           "claim",
 		Help:           "Claim packages from a crowdfunding campaign",
 		Handler:        c.claimHandler,
 		ResultTemplate: ``,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
 	}
-	crowdfundCmd.AddSubCommand(subCmdCreate)
-	crowdfundCmd.AddSubCommand(subCmdDisable)
-	crowdfundCmd.AddSubCommand(subCmdReport)
-	crowdfundCmd.AddSubCommand(subCmdInfo)
-	crowdfundCmd.AddSubCommand(subCmdPurchase)
-	crowdfundCmd.AddSubCommand(subCmdClaim)
+
+	return &crowdfundSubCmds{
+		subCmdCreate:   subCmdCreate,
+		subCmdDisable:  subCmdDisable,
+		subCmdReport:   subCmdReport,
+		subCmdInfo:     subCmdInfo,
+		subCmdPurchase: subCmdPurchase,
+		subCmdClaim:    subCmdClaim,
+	}
+}
+
+func (c *CrowdfundCmd) buildCrowdfundCommand() *command.Command {
+	crowdfundCmd := &command.Command{
+		Name:        "crowdfund",
+		Help:        "Commands for managing crowdfunding campaigns",
+		SubCommands: make([]*command.Command, 0),
+	}
+
+	c.crowdfundSubCmds = c.buildSubCmds()
+
+	crowdfundCmd.AddSubCommand(c.subCmdCreate)
+	crowdfundCmd.AddSubCommand(c.subCmdDisable)
+	crowdfundCmd.AddSubCommand(c.subCmdReport)
+	crowdfundCmd.AddSubCommand(c.subCmdInfo)
+	crowdfundCmd.AddSubCommand(c.subCmdPurchase)
+	crowdfundCmd.AddSubCommand(c.subCmdClaim)
 
 	return crowdfundCmd
 }

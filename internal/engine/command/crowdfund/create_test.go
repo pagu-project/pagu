@@ -18,7 +18,7 @@ func TestCreate(t *testing.T) {
 			"desc":     "crowdfund-desc",
 			"packages": "INVALID-JSON",
 		}
-		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
+		result := td.crowdfundCmd.createHandler(caller, td.crowdfundCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "looking for beginning of value")
 	})
@@ -29,7 +29,7 @@ func TestCreate(t *testing.T) {
 			"desc":     "",
 			"packages": "[]",
 		}
-		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
+		result := td.crowdfundCmd.createHandler(caller, td.crowdfundCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "The title of the crowdfunding campaign cannot be empty")
 	})
@@ -40,7 +40,7 @@ func TestCreate(t *testing.T) {
 			"desc":     "crowdfund-desc",
 			"packages": "[]",
 		}
-		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
+		result := td.crowdfundCmd.createHandler(caller, td.crowdfundCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "At least 3 packages are required for the crowdfunding campaign")
 	})
@@ -56,7 +56,7 @@ func TestCreate(t *testing.T) {
 			   {"name": "package-3", "usd_amount": 300, "pac_amount": 300}
 			]`,
 		}
-		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
+		result := td.crowdfundCmd.createHandler(caller, td.crowdfundCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
 		assert.Equal(t, result.Message, "Crowdfund campaign 'crowdfund-title' created successfully with 3 packages")
 	})
@@ -72,7 +72,7 @@ func TestCreate(t *testing.T) {
 			   {"name": "package-3", "usd_amount": 300, "pac_amount": 300}
 			]`,
 		}
-		result := td.crowdfundCmd.createHandler(caller, subCmdCreate, args)
+		result := td.crowdfundCmd.createHandler(caller, td.crowdfundCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "There is an active campaign: crowdfund-title")
 	})

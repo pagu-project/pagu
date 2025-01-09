@@ -11,6 +11,8 @@ import (
 )
 
 type CrowdfundCmd struct {
+	*crowdfundSubCmds
+
 	ctx         context.Context
 	db          *repository.Database
 	wallet      wallet.IWallet
@@ -35,21 +37,31 @@ func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
 }
 
 func (c *CrowdfundCmd) GetCommand() *command.Command {
-	cmd := c.crowdfundCommand()
+	middlewareHandler := command.NewMiddlewareHandler(c.db, c.wallet)
+	cmd := c.buildCrowdfundCommand()
 
-	subCmdCreate.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
-	subCmdDisable.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
-	subCmdReport.AppIDs = entity.AllAppIDs()
-	subCmdInfo.AppIDs = entity.AllAppIDs()
-	subCmdPurchase.AppIDs = entity.AllAppIDs()
-	subCmdClaim.AppIDs = entity.AllAppIDs()
+	cmd.AppIDs = entity.AllAppIDs()
+	cmd.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
 
-	subCmdCreate.TargetFlag = command.TargetMaskModerator
-	subCmdDisable.TargetFlag = command.TargetMaskModerator
-	subCmdReport.TargetFlag = command.TargetMaskMainnet
-	subCmdInfo.TargetFlag = command.TargetMaskMainnet
-	subCmdPurchase.TargetFlag = command.TargetMaskMainnet
-	subCmdClaim.TargetFlag = command.TargetMaskMainnet
+	c.subCmdCreate.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
+	c.subCmdCreate.TargetFlag = command.TargetMaskModerator
+	c.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
+
+	c.subCmdDisable.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
+	c.subCmdDisable.TargetFlag = command.TargetMaskModerator
+	c.subCmdDisable.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
+
+	c.subCmdReport.AppIDs = entity.AllAppIDs()
+	c.subCmdReport.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+
+	c.subCmdInfo.AppIDs = entity.AllAppIDs()
+	c.subCmdInfo.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+
+	c.subCmdPurchase.AppIDs = entity.AllAppIDs()
+	c.subCmdPurchase.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
+
+	c.subCmdClaim.AppIDs = entity.AllAppIDs()
+	c.subCmdClaim.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
 
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {
@@ -62,7 +74,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 
 			purchaseChoices = append(purchaseChoices, choice)
 		}
-		subCmdPurchase.Args[0].Choices = purchaseChoices
+		c.subCmdCreate.Args[0].Choices = purchaseChoices
 	}
 
 	return cmd

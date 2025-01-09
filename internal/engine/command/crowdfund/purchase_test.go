@@ -17,7 +17,7 @@ func TestPurchase(t *testing.T) {
 		args := map[string]string{
 			"package": "1",
 		}
-		result := td.crowdfundCmd.purchaseHandler(caller, subCmdPurchase, args)
+		result := td.crowdfundCmd.purchaseHandler(caller, td.crowdfundCmd.subCmdPurchase, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "No active campaign")
 	})
@@ -35,7 +35,7 @@ func TestPurchase(t *testing.T) {
 		args := map[string]string{
 			"package": "1",
 		}
-		result := td.crowdfundCmd.purchaseHandler(caller, subCmdPurchase, args)
+		result := td.crowdfundCmd.purchaseHandler(caller, td.crowdfundCmd.subCmdPurchase, args)
 
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "payment-link")
