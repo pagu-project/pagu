@@ -34,6 +34,9 @@ wallet:
   # Password for the wallet file.
   password:
 
+  # The fee to be paid for each transaction sent by Pagu.
+  fee: 0.01
+
 # Phoenix (TestNet) configuration
 phoenix:
   # Number of coins to send when the faucet is used.

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/pactus-project/pactus/genesis"
-	"github.com/pactus-project/pactus/types/tx/payload"
 	"github.com/pactus-project/pactus/wallet"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/pkg/amount"
@@ -16,6 +15,7 @@ type Wallet struct {
 
 	address  string
 	password string
+	fee      amount.Amount
 }
 
 func Open(cfg *config.Wallet) (*Wallet, error) {
@@ -28,11 +28,13 @@ func Open(cfg *config.Wallet) (*Wallet, error) {
 		Wallet:   wlt,
 		address:  cfg.Address,
 		password: cfg.Password,
+		fee:      cfg.Fee,
 	}, nil
 }
 
 func (w *Wallet) BondTransaction(pubKey, toAddress, memo string, amt amount.Amount) (string, error) {
 	opts := []wallet.TxOption{
+		wallet.OptionFee(w.fee.ToPactusAmount()),
 		wallet.OptionMemo(memo),
 	}
 	tx, err := w.Wallet.MakeBondTx(w.address, toAddress, pubKey, amt.ToPactusAmount(), opts...)
@@ -70,16 +72,8 @@ func (w *Wallet) BondTransaction(pubKey, toAddress, memo string, amt amount.Amou
 }
 
 func (w *Wallet) TransferTransaction(toAddress, memo string, amt amount.Amount) (string, error) {
-	// calculate fee using amount struct.
-	fee, err := w.Wallet.CalculateFee(amt.ToPactusAmount(), payload.TypeTransfer)
-	if err != nil {
-		log.Error("error calculating fee", "err", err, "client")
-
-		return "", err
-	}
-
 	opts := []wallet.TxOption{
-		wallet.OptionFee(fee),
+		wallet.OptionFee(w.fee.ToPactusAmount()),
 		wallet.OptionMemo(memo),
 	}
 
