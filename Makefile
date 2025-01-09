@@ -52,6 +52,7 @@ build-http:
 gen:
 	go run ./internal/generator/main.go \
 		"./internal/engine/command/crowdfund/crowdfund.yml"
+	find . -name "*.gen.go" -exec gofumpt -l -w {} +
 
 ###
 .PHONY: devtools mock proto fmt check test build build-cli build-discord build-grpc build-telegram build-http gen

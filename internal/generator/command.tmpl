@@ -3,36 +3,29 @@ package {{.Name}}
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
-	"github.com/pagu-project/pagu/internal/entity"
 )
 {{ range .SubCommands}}
 {{- $subCmdName := .Name }}
 {{- range .Args}}
-var argName{{$subCmdName | title}}{{.Name | title}} = "{{.Name}}"
+const argName{{$subCmdName | title}}{{.Name | title}} = "{{.Name}}"
 {{- end}}
-{{- end}}
-{{ range .SubCommands}}
-var subCmd{{.Name | title}} *command.Command
 {{- end}}
 
-func (c *{{.Name | title}}Cmd) {{.Name}}Command() *command.Command {
-	{{.Name}}Cmd := &command.Command{
-		Name:        "{{.Name}}",
-		Help:        "{{.Help}}",
-		AppIDs:      entity.AllAppIDs(),
-		TargetFlag:  command.TargetMaskAll,
-		SubCommands: make([]*command.Command, 0),
-	}
-{{ range .SubCommands }}
-	subCmd{{.Name | title}} = &command.Command{
+type {{.Name}}SubCmds struct {
+{{- range .SubCommands}}
+	subCmd{{.Name | title}} *command.Command
+{{- end}}
+}
+
+func (c *{{.Name | title}}Cmd) buildSubCmds() *crowdfundSubCmds {
+{{- range .SubCommands }}
+	subCmd{{.Name | title}} := &command.Command{
 		Name:           "{{.Name}}",
 		Help:           "{{.Help}}",
 		Handler:        c.{{.Name}}Handler,
 		ResultTemplate: `{{.ResultTemplate | trim}}`,
-		AppIDs:         entity.AllAppIDs(),
-		TargetFlag:     command.TargetMaskAll,
 		{{- if .Args }}
-		Args: []command.Args{
+		Args: []*command.Args{
 			{{- range .Args}}
 			{
 				Name:     "{{.Name}}",
@@ -56,9 +49,26 @@ func (c *{{.Name | title}}Cmd) {{.Name}}Command() *command.Command {
 	}
 {{- end }}
 
+	return &crowdfundSubCmds{
 {{- $cmdName := .Name }}
 {{- range .SubCommands }}
-	{{$cmdName}}Cmd.AddSubCommand(subCmd{{.Name | title}})
+		subCmd{{.Name | title}}: subCmd{{.Name | title}},
+{{- end}}
+	}
+}
+
+func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command() *command.Command {
+	{{.Name}}Cmd := &command.Command{
+		Name:        "{{.Name}}",
+		Help:        "{{.Help}}",
+		SubCommands: make([]*command.Command, 0),
+	}
+
+	c.{{.Name}}SubCmds = c.buildSubCmds()
+
+{{- $cmdName := .Name }}
+{{ range .SubCommands }}
+	{{$cmdName}}Cmd.AddSubCommand(c.subCmd{{.Name | title}})
 {{- end}}
 
 	return {{.Name}}Cmd
