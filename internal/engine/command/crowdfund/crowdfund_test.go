@@ -71,17 +71,17 @@ func (td *testData) createTestCampaign(t *testing.T, opts ...CampaignOption) *en
 			{
 				Name:      td.RandString(16),
 				USDAmount: td.RandInt(1000),
-				PACAmount: td.RandInt(1000),
+				PACAmount: td.RandAmount(),
 			},
 			{
 				Name:      td.RandString(16),
 				USDAmount: td.RandInt(1000),
-				PACAmount: td.RandInt(1000),
+				PACAmount: td.RandAmount(),
 			},
 			{
 				Name:      td.RandString(16),
 				USDAmount: td.RandInt(1000),
-				PACAmount: td.RandInt(1000),
+				PACAmount: td.RandAmount(),
 			},
 		},
 	}

@@ -34,7 +34,7 @@ func NewCrowdfundCmd(ctx context.Context,
 }
 
 func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
-	return c.db.GetActiveCrowdfundCampaign()
+	return c.db.GetCrowdfundActiveCampaign()
 }
 
 func (c *CrowdfundCmd) GetCommand() *command.Command {
@@ -75,7 +75,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 
 			purchaseChoices = append(purchaseChoices, choice)
 		}
-		c.subCmdCreate.Args[0].Choices = purchaseChoices
+		c.subCmdPurchase.Args[0].Choices = purchaseChoices
 	}
 
 	return cmd

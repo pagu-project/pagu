@@ -1,9 +1,11 @@
 package entity
 
+import "github.com/pagu-project/pagu/pkg/amount"
+
 type Package struct {
-	Name      string `json:"name"`
-	USDAmount int    `json:"usd_amount"`
-	PACAmount int    `json:"pac_amount"`
+	Name      string        `json:"name"`
+	USDAmount int           `json:"usd_amount"`
+	PACAmount amount.Amount `gorm:"type:double" json:"pac_amount"`
 }
 
 type CrowdfundCampaign struct {
@@ -22,9 +24,9 @@ type CrowdfundPurchase struct {
 	UserID    uint
 	InvoiceID string
 	USDAmount int
-	PACAmount int
-	TxHash    string `gorm:"type:char(64);default:null"`
-	Recipient string `gorm:"type:char(42);default:null"`
+	PACAmount amount.Amount `gorm:"type:double"`
+	TxHash    string        `gorm:"type:char(64);default:null"`
+	Recipient string        `gorm:"type:char(42);default:null"`
 }
 
 func (p *CrowdfundPurchase) IsClaimed() bool {

@@ -7,4 +7,5 @@ type IWallet interface {
 	Address() string
 	TransferTransaction(toAddress, memo string, amt amount.Amount) (string, error)
 	BondTransaction(pubKey, toAddress, memo string, amt amount.Amount) (string, error)
+	LinkToExplorer(txID string) string
 }

@@ -83,6 +83,20 @@ func (mr *MockIWalletMockRecorder) BondTransaction(pubKey, toAddress, memo, amt 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BondTransaction", reflect.TypeOf((*MockIWallet)(nil).BondTransaction), pubKey, toAddress, memo, amt)
 }
 
+// LinkToExplorer mocks base method.
+func (m *MockIWallet) LinkToExplorer(txID string) string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LinkToExplorer", txID)
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// LinkToExplorer indicates an expected call of LinkToExplorer.
+func (mr *MockIWalletMockRecorder) LinkToExplorer(txID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LinkToExplorer", reflect.TypeOf((*MockIWallet)(nil).LinkToExplorer), txID)
+}
+
 // TransferTransaction mocks base method.
 func (m *MockIWallet) TransferTransaction(toAddress, memo string, amt amount.Amount) (string, error) {
 	m.ctrl.T.Helper()

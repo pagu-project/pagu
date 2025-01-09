@@ -1,6 +1,9 @@
 package wallet
 
 import (
+	"fmt"
+
+	"github.com/pactus-project/pactus/genesis"
 	"github.com/pactus-project/pactus/types/tx/payload"
 	"github.com/pactus-project/pactus/wallet"
 	"github.com/pagu-project/pagu/config"
@@ -124,4 +127,20 @@ func (w *Wallet) Balance() int64 {
 	balance, _ := w.Wallet.Balance(w.address)
 
 	return int64(balance)
+}
+
+func (w *Wallet) LinkToExplorer(txID string) string {
+	switch w.Network() {
+	case genesis.Mainnet:
+		return fmt.Sprintf("https://pacviewer.com/transaction/%s", txID)
+
+	case genesis.Testnet:
+		return fmt.Sprintf("https://phoenix.pacviewer.com/transaction/%s", txID)
+
+	case genesis.Localnet:
+		return txID
+
+	default:
+		return txID
+	}
 }

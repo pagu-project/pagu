@@ -31,7 +31,7 @@ sub_commands:
 
     Packages:
     {{range .campaign.Packages}}
-    - {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount}} PAC
+    - {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}
     {{- end}}
 - name: purchase
   help: Make a purchase in a crowdfunding campaign
@@ -49,3 +49,13 @@ sub_commands:
     Thanks
 - name: claim
   help: Claim packages from a crowdfunding campaign
+  args:
+  - name: address
+    desc: Set your Pactus address
+    input_box: Text
+    optional: false
+  result_template: |
+    Thank you for supporting the Pactus blockchain!
+
+    You can track your transaction here: {{.txLink}}
+    If you have any questions or need assistance, feel free to reach out to our community.

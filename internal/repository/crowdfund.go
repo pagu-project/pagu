@@ -10,12 +10,10 @@ func (db *Database) AddCrowdfundCampaign(campaign *entity.CrowdfundCampaign) err
 		}
 	}
 
-	campaign.ID = uint(tx.RowsAffected)
-
 	return nil
 }
 
-func (db *Database) GetActiveCrowdfundCampaign() *entity.CrowdfundCampaign {
+func (db *Database) GetCrowdfundActiveCampaign() *entity.CrowdfundCampaign {
 	var campaign *entity.CrowdfundCampaign
 	tx := db.gormDB.Model(&entity.CrowdfundCampaign{}).
 		Where("active = true").
@@ -51,8 +49,6 @@ func (db *Database) AddCrowdfundPurchase(purchase *entity.CrowdfundPurchase) err
 		}
 	}
 
-	purchase.ID = uint(tx.RowsAffected)
-
 	return nil
 }
 
@@ -65,4 +61,19 @@ func (db *Database) UpdateCrowdfundPurchase(purchase *entity.CrowdfundPurchase) 
 	}
 
 	return nil
+}
+
+func (db *Database) GetCrowdfundPurchases(userID uint) ([]*entity.CrowdfundPurchase, error) {
+	var purchases []*entity.CrowdfundPurchase
+	tx := db.gormDB.Model(&entity.CrowdfundPurchase{}).
+		Where("user_id = ?", userID).
+		Find(&purchases)
+
+	if tx.Error != nil {
+		return nil, ReadError{
+			Message: tx.Error.Error(),
+		}
+	}
+
+	return purchases, nil
 }

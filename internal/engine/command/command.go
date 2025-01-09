@@ -111,6 +111,10 @@ type CommandResult struct {
 	Successful bool
 }
 
+func (cmd *Command) RenderInternalFailure() CommandResult {
+	return cmd.RenderFailedTemplate("An internal error happened. Please try later")
+}
+
 func (cmd *Command) RenderFailedTemplateF(reason string, a ...any) CommandResult {
 	return cmd.RenderFailedTemplate(fmt.Sprintf(reason, a...))
 }

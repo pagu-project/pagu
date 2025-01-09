@@ -10,6 +10,7 @@ const (
 	argNameCreateDesc      = "desc"
 	argNameCreatePackages  = "packages"
 	argNamePurchasePackage = "package"
+	argNameClaimAddress    = "address"
 )
 
 type crowdfundSubCmds struct {
@@ -69,7 +70,7 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 
 Packages:
 {{range .campaign.Packages}}
-- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount}} PAC
+- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }} PAC
 {{- end}}`,
 	}
 	subCmdPurchase := &command.Command{
@@ -92,10 +93,21 @@ Thanks`,
 		},
 	}
 	subCmdClaim := &command.Command{
-		Name:           "claim",
-		Help:           "Claim packages from a crowdfunding campaign",
-		Handler:        c.claimHandler,
-		ResultTemplate: ``,
+		Name:    "claim",
+		Help:    "Claim packages from a crowdfunding campaign",
+		Handler: c.claimHandler,
+		ResultTemplate: `Thank you for supporting the Pactus blockchain!
+
+You can track your transaction here: {{.txLink}}
+If you have any questions or need assistance, feel free to reach out to our community.`,
+		Args: []*command.Args{
+			{
+				Name:     "address",
+				Desc:     "Set your Pactus address",
+				InputBox: command.InputBoxText,
+				Optional: false,
+			},
+		},
 	}
 
 	return &crowdfundSubCmds{
