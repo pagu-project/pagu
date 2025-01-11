@@ -235,6 +235,16 @@ func (cmd *Command) HelpMessage() string {
 	return help
 }
 
+func (cmd *Command) AboutMessage() string {
+	help := cmd.Help
+	help += "\n\nAvailable commands:\n"
+	for _, sc := range cmd.SubCommands {
+		help += fmt.Sprintf("- **%-12s**: %s\n", sc.Name, sc.Help)
+	}
+
+	return help
+}
+
 func (cmd *Command) AddSubCommand(subCmd *Command) {
 	if subCmd == nil {
 		return
@@ -259,4 +269,18 @@ func (cmd *Command) AddHelpSubCommand() {
 	}
 
 	cmd.AddSubCommand(helpCmd)
+}
+
+func (cmd *Command) AddAboutSubCommand() {
+	aboutCmd := &Command{
+		Name:       "about",
+		Help:       fmt.Sprintf("Information about Pagu"),
+		AppIDs:     entity.AllAppIDs(),
+		TargetFlag: TargetMaskAll,
+		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
+			return cmd.SuccessfulResult(cmd.AboutMessage())
+		},
+	}
+
+	cmd.AddSubCommand(aboutCmd)
 }

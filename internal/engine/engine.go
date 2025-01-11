@@ -149,6 +149,7 @@ func newBotEngine(ctx context.Context,
 	rootCmd.AddSubCommand(phoenixCmd.GetCommand())
 
 	rootCmd.AddHelpSubCommand()
+	rootCmd.AddAboutSubCommand()
 
 	return &BotEngine{
 		ctx:       ctx,
