@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pagu-project/pagu"
 	pagucmd "github.com/pagu-project/pagu/cmd"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/entity"
+	pagu "github.com/pagu-project/pagu/internal/version"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )
