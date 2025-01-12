@@ -62,6 +62,12 @@ Use the following command:
 go run ./cmd/cli -c ./config/config.sample.yml run
 ```
 
+Now, you can interact with Pagu:
+
+```bash
+calculate reward --stake=1000 --days=1
+```
+
 ## Contributing
 
 We are excited to welcome contributions to Pagu! To get started, follow these steps:
