@@ -278,7 +278,7 @@ func (cmd *Command) AddAboutSubCommand() {
 		AppIDs:     entity.AllAppIDs(),
 		TargetFlag: TargetMaskAll,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
-			return cmd.SuccessfulResult(cmd.AboutMessage())
+			return cmd.RenderResultTemplate(cmd.AboutMessage())
 		},
 	}
 
