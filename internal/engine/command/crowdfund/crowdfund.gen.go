@@ -27,7 +27,7 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Name:           "create",
 		Help:           "Create a new crowdfunding campaign",
 		Handler:        c.createHandler,
-		ResultTemplate: `Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages`,
+		ResultTemplate: "Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages\n",
 		Args: []*command.Args{
 			{
 				Name:     "title",
@@ -62,27 +62,16 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		ResultTemplate: ``,
 	}
 	subCmdInfo := &command.Command{
-		Name:    "info",
-		Help:    "Get detailed information about a crowdfunding campaign",
-		Handler: c.infoHandler,
-		ResultTemplate: `**{{.campaign.Title}}**
-{{.campaign.Desc}}
-
-Packages:
-{{range .campaign.Packages}}
-- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}
-{{- end}}`,
+		Name:           "info",
+		Help:           "Get detailed information about a crowdfunding campaign",
+		Handler:        c.infoHandler,
+		ResultTemplate: "**{{.campaign.Title}}**\n{{.campaign.Desc}}\n\nPackages:\n{{range .campaign.Packages}}\n- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}\n{{- end}}\n",
 	}
 	subCmdPurchase := &command.Command{
-		Name:    "purchase",
-		Help:    "Make a purchase in a crowdfunding campaign",
-		Handler: c.purchaseHandler,
-		ResultTemplate: `Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.
-Please visit {{ .paymentLink }} to make the payment.
-
-Once the payment is done, you can claim your PAC coins using "claim" command.
-
-Thanks`,
+		Name:           "purchase",
+		Help:           "Make a purchase in a crowdfunding campaign",
+		Handler:        c.purchaseHandler,
+		ResultTemplate: "Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.\nPlease visit {{ .paymentLink }} to make the payment.\n\nOnce the payment is done, you can claim your PAC coins using \"claim\" command.\n\nThanks\n",
 		Args: []*command.Args{
 			{
 				Name:     "package",
@@ -93,13 +82,10 @@ Thanks`,
 		},
 	}
 	subCmdClaim := &command.Command{
-		Name:    "claim",
-		Help:    "Claim packages from a crowdfunding campaign",
-		Handler: c.claimHandler,
-		ResultTemplate: `Thank you for supporting the Pactus blockchain!
-
-You can track your transaction here: {{.txLink}}
-If you have any questions or need assistance, feel free to reach out to our community.`,
+		Name:           "claim",
+		Help:           "Claim packages from a crowdfunding campaign",
+		Handler:        c.claimHandler,
+		ResultTemplate: "Thank you for supporting the Pactus blockchain!\n\nYou can track your transaction here: {{.txLink}}\nIf you have any questions or need assistance, feel free to reach out to our community.\n",
 		Args: []*command.Args{
 			{
 				Name:     "address",
