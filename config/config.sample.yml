@@ -11,6 +11,9 @@ local_node: "bootstrap1.pactus.org:50051" # Address of the local Pactus node for
 network_nodes:
   [
     "bootstrap1.pactus.org:50051",
+    "bootstrap2.pactus.org:50051",
+    "bootstrap3.pactus.org:50051",
+    "bootstrap4.pactus.org:50051",
   ]
 
 # Wallet configuration
