@@ -65,6 +65,9 @@ func generateCode(cmd *command.Command) (string, error) {
 			return s.String()
 		},
 		"trim": strings.TrimSpace,
+		"quoted": func(s string) string {
+			return fmt.Sprintf("%#q", s)
+		},
 	}
 
 	tml, err := template.New("code").Funcs(funcMap).Parse(commandTemplate)
