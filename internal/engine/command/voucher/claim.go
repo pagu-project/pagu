@@ -25,8 +25,7 @@ func (v *VoucherCmd) claimHandler(
 		return cmd.ErrorResult(errors.New("voucher code is not valid, no voucher found"))
 	}
 
-	now := time.Now().Month()
-	if voucher.CreatedAt.Month() >= (now + time.Month(voucher.ValidMonths)) {
+	if voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0).Before(time.Now()) {
 		return cmd.ErrorResult(errors.New("voucher is expired"))
 	}
 

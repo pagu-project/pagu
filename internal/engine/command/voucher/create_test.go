@@ -21,7 +21,7 @@ func TestCreateOne(t *testing.T) {
 			"valid-months": "1",
 		}
 
-		result := td.voucherCmd.createOneHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "stake amount is more than 1000")
 	})
@@ -32,7 +32,7 @@ func TestCreateOne(t *testing.T) {
 			"valid-months": "1.1",
 		}
 
-		result := td.voucherCmd.createOneHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, cmd, args)
 		assert.False(t, result.Successful)
 	})
 
@@ -42,7 +42,7 @@ func TestCreateOne(t *testing.T) {
 			"valid-months": "1",
 		}
 
-		result := td.voucherCmd.createOneHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, cmd, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})
@@ -55,7 +55,7 @@ func TestCreateOne(t *testing.T) {
 			"description":  "Testnet node",
 		}
 
-		result := td.voucherCmd.createOneHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, cmd, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})

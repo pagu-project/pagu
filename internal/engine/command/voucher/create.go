@@ -26,7 +26,7 @@ type BulkRecorder struct {
 	Description      string  `csv:"Description"`
 }
 
-func (v *VoucherCmd) createOneHandler(
+func (v *VoucherCmd) createHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
