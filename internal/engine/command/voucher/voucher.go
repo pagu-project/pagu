@@ -49,8 +49,8 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 		TargetFlag:  command.TargetMaskMainnet,
 	}
 
-	subCmdCreateOne := &command.Command{
-		Name: "create-one",
+	subCmdCreate := &command.Command{
+		Name: "create",
 		Help: "Generate a single voucher code",
 		Args: []*command.Args{
 			{
@@ -81,7 +81,7 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 		SubCommands: nil,
 		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
 		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
-		Handler:     v.createOneHandler,
+		Handler:     v.createHandler,
 		TargetFlag:  command.TargetMaskModerator,
 	}
 
@@ -138,7 +138,7 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	}
 
 	cmdVoucher.AddSubCommand(subCmdClaim)
-	cmdVoucher.AddSubCommand(subCmdCreateOne)
+	cmdVoucher.AddSubCommand(subCmdCreate)
 	cmdVoucher.AddSubCommand(subCmdCreateBulk)
 	cmdVoucher.AddSubCommand(subCmdStatus)
 
