@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/version"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
@@ -18,6 +19,11 @@ const failedTemplate = `
 const errorTemplate = `
 **An error occurred**
 {{.err}}
+`
+
+const aboutTemplate = `
+**About pagu**
+version : {{.about}}
 `
 
 var (
@@ -235,16 +241,6 @@ func (cmd *Command) HelpMessage() string {
 	return help
 }
 
-func (cmd *Command) AboutMessage() string {
-	help := cmd.Help
-	help += "\n\nAvailable commands:\n"
-	for _, sc := range cmd.SubCommands {
-		help += fmt.Sprintf("- **%-12s**: %s\n", sc.Name, sc.Help)
-	}
-
-	return help
-}
-
 func (cmd *Command) AddSubCommand(subCmd *Command) {
 	if subCmd == nil {
 		return
@@ -272,13 +268,25 @@ func (cmd *Command) AddHelpSubCommand() {
 }
 
 func (cmd *Command) AddAboutSubCommand() {
+	msg, _ := cmd.executeTemplate(aboutTemplate, map[string]any{"about": version.StringVersion()})
+	msg += "\n\nAvailable commands:\n"
+	for _, sc := range cmd.SubCommands {
+		msg += fmt.Sprintf("- **%-12s**: %s\n", sc.Name, sc.Help)
+	}
+	msg += fmt.Sprintf("- **%-12s**: %s\n", "about", "Information about Pagu")
+	msg += fmt.Sprintf("- **%-12s**: %s\n", "help", "Help for pagu command")
+
 	aboutCmd := &Command{
 		Name:       "about",
-		Help:       fmt.Sprintf("Information about Pagu"),
+		Help:       "Information about Pagu",
 		AppIDs:     entity.AllAppIDs(),
 		TargetFlag: TargetMaskAll,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
-			return cmd.RenderResultTemplate(cmd.AboutMessage())
+			return CommandResult{
+				Title:      fmt.Sprintf("%v %v", "Information about Pagu", "\n"),
+				Message:    msg,
+				Successful: true,
+			}
 		},
 	}
 
