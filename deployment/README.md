@@ -33,11 +33,6 @@ Use the following command to create the network:
 docker network create pagu_network
 ```
 
-Now, you can check the verson of Pagu:
-
-```bash
-about 
-```
 
 ### Deployment Overview
 

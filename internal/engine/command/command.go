@@ -23,7 +23,7 @@ const errorTemplate = `
 
 const aboutTemplate = `
 **About pagu**
-version : {{.about}}
+version : {{.version}}
 `
 
 var (
@@ -268,25 +268,15 @@ func (cmd *Command) AddHelpSubCommand() {
 }
 
 func (cmd *Command) AddAboutSubCommand() {
-	msg, _ := cmd.executeTemplate(aboutTemplate, map[string]any{"about": version.StringVersion()})
-	msg += "\n\nAvailable commands:\n"
-	for _, sc := range cmd.SubCommands {
-		msg += fmt.Sprintf("- **%-12s**: %s\n", sc.Name, sc.Help)
-	}
-	msg += fmt.Sprintf("- **%-12s**: %s\n", "about", "Information about Pagu")
-	msg += fmt.Sprintf("- **%-12s**: %s\n", "help", "Help for pagu command")
-
+	cmd.ResultTemplate = aboutTemplate
 	aboutCmd := &Command{
-		Name:       "about",
-		Help:       "Information about Pagu",
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: TargetMaskAll,
+		Name:           "about",
+		Help:           "About Pagu",
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     TargetMaskAll,
+		ResultTemplate: aboutTemplate,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
-			return CommandResult{
-				Title:      fmt.Sprintf("%v %v", "Information about Pagu", "\n"),
-				Message:    msg,
-				Successful: true,
-			}
+			return cmd.RenderResultTemplate("version", version.StringVersion())
 		},
 	}
 
