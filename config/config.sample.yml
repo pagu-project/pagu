@@ -4,7 +4,7 @@ bot_name: "Pagu-Development"
 network: "Mainnet"
 
 # Pactus clients
-local_node: "localhost:50051" # Address of the local Pactus node for direct communication.
+local_node: "bootstrap1.pactus.org:50051" # Address of the local Pactus node for direct communication.
 
 # List of Pactus nodes Pagu can connect to for information.
 # These nodes must have public gRPC endpoints.

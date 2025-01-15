@@ -23,7 +23,7 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *crowdfundSubCmds {
 		Name:           "{{.Name}}",
 		Help:           "{{.Help}}",
 		Handler:        c.{{.Name}}Handler,
-		ResultTemplate: `{{.ResultTemplate | trim}}`,
+		ResultTemplate: {{.ResultTemplate | quoted}},
 		{{- if .Args }}
 		Args: []*command.Args{
 			{{- range .Args}}
