@@ -33,6 +33,7 @@ Use the following command to create the network:
 docker network create pagu_network
 ```
 
+
 ### Deployment Overview
 
 The deployment system operates as follows:

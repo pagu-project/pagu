@@ -148,6 +148,7 @@ func newBotEngine(ctx context.Context,
 	rootCmd.AddSubCommand(marketCmd.GetCommand())
 	rootCmd.AddSubCommand(phoenixCmd.GetCommand())
 
+	rootCmd.AddAboutSubCommand()
 	rootCmd.AddHelpSubCommand()
 
 	return &BotEngine{

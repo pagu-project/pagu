@@ -5,11 +5,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pagu-project/pagu"
 	pagucmd "github.com/pagu-project/pagu/cmd"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/version"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )
@@ -52,7 +52,7 @@ func run(cmd *cobra.Command, _ []string) {
 func main() {
 	rootCmd := &cobra.Command{
 		Use:     "pagu-cli",
-		Version: pagu.StringVersion(),
+		Version: version.StringVersion(),
 		Run:     run,
 	}
 

@@ -1,4 +1,4 @@
-package pagu
+package version
 
 import "fmt"
 
