@@ -8,6 +8,8 @@ import (
 )
 
 type MarketCmd struct {
+	*marketSubCmds
+
 	clientMgr  client.IManager
 	priceCache cache.Cache[string, entity.Price]
 }
@@ -19,28 +21,14 @@ func NewMarketCmd(clientMgr client.IManager, priceCache cache.Cache[string, enti
 	}
 }
 
-func (m *MarketCmd) GetCommand() *command.Command {
-	subCmdPrice := &command.Command{
-		Name:        "price",
-		Help:        "Shows the latest price of PAC coin across different markets",
-		Args:        []*command.Args{},
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Handler:     m.priceHandler,
-		TargetFlag:  command.TargetMaskMainnet,
-	}
+func (c *MarketCmd) GetCommand() *command.Command {
 
-	cmdMarket := &command.Command{
-		Name:        "market",
-		Help:        "Access market data and information for Pactus",
-		Args:        nil,
-		AppIDs:      entity.AllAppIDs(),
-		SubCommands: make([]*command.Command, 0),
-		Handler:     nil,
-		TargetFlag:  command.TargetMaskMainnet,
-	}
+	cmd := c.buildMarketCommand()
+	cmd.AppIDs = entity.AllAppIDs()
+	cmd.TargetFlag = command.TargetMaskMainnet
 
-	cmdMarket.AddSubCommand(subCmdPrice)
+	c.subCmdPrice.AppIDs = entity.AllAppIDs()
+	c.subCmdPrice.TargetFlag = command.TargetMaskMainnet
 
-	return cmdMarket
+	return cmd
 }

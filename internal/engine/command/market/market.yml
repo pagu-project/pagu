@@ -1,0 +1,12 @@
+---
+name: market
+help: Commands for managing market
+sub_commands:
+- name: price
+  help: Shows the latest price of PAC coin across different markets
+  result_template: |
+    Xeggex Price: **{{.xeggexPrice}} USDT**
+    https://xeggex.com/market/PACTUS_USDT
+
+    Azbit Price: **{{.azbitPrice}} USDT**
+    https://azbit.com/exchange/PAC_USDT
