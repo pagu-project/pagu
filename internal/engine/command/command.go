@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/version"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
@@ -18,6 +19,11 @@ const failedTemplate = `
 const errorTemplate = `
 **An error occurred**
 {{.err}}
+`
+
+const aboutTemplate = `
+**About pagu**
+version : {{.version}}
 `
 
 var (
@@ -259,4 +265,20 @@ func (cmd *Command) AddHelpSubCommand() {
 	}
 
 	cmd.AddSubCommand(helpCmd)
+}
+
+func (cmd *Command) AddAboutSubCommand() {
+	cmd.ResultTemplate = aboutTemplate
+	aboutCmd := &Command{
+		Name:           "about",
+		Help:           "About Pagu",
+		AppIDs:         entity.AllAppIDs(),
+		TargetFlag:     TargetMaskAll,
+		ResultTemplate: aboutTemplate,
+		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
+			return cmd.RenderResultTemplate("version", version.StringVersion())
+		},
+	}
+
+	cmd.AddSubCommand(aboutCmd)
 }
