@@ -12,7 +12,6 @@ import (
 func TestCreateOne(t *testing.T) {
 	td := setup(t)
 
-	cmd := &command.Command{}
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 
 	t.Run("more than 1000 PAC", func(t *testing.T) {
@@ -21,9 +20,9 @@ func TestCreateOne(t *testing.T) {
 			"valid-months": "1",
 		}
 
-		result := td.voucherCmd.createHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "stake amount is more than 1000")
+		assert.Contains(t, result.Message, "Stake amount is more than 1000")
 	})
 
 	t.Run("wrong month", func(t *testing.T) {
@@ -32,7 +31,7 @@ func TestCreateOne(t *testing.T) {
 			"valid-months": "1.1",
 		}
 
-		result := td.voucherCmd.createHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
 	})
 
@@ -42,7 +41,7 @@ func TestCreateOne(t *testing.T) {
 			"valid-months": "1",
 		}
 
-		result := td.voucherCmd.createHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})
@@ -55,7 +54,7 @@ func TestCreateOne(t *testing.T) {
 			"description":  "Testnet node",
 		}
 
-		result := td.voucherCmd.createHandler(caller, cmd, args)
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})

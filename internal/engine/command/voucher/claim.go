@@ -52,7 +52,7 @@ func (v *VoucherCmd) claimHandler(
 	memo := fmt.Sprintf("Voucher %s claimed by Pagu", code)
 	txHash, err := v.wallet.BondTransaction(pubKey, address, memo, voucher.Amount)
 	if err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	if txHash == "" {
