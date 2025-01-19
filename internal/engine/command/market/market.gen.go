@@ -14,7 +14,7 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 		Name:           "price",
 		Help:           "Shows the latest price of PAC coin across different markets",
 		Handler:        c.priceHandler,
-		ResultTemplate: "Xeggex Price: **{{.xeggexPrice}} USDT**\nhttps://xeggex.com/market/PACTUS_USDT\n\nAzbit Price: **{{.azbitPrice}} USDT**\nhttps://azbit.com/exchange/PAC_USDT",
+		ResultTemplate: "Xeggex Price: **{{.xeggexPrice}} USDT**\nhttps://xeggex.com/market/PACTUS_USDT\n\nAzbit Price: **{{.azbitPrice}} USDT**\nhttps://azbit.com/exchange/PAC_USDT\n",
 	}
 
 	return &marketSubCmds{

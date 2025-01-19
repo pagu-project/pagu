@@ -49,7 +49,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Name:           "create",
 		Help:           "Generate a single voucher code",
 		Handler:        c.createHandler,
-		ResultTemplate: "Voucher created successfully! \nCode: {{.vch.Code}}\n",
+		ResultTemplate: "Voucher created successfully!\nCode: {{.vch.Code}}\n",
 		Args: []*command.Args{
 			{
 				Name:     "amount",
@@ -101,7 +101,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Name:           "status",
 		Help:           "View the status of vouchers or a specific voucher",
 		Handler:        c.statusHandler,
-		ResultTemplate: "Code: {{.voucher.Code}}\nAmount: {{.voucher.Amount}}\nExpire At: {{.voucher.CreatedAt.AddDate 0 (int .voucher.ValidMonths) 0 | formatDate \"02/01/2006, 15:04:05\"}}\nRecipient: {{.voucher.Recipient}}\nDescription: {{.voucher.Desc}}\nClaimed: {{.isClaimed}}\nTx Link: {{.txLink}}\n",
+		ResultTemplate: "Code: {{.voucher.Code}}\nAmount: {{.voucher.Amount}}\nExpire At: {{.expireAt}}\nRecipient: {{.voucher.Recipient}}\nDescription: {{.voucher.Desc}}\nClaimed: {{.isClaimed}}\nTx Link: {{.txLink}}\n",
 		Args: []*command.Args{
 			{
 				Name:     "code",

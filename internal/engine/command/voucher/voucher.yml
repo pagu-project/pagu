@@ -20,7 +20,7 @@ sub_commands:
   - name: create
     help: Generate a single voucher code
     result_template: |
-      Voucher created successfully! 
+      Voucher created successfully!
       Code: {{.vch.Code}}
     args:
       - name: amount
@@ -57,7 +57,7 @@ sub_commands:
     result_template: |
       Code: {{.voucher.Code}}
       Amount: {{.voucher.Amount}}
-      Expire At: {{.voucher.CreatedAt.AddDate 0 (int .voucher.ValidMonths) 0 | formatDate "02/01/2006, 15:04:05"}}
+      Expire At: {{.expireAt}}
       Recipient: {{.voucher.Recipient}}
       Description: {{.voucher.Desc}}
       Claimed: {{.isClaimed}}

@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"golang.org/x/text/cases"
@@ -83,12 +82,12 @@ func generateCode(cmd *command.Command) (string, error) {
 		"string": func(s fmt.Stringer) string {
 			return s.String()
 		},
+		"int": func(i int) int {
+			return i
+		},
 		"trim": strings.TrimSpace,
 		"quoted": func(s string) string {
 			return fmt.Sprintf("%#q", s)
-		},
-		"formatDate": func(t time.Time, format string) string {
-			return t.Format(format)
 		},
 	}
 
