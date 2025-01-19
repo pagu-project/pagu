@@ -8,6 +8,7 @@ import (
 
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/version"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
@@ -19,11 +20,6 @@ const failedTemplate = `
 const errorTemplate = `
 **An error occurred**
 {{.err}}
-`
-
-const aboutTemplate = `
-**About pagu**
-version : {{.version}}
 `
 
 var (
@@ -126,7 +122,7 @@ func (cmd *Command) RenderFailedTemplateF(reason string, a ...any) CommandResult
 }
 
 func (cmd *Command) RenderFailedTemplate(reason string) CommandResult {
-	msg, _ := cmd.executeTemplate(failedTemplate, map[string]any{"reason": reason})
+	msg := cmd.executeTemplate(failedTemplate, map[string]any{"reason": reason})
 
 	return CommandResult{
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
@@ -136,7 +132,7 @@ func (cmd *Command) RenderFailedTemplate(reason string) CommandResult {
 }
 
 func (cmd *Command) RenderErrorTemplate(err error) CommandResult {
-	msg, _ := cmd.executeTemplate(errorTemplate, map[string]any{"err": err})
+	msg := cmd.executeTemplate(errorTemplate, map[string]any{"err": err})
 
 	return CommandResult{
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
@@ -158,10 +154,7 @@ func (cmd *Command) RenderResultTemplate(keyvals ...any) CommandResult {
 		data[key] = val
 	}
 
-	msg, err := cmd.executeTemplate(cmd.ResultTemplate, data)
-	if err != nil {
-		return cmd.RenderErrorTemplate(err)
-	}
+	msg := cmd.executeTemplate(cmd.ResultTemplate, data)
 
 	return CommandResult{
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
@@ -170,16 +163,29 @@ func (cmd *Command) RenderResultTemplate(keyvals ...any) CommandResult {
 	}
 }
 
-func (*Command) executeTemplate(templateContent string, data map[string]any) (string, error) {
-	tmpl, _ := template.New("template").Parse(templateContent)
+func (*Command) executeTemplate(templateContent string, data map[string]any) string {
+	funcMap := template.FuncMap{
+		"fixed": func(width int, s string) string {
+			if len(s) > width {
+				return s[:width]
+			}
 
-	var bldr strings.Builder
-	err := tmpl.Execute(&bldr, data)
-	if err != nil {
-		return "", err
+			return s + strings.Repeat(" ", width-len(s))
+		},
 	}
 
-	return strings.TrimSpace(bldr.String()), nil
+	tmpl, err := template.New("template").Funcs(funcMap).Parse(templateContent)
+	if err != nil {
+		log.Error("unable to parse template", "error", err)
+	}
+
+	var bldr strings.Builder
+	err = tmpl.Execute(&bldr, data)
+	if err != nil {
+		log.Error("unable to parse template", "error", err)
+	}
+
+	return strings.TrimSpace(bldr.String())
 }
 
 // Deprecated: Use RenderResultTemplate.
@@ -215,10 +221,25 @@ func (cmd *Command) ErrorResult(err error) CommandResult {
 	return cmd.FailedResultF("An error occurred: %v", err.Error())
 }
 
-func (cmd *Command) HelpResult() CommandResult {
+func (cmd *Command) RenderHelpTemplate() CommandResult {
+	const helpCommandTemplate = `
+{{.cmd.Help}}
+
+**Usage:**
+   {{.cmd.Name}} [subcommand]
+
+**Available subcommands:**
+   {{- range .cmd.SubCommands }}
+   <pre>{{.Name | fixed 15 }}</pre> {{.Emoji}} {{.Help}}
+   {{- end}}
+
+Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a subcommand.
+`
+	msg := cmd.executeTemplate(helpCommandTemplate, map[string]any{"cmd": cmd})
+
 	return CommandResult{
-		Title:      fmt.Sprintf("%v %v", cmd.Help, cmd.Emoji),
-		Message:    cmd.HelpMessage(),
+		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
+		Message:    msg,
 		Successful: false,
 	}
 }
@@ -229,16 +250,6 @@ func (cmd *Command) HasAppID(appID entity.PlatformID) bool {
 
 func (cmd *Command) HasSubCommand() bool {
 	return len(cmd.SubCommands) > 0 && cmd.SubCommands != nil
-}
-
-func (cmd *Command) HelpMessage() string {
-	help := cmd.Help
-	help += "\n\nAvailable commands:\n"
-	for _, sc := range cmd.SubCommands {
-		help += fmt.Sprintf("- **%-12s**: %s\n", sc.Name, sc.Help)
-	}
-
-	return help
 }
 
 func (cmd *Command) AddSubCommand(subCmd *Command) {
@@ -260,7 +271,7 @@ func (cmd *Command) AddHelpSubCommand() {
 		AppIDs:     entity.AllAppIDs(),
 		TargetFlag: TargetMaskAll,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
-			return cmd.SuccessfulResult(cmd.HelpMessage())
+			return cmd.RenderHelpTemplate()
 		},
 	}
 
@@ -268,6 +279,12 @@ func (cmd *Command) AddHelpSubCommand() {
 }
 
 func (cmd *Command) AddAboutSubCommand() {
+	const aboutTemplate = `
+## About Pagu
+
+Version : {{.version}}
+`
+
 	cmd.ResultTemplate = aboutTemplate
 	aboutCmd := &Command{
 		Name:           "about",
