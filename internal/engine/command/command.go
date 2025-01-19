@@ -174,6 +174,7 @@ func (*Command) executeTemplate(templateContent string, data map[string]any) str
 		},
 	}
 
+	templateContent = strings.Replace(templateContent, "”", "`", -1)
 	tmpl, err := template.New("template").Funcs(funcMap).Parse(templateContent)
 	if err != nil {
 		log.Error("unable to parse template", "error", err)
@@ -230,7 +231,7 @@ func (cmd *Command) RenderHelpTemplate() CommandResult {
 
 **Available subcommands:**
    {{- range .cmd.SubCommands }}
-   <pre>{{.Name | fixed 15 }}</pre> {{.Emoji}} {{.Help}}
+   ”{{.Name | fixed 15 }}” {{.Emoji}} {{.Help}}
    {{- end}}
 
 Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a subcommand.
