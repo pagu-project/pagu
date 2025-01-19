@@ -1,4 +1,5 @@
 ---
+emoji: 📈
 name: market
 help: Commands for managing market
 sub_commands:

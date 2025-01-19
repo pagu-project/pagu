@@ -5,19 +5,21 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 )
 
-const argNameCreateTitle = "title"
-const argNameCreateDesc = "desc"
-const argNameCreatePackages = "packages"
-const argNamePurchasePackage = "package"
-const argNameClaimAddress = "address"
+const (
+	argNameCreateTitle     = "title"
+	argNameCreateDesc      = "desc"
+	argNameCreatePackages  = "packages"
+	argNamePurchasePackage = "package"
+	argNameClaimAddress    = "address"
+)
 
 type crowdfundSubCmds struct {
-	subCmdCreate *command.Command
-	subCmdDisable *command.Command
-	subCmdReport *command.Command
-	subCmdInfo *command.Command
+	subCmdCreate   *command.Command
+	subCmdDisable  *command.Command
+	subCmdReport   *command.Command
+	subCmdInfo     *command.Command
 	subCmdPurchase *command.Command
-	subCmdClaim *command.Command
+	subCmdClaim    *command.Command
 }
 
 func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
@@ -95,17 +97,18 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 	}
 
 	return &crowdfundSubCmds{
-		subCmdCreate: subCmdCreate,
-		subCmdDisable: subCmdDisable,
-		subCmdReport: subCmdReport,
-		subCmdInfo: subCmdInfo,
+		subCmdCreate:   subCmdCreate,
+		subCmdDisable:  subCmdDisable,
+		subCmdReport:   subCmdReport,
+		subCmdInfo:     subCmdInfo,
 		subCmdPurchase: subCmdPurchase,
-		subCmdClaim: subCmdClaim,
+		subCmdClaim:    subCmdClaim,
 	}
 }
 
 func (c *CrowdfundCmd) buildCrowdfundCommand() *command.Command {
 	crowdfundCmd := &command.Command{
+		Emoji:       "🤝",
 		Name:        "crowdfund",
 		Help:        "Commands for managing crowdfunding campaigns",
 		SubCommands: make([]*command.Command, 0),

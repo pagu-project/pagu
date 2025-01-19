@@ -1,4 +1,5 @@
 ---
+emoji: 🤝
 name: crowdfund
 help: Commands for managing crowdfunding campaigns
 sub_commands:
