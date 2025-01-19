@@ -5,7 +5,6 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 )
 
-
 type marketSubCmds struct {
 	subCmdPrice *command.Command
 }
