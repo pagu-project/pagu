@@ -17,7 +17,7 @@ type {{.Name}}SubCmds struct {
 {{- end}}
 }
 
-func (c *{{.Name | title}}Cmd) buildSubCmds() *crowdfundSubCmds {
+func (c *{{.Name | title}}Cmd) buildSubCmds() *{{.Name}}SubCmds {
 {{- range .SubCommands }}
 	subCmd{{.Name | title}} := &command.Command{
 		Name:           "{{.Name}}",
@@ -49,7 +49,7 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *crowdfundSubCmds {
 	}
 {{- end }}
 
-	return &crowdfundSubCmds{
+	return &{{.Name}}SubCmds{
 {{- $cmdName := .Name }}
 {{- range .SubCommands }}
 		subCmd{{.Name | title}}: subCmd{{.Name | title}},
