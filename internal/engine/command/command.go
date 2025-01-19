@@ -174,7 +174,7 @@ func (*Command) executeTemplate(templateContent string, data map[string]any) str
 		},
 	}
 
-	templateContent = strings.Replace(templateContent, "”", "`", -1)
+	templateContent = strings.ReplaceAll(templateContent, "”", "`")
 	tmpl, err := template.New("template").Funcs(funcMap).Parse(templateContent)
 	if err != nil {
 		log.Error("unable to parse template", "error", err)
