@@ -281,7 +281,7 @@ func (cmd *Command) AddHelpSubCommand() {
 
 func (cmd *Command) AddAboutSubCommand() {
 	const aboutTemplate = `
-## About Pagu
+**About Pagu**
 
 Version : {{.version}}
 `
