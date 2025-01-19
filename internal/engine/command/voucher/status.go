@@ -36,13 +36,11 @@ func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.Co
 		txLink = fmt.Sprintf("https://pacviewer.com/transaction/%s", voucher.TxHash)
 	}
 
-	return cmd.RenderResultTemplate("status",
-		voucher.Code,
-		voucher.Amount,
-		voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0).Format("02/01/2006, 15:04:05"),
-		voucher.Recipient,
-		voucher.Desc,
+	return cmd.RenderResultTemplate("voucher",
+		voucher,
+		"isClaimed",
 		isClaimed,
+		"txLink",
 		txLink)
 }
 

@@ -66,7 +66,7 @@ func (v *VoucherCmd) createHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.RenderResultTemplate("create", vch.Code)
+	return cmd.RenderResultTemplate("vch", vch)
 }
 
 func (v *VoucherCmd) createBulkHandler(
@@ -143,7 +143,7 @@ func (v *VoucherCmd) createBulkHandler(
 		}
 	}
 
-	return cmd.RenderResultTemplate("create-bulk")
+	return cmd.RenderResultTemplate()
 }
 
 func (v *VoucherCmd) createBulkVoucher(records []BulkRecorder, callerID uint) ([]*entity.Voucher, error) {

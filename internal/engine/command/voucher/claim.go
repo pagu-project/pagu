@@ -63,5 +63,5 @@ func (v *VoucherCmd) claimHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.RenderResultTemplate("claim", txHash)
+	return cmd.RenderResultTemplate("txHash", txHash)
 }
