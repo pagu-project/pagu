@@ -59,6 +59,9 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *{{.Name}}SubCmds {
 
 func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command() *command.Command {
 	{{.Name}}Cmd := &command.Command{
+		{{- if .Emoji }}
+		Emoji:          "{{.Emoji}}",
+		{{- end }}
 		Name:        "{{.Name}}",
 		Help:        "{{.Help}}",
 		SubCommands: make([]*command.Command, 0),

@@ -52,7 +52,9 @@ build-http:
 gen:
 	go run ./internal/generator/main.go \
 		"./internal/engine/command/crowdfund/crowdfund.yml" \
-		"./internal/engine/command/voucher/voucher.yml"
+		"./internal/engine/command/voucher/voucher.yml" \
+		"./internal/engine/command/market/market.yml"
+
 	find . -name "*.gen.go" -exec gofumpt -l -w {} +
 
 ###

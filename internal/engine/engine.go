@@ -136,7 +136,7 @@ func newBotEngine(ctx context.Context,
 	rootCmd := &command.Command{
 		Emoji:       "🤖",
 		Name:        "pagu",
-		Help:        "Root Command",
+		Help:        "",
 		AppIDs:      entity.AllAppIDs(),
 		SubCommands: make([]*command.Command, 0),
 	}
@@ -281,7 +281,7 @@ func (be *BotEngine) executeCommand(
 	}
 
 	if cmd.Handler == nil {
-		return cmd.HelpResult()
+		return cmd.RenderHelpTemplate()
 	}
 
 	caller, err := be.GetUser(appID, callerID)
