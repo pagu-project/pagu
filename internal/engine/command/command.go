@@ -169,6 +169,7 @@ func (*Command) executeTemplate(templateContent string, data map[string]any) str
 			if len(s) > width {
 				return s[:width]
 			}
+
 			return s + strings.Repeat(" ", width-len(s))
 		},
 	}
@@ -234,8 +235,8 @@ func (cmd *Command) RenderHelpTemplate() CommandResult {
 
 Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a subcommand.
 `
-
 	msg := cmd.executeTemplate(helpCommandTemplate, map[string]any{"cmd": cmd})
+
 	return CommandResult{
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
