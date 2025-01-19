@@ -26,7 +26,7 @@ func (v *VoucherCmd) statusHandler(_ *entity.User, cmd *command.Command, args ma
 func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.CommandResult {
 	voucher, err := v.db.GetVoucherByCode(code)
 	if err != nil {
-		return cmd.ErrorResult(errors.New("voucher code is not valid, no voucher found"))
+		return cmd.RenderFailedTemplate("Voucher code is not valid, no voucher found")
 	}
 
 	isClaimed := "NO"
@@ -36,9 +36,7 @@ func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.Co
 		txLink = fmt.Sprintf("https://pacviewer.com/transaction/%s", voucher.TxHash)
 	}
 
-	return cmd.SuccessfulResultF("Code: %s\nAmount: %s\n"+
-		"Expire At: %s\nRecipient: %s\nDescription: %s\nClaimed: %v\nTx Link: %s"+
-		"\n",
+	return cmd.RenderResultTemplate("status",
 		voucher.Code,
 		voucher.Amount,
 		voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0).Format("02/01/2006, 15:04:05"),

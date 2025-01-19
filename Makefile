@@ -51,7 +51,8 @@ build-http:
 ### Generating commands
 gen:
 	go run ./internal/generator/main.go \
-		"./internal/engine/command/crowdfund/crowdfund.yml"
+		"./internal/engine/command/crowdfund/crowdfund.yml" \
+		"./internal/engine/command/voucher/voucher.yml"
 	find . -name "*.gen.go" -exec gofumpt -l -w {} +
 
 ###

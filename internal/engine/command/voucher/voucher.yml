@@ -1,0 +1,69 @@
+---
+name: voucher
+help: Commands for managing vouchers
+sub_commands:
+  - name: claim
+    help: Claim voucher coins and bond them to a validator
+    result_template: |
+      Voucher claimed successfully!
+
+      https://pacviewer.com/transaction/{{.txHash}}
+    args:
+      - name: code
+        desc: The voucher code
+        input_box: Text
+        optional: false
+      - name: address
+        desc: Your Pactus validator address
+        input_box: Text
+        optional: false
+  - name: create
+    help: Generate a single voucher code
+    result_template: |
+      Voucher created successfully! 
+      Code: {{.vch.Code}}
+    args:
+      - name: amount
+        desc: The amount of PAC to bond
+        input_box: Float
+        optional: false
+      - name: valid-months
+        desc: Number of months the voucher remains valid after issuance
+        input_box: Integer
+        optional: false
+      - name: recipient
+        desc: The recipient's name for the voucher
+        input_box: Text
+        optional: true
+      - name: description
+        desc: A description of the voucher's purpose
+        input_box: Text
+        optional: true
+  - name: create-bulk
+    help: Generate multiple voucher codes by importing a file
+    result_template: |
+      Vouchers created successfully!
+    args:
+      - name: file
+        desc: File containing a list of voucher recipients
+        input_box: File
+        optional: false
+      - name: notify
+        desc: Send notifications to recipients via email
+        input_box: Toggle
+        optional: false
+  - name: status
+    help: View the status of vouchers or a specific voucher
+    result_template: |
+      Code: {{.voucher.Code}}
+      Amount: {{.voucher.Amount}}
+      Expire At: {{.voucher.CreatedAt.AddDate 0 (int .voucher.ValidMonths) 0 | formatDate "02/01/2006, 15:04:05"}}
+      Recipient: {{.voucher.Recipient}}
+      Description: {{.voucher.Desc}}
+      Claimed: {{.isClaimed}}
+      Tx Link: {{.txLink}}
+    args:
+      - name: code
+        desc: The voucher code (8 characters)
+        input_box: Text
+        optional: true

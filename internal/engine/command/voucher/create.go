@@ -38,17 +38,17 @@ func (v *VoucherCmd) createHandler(
 
 	amt, err := amount.FromString(args["amount"])
 	if err != nil {
-		return cmd.ErrorResult(errors.New("invalid amount param"))
+		return cmd.RenderFailedTemplate("Invalid amount param")
 	}
 
 	maxStake, _ := amount.NewAmount(1000)
 	if amt > maxStake {
-		return cmd.ErrorResult(errors.New("stake amount is more than 1000"))
+		return cmd.RenderFailedTemplate("Stake amount is more than 1000")
 	}
 
 	expireMonths, err := strconv.Atoi(args["valid-months"])
 	if err != nil {
-		return cmd.ErrorResult(errors.New("invalid valid-months param"))
+		return cmd.RenderFailedTemplate("Invalid valid-months param")
 	}
 
 	vch := &entity.Voucher{
@@ -63,10 +63,10 @@ func (v *VoucherCmd) createHandler(
 
 	err = v.db.AddVoucher(vch)
 	if err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.SuccessfulResultF("Voucher created successfully! \n Code: %s", vch.Code)
+	return cmd.RenderResultTemplate("create", vch.Code)
 }
 
 func (v *VoucherCmd) createBulkHandler(
@@ -82,14 +82,14 @@ func (v *VoucherCmd) createBulkHandler(
 	if err != nil {
 		log.Error(err.Error())
 
-		return cmd.ErrorResult(errors.New("failed to fetch attachment content"))
+		return cmd.RenderFailedTemplate("Failed to fetch attachment content")
 	}
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Error(err.Error())
 
-		return cmd.ErrorResult(errors.New("failed to fetch attachment content"))
+		return cmd.RenderFailedTemplate("Failed to fetch attachment content")
 	}
 
 	defer func() {
@@ -101,7 +101,7 @@ func (v *VoucherCmd) createBulkHandler(
 	if err != nil {
 		log.Error(err.Error())
 
-		return cmd.ErrorResult(errors.New("failed to read csv content"))
+		return cmd.RenderFailedTemplate("Failed to read csv content")
 	}
 
 	var records []BulkRecorder
@@ -112,38 +112,38 @@ func (v *VoucherCmd) createBulkHandler(
 		} else if err != nil {
 			log.Error(err.Error())
 
-			return cmd.ErrorResult(errors.New("failed to parse csv content"))
+			return cmd.RenderFailedTemplate("Failed to parse csv content")
 		}
 
 		records = append(records, r)
 	}
 
 	if len(records) == 0 {
-		err = fmt.Errorf("no record founded. please add at least one record to csv file")
+		err = fmt.Errorf("No record founded. Please add at least one record to csv file")
 
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	vouchers, err := v.createBulkVoucher(records, caller.ID)
 	if err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	for _, vch := range vouchers {
 		// TODO: add gorm transaction for this two insert
 		err := v.db.AddVoucher(vch)
 		if err != nil {
-			return cmd.ErrorResult(err)
+			return cmd.RenderErrorTemplate(err)
 		}
 
 		if notify == "TRUE" {
 			if v.createNotification(vch.Email, vch.Code, vch.Recipient, vch.Amount.ToPAC()) != nil {
-				return cmd.ErrorResult(err)
+				return cmd.RenderErrorTemplate(err)
 			}
 		}
 	}
 
-	return cmd.SuccessfulResult("Vouchers created successfully!")
+	return cmd.RenderResultTemplate("create-bulk")
 }
 
 func (v *VoucherCmd) createBulkVoucher(records []BulkRecorder, callerID uint) ([]*entity.Voucher, error) {
@@ -160,17 +160,17 @@ func (v *VoucherCmd) createBulkVoucher(records []BulkRecorder, callerID uint) ([
 
 		amt, err := amount.NewAmount(record.Amount)
 		if err != nil {
-			return nil, fmt.Errorf("invalid amount at row %d", index+1)
+			return nil, fmt.Errorf("Invalid amount at row %d", index+1)
 		}
 
 		maxStake, _ := amount.NewAmount(1000)
 		if amt > maxStake {
-			return nil, fmt.Errorf("stake amount is more than 1000")
+			return nil, fmt.Errorf("Stake amount is more than 1000")
 		}
 
 		validMonths := record.ValidatedInMonth
 		if validMonths < 1 {
-			return nil, fmt.Errorf("num of validated month of code must be greater than 0 at row %d", index+1)
+			return nil, fmt.Errorf("Num of validated month of code must be greater than 0 at row %d", index+1)
 		}
 
 		vouchers = append(vouchers, &entity.Voucher{

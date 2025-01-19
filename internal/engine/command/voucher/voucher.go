@@ -9,6 +9,8 @@ import (
 )
 
 type VoucherCmd struct {
+	*voucherSubCmds
+
 	db            *repository.Database
 	wallet        wallet.IWallet
 	clientManager client.IManager
@@ -25,122 +27,25 @@ func NewVoucherCmd(db *repository.Database, wlt wallet.IWallet, cli client.IMana
 func (v *VoucherCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(v.db, v.wallet)
 
-	subCmdClaim := &command.Command{
-		Name: "claim",
-		Help: "Claim voucher coins and bond them to a validator",
-		Args: []*command.Args{
-			{
-				Name:     "code",
-				Desc:     "The voucher code",
-				InputBox: command.InputBoxText,
-				Optional: false,
-			},
-			{
-				Name:     "address",
-				Desc:     "Your Pactus validator address",
-				InputBox: command.InputBoxText,
-				Optional: false,
-			},
-		},
-		SubCommands: nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
-		Middlewares: []command.MiddlewareFunc{middlewareHandler.WalletBalance},
-		Handler:     v.claimHandler,
-		TargetFlag:  command.TargetMaskMainnet,
-	}
+	cmd := v.buildVoucherCommand()
+	cmd.AppIDs = entity.AllAppIDs()
+	cmd.TargetFlag = command.TargetMaskMainnet | command.TargetMaskModerator
 
-	subCmdCreate := &command.Command{
-		Name: "create",
-		Help: "Generate a single voucher code",
-		Args: []*command.Args{
-			{
-				Name:     "amount",
-				Desc:     "The amount of PAC to bond",
-				InputBox: command.InputBoxFloat,
-				Optional: false,
-			},
-			{
-				Name:     "valid-months",
-				Desc:     "Number of months the voucher remains valid after issuance",
-				InputBox: command.InputBoxInteger,
-				Optional: false,
-			},
-			{
-				Name:     "recipient",
-				Desc:     "The recipient's name for the voucher",
-				InputBox: command.InputBoxText,
-				Optional: true,
-			},
-			{
-				Name:     "description",
-				Desc:     "A description of the voucher's purpose",
-				InputBox: command.InputBoxText,
-				Optional: true,
-			},
-		},
-		SubCommands: nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
-		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
-		Handler:     v.createHandler,
-		TargetFlag:  command.TargetMaskModerator,
-	}
+	v.subCmdClaim.AppIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdClaim.TargetFlag = command.TargetMaskMainnet
+	v.subCmdClaim.Middlewares = []command.MiddlewareFunc{middlewareHandler.WalletBalance}
 
-	subCmdCreateBulk := &command.Command{
-		Name: "create-bulk",
-		Help: "Generate multiple voucher codes by importing a file",
-		Args: []*command.Args{
-			{
-				Name:     "file",
-				Desc:     "File containing a list of voucher recipients",
-				InputBox: command.InputBoxFile,
-				Optional: false,
-			},
-			{
-				Name:     "notify",
-				Desc:     "Send notifications to recipients via email",
-				InputBox: command.InputBoxToggle,
-				Optional: false,
-			},
-		},
-		SubCommands: nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
-		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
-		Handler:     v.createBulkHandler,
-		TargetFlag:  command.TargetMaskModerator,
-	}
+	v.subCmdCreate.AppIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdCreate.TargetFlag = command.TargetMaskModerator
+	v.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	subCmdStatus := &command.Command{
-		Name: "status",
-		Help: "View the status of vouchers or a specific voucher",
-		Args: []*command.Args{
-			{
-				Name:     "code",
-				Desc:     "The voucher code (8 characters)",
-				InputBox: command.InputBoxText,
-				Optional: true,
-			},
-		},
-		SubCommands: nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
-		Middlewares: []command.MiddlewareFunc{middlewareHandler.OnlyModerator},
-		Handler:     v.statusHandler,
-		TargetFlag:  command.TargetMaskModerator,
-	}
+	v.subCmdCreateBulk.AppIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdCreateBulk.TargetFlag = command.TargetMaskModerator
+	v.subCmdCreateBulk.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	cmdVoucher := &command.Command{
-		Name:        "voucher",
-		Help:        "Commands for managing vouchers",
-		Args:        nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
-		SubCommands: make([]*command.Command, 0),
-		Handler:     nil,
-		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,
-	}
+	v.subCmdStatus.AppIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdStatus.TargetFlag = command.TargetMaskModerator
+	v.subCmdStatus.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	cmdVoucher.AddSubCommand(subCmdClaim)
-	cmdVoucher.AddSubCommand(subCmdCreate)
-	cmdVoucher.AddSubCommand(subCmdCreateBulk)
-	cmdVoucher.AddSubCommand(subCmdStatus)
-
-	return cmdVoucher
+	return cmd
 }

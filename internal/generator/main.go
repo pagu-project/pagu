@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"golang.org/x/text/cases"
@@ -59,7 +60,25 @@ func main() {
 func generateCode(cmd *command.Command) (string, error) {
 	funcMap := template.FuncMap{
 		"title": func(str string) string {
-			return cases.Title(language.English).String(str)
+			str = strings.ReplaceAll(str, "-", " ")
+			words := strings.Fields(str)
+			for i, word := range words {
+				words[i] = cases.Title(language.English).String(word)
+			}
+			return strings.Join(words, "")
+		},
+		"handlerName": func(str string) string {
+			str = strings.ReplaceAll(str, "-", " ")
+			words := strings.Fields(str)
+			for i, word := range words {
+				// Lowercase the first word, capitalize the rest
+				if i == 0 {
+					words[i] = strings.ToLower(word)
+				} else {
+					words[i] = cases.Title(language.English).String(word)
+				}
+			}
+			return strings.Join(words, "")
 		},
 		"string": func(s fmt.Stringer) string {
 			return s.String()
@@ -67,6 +86,9 @@ func generateCode(cmd *command.Command) (string, error) {
 		"trim": strings.TrimSpace,
 		"quoted": func(s string) string {
 			return fmt.Sprintf("%#q", s)
+		},
+		"formatDate": func(t time.Time, format string) string {
+			return t.Format(format)
 		},
 	}
 
