@@ -229,7 +229,7 @@ func (cmd *Command) RenderHelpTemplate() CommandResult {
 **Usage:**
    {{.cmd.Name}} [subcommand]
 
-**Available subcommands:**
+**Available Subcommands:**
    {{- range .cmd.SubCommands }}
    ”{{.Name | fixed 15 }}” {{.Emoji}} {{.Help}}
    {{- end}}
@@ -241,7 +241,7 @@ Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a 
 	return CommandResult{
 		Title:      fmt.Sprintf("%v %v", cmd.Name, cmd.Emoji),
 		Message:    msg,
-		Successful: false,
+		Successful: true,
 	}
 }
 
@@ -267,6 +267,7 @@ func (cmd *Command) AddSubCommand(subCmd *Command) {
 
 func (cmd *Command) AddHelpSubCommand() {
 	helpCmd := &Command{
+		Emoji:      "❓",
 		Name:       "help",
 		Help:       fmt.Sprintf("Help for %v command", cmd.Name),
 		AppIDs:     entity.AllAppIDs(),
@@ -288,6 +289,7 @@ Version : {{.version}}
 
 	cmd.ResultTemplate = aboutTemplate
 	aboutCmd := &Command{
+		Emoji:          "🛈",
 		Name:           "about",
 		Help:           "About Pagu",
 		AppIDs:         entity.AllAppIDs(),
