@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"regexp"
 	"strings"
 
 	"golang.org/x/text/cases"
@@ -8,17 +9,31 @@ import (
 )
 
 func CamelCase(input string) string {
-	input = strings.ReplaceAll(input, "-", " ")
+	if input == "" {
+		return ""
+	}
+
+	re := regexp.MustCompile(`[^a-zA-Z0-9\-_]+`)
+	input = re.ReplaceAllString(input, " ")
+
+	input = strings.NewReplacer("-", " ", "_", " ").Replace(input)
+
 	words := strings.Fields(input)
 
+	if len(words) == 0 {
+		return ""
+	}
+
+	builder := strings.Builder{}
+	caser := cases.Title(language.English)
+
 	for i, word := range words {
-		// Lowercase the first word, capitalize the rest
 		if i == 0 {
-			words[i] = strings.ToLower(word)
+			builder.WriteString(strings.ToLower(word))
 		} else {
-			words[i] = cases.Title(language.English).String(word)
+			builder.WriteString(caser.String(word))
 		}
 	}
 
-	return strings.Join(words, "")
+	return builder.String()
 }

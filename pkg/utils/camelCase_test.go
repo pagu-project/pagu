@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/pagu-project/pagu/pkg/utils"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCamelCase(t *testing.T) {
@@ -13,23 +12,26 @@ func TestCamelCase(t *testing.T) {
 		input    string
 		expected string
 	}{
-		{"Single word", "hello", "hello"},
-		{"Multiple words", "hello world", "helloWorld"},
-		{"Hyphenated words", "hello-world", "helloWorld"},
-		{"Mixed case", "Hello-World test", "helloWorldTest"},
-		{"Leading spaces", "   hello world", "helloWorld"},
-		{"Trailing spaces", "hello world   ", "helloWorld"},
-		{"Extra spaces between words", "hello   world", "helloWorld"},
-		{"Empty input", "", ""},
-		{"Only spaces", "   ", ""},
-		{"Hyphenated with spaces", "hello - world", "helloWorld"},
-		{"Special characters", "hello-world123", "helloWorld123"},
+		{"Empty string", "", ""},
+		{"Single word lowercase", "word", "word"},
+		{"Single word uppercase", "WORD", "word"},
+		{"Hyphen-separated", "hello-world", "helloWorld"},
+		{"Underscore-separated", "hello_world", "helloWorld"},
+		{"Mixed delimiters", "hello-world_example", "helloWorldExample"},
+		{"Multiple spaces", "hello   world", "helloWorld"},
+		{"Leading and trailing spaces", "  hello world  ", "helloWorld"},
+		{"Mixed case input", "HeLLo-WoRLD", "helloWorld"},
+		{"Numbers in input", "hello-world-123", "helloWorld123"},
+		{"Special characters", "hello-world!", "helloWorld"},
+		{"Consecutive delimiters", "hello--world__example", "helloWorldExample"},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := utils.CamelCase(tt.input)
-			assert.Equal(t, tt.expected, result)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := utils.CamelCase(test.input)
+			if result != test.expected {
+				t.Errorf("CamelCase(%q) = %q; expected %q", test.input, result, test.expected)
+			}
 		})
 	}
 }
