@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/pagu-project/pagu/pkg/utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCamelCase(t *testing.T) {
@@ -29,9 +30,7 @@ func TestCamelCase(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			result := utils.CamelCase(test.input)
-			if result != test.expected {
-				t.Errorf("CamelCase(%q) = %q; expected %q", test.input, result, test.expected)
-			}
+			assert.Equal(t, test.expected, result, "CamelCase(%q)", test.input)
 		})
 	}
 }
