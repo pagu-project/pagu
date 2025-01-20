@@ -61,14 +61,17 @@ func generateCode(cmd *command.Command) (string, error) {
 		"title": func(str string) string {
 			str = strings.ReplaceAll(str, "-", " ")
 			words := strings.Fields(str)
+
 			for i, word := range words {
 				words[i] = cases.Title(language.English).String(word)
 			}
+
 			return strings.Join(words, "")
 		},
 		"handlerName": func(str string) string {
 			str = strings.ReplaceAll(str, "-", " ")
 			words := strings.Fields(str)
+
 			for i, word := range words {
 				// Lowercase the first word, capitalize the rest
 				if i == 0 {
@@ -77,6 +80,7 @@ func generateCode(cmd *command.Command) (string, error) {
 					words[i] = cases.Title(language.English).String(word)
 				}
 			}
+
 			return strings.Join(words, "")
 		},
 		"string": func(s fmt.Stringer) string {
