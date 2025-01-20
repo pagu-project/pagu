@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/h2non/gock"
-	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/stretchr/testify/assert"
 )
@@ -63,7 +62,6 @@ func TestCreateOne(t *testing.T) {
 func TestCreateBulk(t *testing.T) {
 	td := setup(t)
 
-	cmd := &command.Command{}
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 
 	t.Run("normal", func(t *testing.T) {
@@ -80,7 +78,7 @@ func TestCreateBulk(t *testing.T) {
 			"notify": "TRUE",
 		}
 
-		result := td.voucherCmd.createBulkHandler(caller, cmd, args)
+		result := td.voucherCmd.createBulkHandler(caller, td.voucherCmd.subCmdCreateBulk, args)
 
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Vouchers created successfully!")

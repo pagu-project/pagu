@@ -57,7 +57,7 @@ func TestClaim(t *testing.T) {
 		}
 		result := td.voucherCmd.claimHandler(caller, td.voucherCmd.subCmdClaim, args)
 		assert.True(t, result.Successful)
-		assert.Contains(t, result.Message, "Voucher claimed successfully!\n\n https://pacviewer.com/transaction/0x1")
+		assert.Contains(t, result.Message, "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/0x1")
 	})
 
 	t.Run("Claim again", func(t *testing.T) {
