@@ -69,7 +69,7 @@ func generateCode(cmd *command.Command) (string, error) {
 
 			return strings.Join(words, "")
 		},
-		"handlerName": utils.ToCamelCase,
+		"handlerName": utils.CamelCase,
 		"string": func(s fmt.Stringer) string {
 			return s.String()
 		},
