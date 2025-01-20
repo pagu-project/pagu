@@ -3,8 +3,11 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"golang.org/x/exp/constraints"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func PathExists(path string) bool {
@@ -54,4 +57,20 @@ func UnmarshalEnum[T comparable](str string, toString map[T]string) (T, error) {
 	var zero T
 
 	return zero, fmt.Errorf("unknown enum type: %s", str)
+}
+
+func ToCamelCase(input string) string {
+	input = strings.ReplaceAll(input, "-", " ")
+	words := strings.Fields(input)
+
+	for i, word := range words {
+		// Lowercase the first word, capitalize the rest
+		if i == 0 {
+			words[i] = strings.ToLower(word)
+		} else {
+			words[i] = cases.Title(language.English).String(word)
+		}
+	}
+
+	return strings.Join(words, "")
 }

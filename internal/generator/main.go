@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
@@ -68,21 +69,7 @@ func generateCode(cmd *command.Command) (string, error) {
 
 			return strings.Join(words, "")
 		},
-		"handlerName": func(str string) string {
-			str = strings.ReplaceAll(str, "-", " ")
-			words := strings.Fields(str)
-
-			for i, word := range words {
-				// Lowercase the first word, capitalize the rest
-				if i == 0 {
-					words[i] = strings.ToLower(word)
-				} else {
-					words[i] = cases.Title(language.English).String(word)
-				}
-			}
-
-			return strings.Join(words, "")
-		},
+		"handlerName": utils.ToCamelCase,
 		"string": func(s fmt.Stringer) string {
 			return s.String()
 		},
