@@ -1,5 +1,6 @@
 ---
 name: voucher
+emoji: 🎁
 help: Commands for managing vouchers
 sub_commands:
   - name: claim
@@ -21,7 +22,7 @@ sub_commands:
     help: Generate a single voucher code
     result_template: |
       Voucher created successfully!
-      Code: {{.vch.Code}}
+      Code: {{.voucher.Code}}
     args:
       - name: amount
         desc: The amount of PAC to bond
