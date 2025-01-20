@@ -66,7 +66,7 @@ func (v *VoucherCmd) createHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.RenderResultTemplate("vch", vch)
+	return cmd.RenderResultTemplate("voucher", vch)
 }
 
 func (v *VoucherCmd) createBulkHandler(

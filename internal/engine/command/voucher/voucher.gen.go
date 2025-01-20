@@ -49,7 +49,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Name:           "create",
 		Help:           "Generate a single voucher code",
 		Handler:        c.createHandler,
-		ResultTemplate: "Voucher created successfully!\nCode: {{.vch.Code}}\n",
+		ResultTemplate: "Voucher created successfully!\nCode: {{.voucher.Code}}\n",
 		Args: []*command.Args{
 			{
 				Name:     "amount",
@@ -122,6 +122,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 
 func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 	voucherCmd := &command.Command{
+		Emoji:       "🎁",
 		Name:        "voucher",
 		Help:        "Commands for managing vouchers",
 		SubCommands: make([]*command.Command, 0),
