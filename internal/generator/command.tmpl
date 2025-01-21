@@ -22,7 +22,7 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *{{.Name}}SubCmds {
 	subCmd{{.Name | title}} := &command.Command{
 		Name:           "{{.Name}}",
 		Help:           "{{.Help}}",
-		Handler:        c.{{.Name}}Handler,
+		Handler:        c.{{.Name | handlerName}}Handler,
 		ResultTemplate: {{.ResultTemplate | quoted}},
 		{{- if .Args }}
 		Args: []*command.Args{

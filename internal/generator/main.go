@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
@@ -59,8 +60,16 @@ func main() {
 func generateCode(cmd *command.Command) (string, error) {
 	funcMap := template.FuncMap{
 		"title": func(str string) string {
-			return cases.Title(language.English).String(str)
+			str = strings.ReplaceAll(str, "-", " ")
+			words := strings.Fields(str)
+
+			for i, word := range words {
+				words[i] = cases.Title(language.English).String(word)
+			}
+
+			return strings.Join(words, "")
 		},
+		"handlerName": utils.CamelCase,
 		"string": func(s fmt.Stringer) string {
 			return s.String()
 		},

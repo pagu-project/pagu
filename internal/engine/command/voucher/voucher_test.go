@@ -34,6 +34,7 @@ func setup(t *testing.T) *testData {
 	mockWallet := wallet.NewMockIWallet(ctrl)
 
 	voucherCmd := NewVoucherCmd(testDB, mockWallet, mockClientMgr)
+	voucherCmd.buildVoucherCommand()
 
 	return &testData{
 		TestSuite:     ts,

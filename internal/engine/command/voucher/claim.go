@@ -17,51 +17,51 @@ func (v *VoucherCmd) claimHandler(
 ) command.CommandResult {
 	code := args["code"]
 	if len(code) != 8 {
-		return cmd.ErrorResult(errors.New("voucher code is not valid, length must be 8"))
+		return cmd.RenderFailedTemplate("Voucher code is not valid, length must be 8")
 	}
 
 	voucher, err := v.db.GetVoucherByCode(code)
 	if err != nil {
-		return cmd.ErrorResult(errors.New("voucher code is not valid, no voucher found"))
+		return cmd.RenderFailedTemplate("Voucher code is not valid, no voucher found")
 	}
 
 	if voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0).Before(time.Now()) {
-		return cmd.ErrorResult(errors.New("voucher is expired"))
+		return cmd.RenderFailedTemplate("Voucher is expired")
 	}
 
 	if voucher.IsClaimed() {
-		return cmd.ErrorResult(errors.New("voucher code claimed before"))
+		return cmd.RenderFailedTemplate("Voucher code claimed before")
 	}
 
 	address := args["address"]
 	valInfo, _ := v.clientManager.GetValidatorInfo(address)
 	if valInfo != nil {
 		err = errors.New("this address is already a staked validator")
-		log.Warn(fmt.Sprintf("staked validator found. %s", address))
+		log.Warn(fmt.Sprintf("Staked validator found. %s", address))
 
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	pubKey, err := v.clientManager.FindPublicKey(address, false)
 	if err != nil {
-		log.Warn(fmt.Sprintf("peer not found. %s", address))
+		log.Warn(fmt.Sprintf("Peer not found. %s", address))
 
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
-	memo := fmt.Sprintf("voucher %s claimed by Pagu", code)
+	memo := fmt.Sprintf("Voucher %s claimed by Pagu", code)
 	txHash, err := v.wallet.BondTransaction(pubKey, address, memo, voucher.Amount)
 	if err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	if txHash == "" {
-		return cmd.ErrorResult(errors.New("can't send bond transaction"))
+		return cmd.RenderFailedTemplate("Can't send bond transaction")
 	}
 
 	if err = v.db.ClaimVoucher(voucher.ID, txHash, caller.ID); err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.SuccessfulResultF("Voucher claimed successfully!\n\n https://pacviewer.com/transaction/%s", txHash)
+	return cmd.RenderResultTemplate("txHash", txHash)
 }
