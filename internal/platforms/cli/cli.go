@@ -13,7 +13,6 @@ import (
 const PROMPT = "\n>> "
 
 func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
-
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
