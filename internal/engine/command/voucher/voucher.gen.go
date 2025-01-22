@@ -5,23 +5,21 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 )
 
-const (
-	argNameClaimCode         = "code"
-	argNameClaimAddress      = "address"
-	argNameCreateAmount      = "amount"
-	argNameCreateValidMonths = "valid-months"
-	argNameCreateRecipient   = "recipient"
-	argNameCreateDescription = "description"
-	argNameCreateBulkFile    = "file"
-	argNameCreateBulkNotify  = "notify"
-	argNameStatusCode        = "code"
-)
+const argNameClaimCode = "code"
+const argNameClaimAddress = "address"
+const argNameCreateAmount = "amount"
+const argNameCreateValidMonths = "valid-months"
+const argNameCreateRecipient = "recipient"
+const argNameCreateDescription = "description"
+const argNameCreateBulkFile = "file"
+const argNameCreateBulkNotify = "notify"
+const argNameStatusCode = "code"
 
 type voucherSubCmds struct {
-	subCmdClaim      *command.Command
-	subCmdCreate     *command.Command
+	subCmdClaim *command.Command
+	subCmdCreate *command.Command
 	subCmdCreateBulk *command.Command
-	subCmdStatus     *command.Command
+	subCmdStatus *command.Command
 }
 
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
@@ -113,16 +111,16 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	}
 
 	return &voucherSubCmds{
-		subCmdClaim:      subCmdClaim,
-		subCmdCreate:     subCmdCreate,
+		subCmdClaim: subCmdClaim,
+		subCmdCreate: subCmdCreate,
 		subCmdCreateBulk: subCmdCreateBulk,
-		subCmdStatus:     subCmdStatus,
+		subCmdStatus: subCmdStatus,
 	}
 }
 
 func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 	voucherCmd := &command.Command{
-		Emoji:       "🎁",
+		Emoji:          "🎁",
 		Name:        "voucher",
 		Help:        "Commands for managing vouchers",
 		SubCommands: make([]*command.Command, 0),

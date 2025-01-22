@@ -30,8 +30,11 @@ func (n *NetworkCmd) healthHandler(
 		status = "UnHealthy❌"
 	}
 
-	return cmd.SuccessfulResultF("Network is %s\nCurrentTime: %v\n"+
-		"LastBlockTime: %v\nTime Diff: %v\nLast Block Height: %v",
-		status, currentTime.Format("02/01/2006, 15:04:05"), lastBlockTimeFormatted, timeDiff,
-		utils2.FormatNumber(int64(lastBlockHeight)))
+	return cmd.RenderResultTemplate(
+		"NetworkIs", status,
+		"CurrentTime", currentTime.Format("02/01/2006, 15:04:05"),
+		"LastBlockTime", lastBlockTimeFormatted,
+		"TimeDiff", timeDiff,
+		"LastBlockHeight", utils2.FormatNumber(int64(lastBlockHeight)),
+	)
 }
