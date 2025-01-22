@@ -34,7 +34,8 @@ func (c *CalculatorCmd) rewardHandler(
 	}
 
 	if numOfDays < 1 || numOfDays > 365 {
-		return cmd.RenderErrorTemplate(fmt.Errorf("%v is invalid time, minimum time value is 1 and maximum is 365", numOfDays))
+		return cmd.RenderErrorTemplate(
+			fmt.Errorf("%v is invalid time, minimum time value is 1 and maximum is 365", numOfDays))
 	}
 
 	blocks := numOfDays * 8640

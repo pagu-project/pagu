@@ -50,6 +50,7 @@ func TestFeeHandler(t *testing.T) {
 
 		result := td.calculatorCmd.feeHandler(nil, cmd, args)
 		assert.True(t, result.Successful)
-		assert.Contains(t, result.Message, fmt.Sprintf("Sending %v will cost %v with current fee percentage", amt, amount.Amount(int64(100))))
+		assert.Contains(t, result.Message,
+			fmt.Sprintf("Sending %v will cost %v with current fee percentage", amt, amount.Amount(int64(100))))
 	})
 }
