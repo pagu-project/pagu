@@ -174,10 +174,10 @@ func (bot *Bot) registerCommands() error {
 				return c.Send(beCmd.Name, subMenu)
 			})
 
-			bot.botInstance.Handle(fmt.Sprintf("/%s", beCmd.Name), func(c tele.Context) error {
-				_ = bot.botInstance.Delete(c.Message())
+			bot.botInstance.Handle(fmt.Sprintf("/%s", beCmd.Name), func(ctx tele.Context) error {
+				_ = bot.botInstance.Delete(ctx.Message())
 
-				return c.Send(beCmd.Name, subMenu)
+				return ctx.Send(beCmd.Name, subMenu)
 			})
 		} else {
 			bot.botInstance.Handle(&btn, func(ctx tele.Context) error {
@@ -189,16 +189,24 @@ func (bot *Bot) registerCommands() error {
 
 				return bot.handleCommand(ctx, []string{beCmd.Name})
 			})
+
+			bot.botInstance.Handle(fmt.Sprintf("/%s", beCmd.Name), func(ctx tele.Context) error {
+				_ = bot.botInstance.Delete(ctx.Message())
+
+				err := bot.handleCommand(ctx, []string{beCmd.Name})
+
+				return err
+			})
 		}
 	}
 
 	// initiate menu button
 	_ = bot.botInstance.SetCommands(commands)
 	menu.Inline(rows...)
-	bot.botInstance.Handle("/start", func(c tele.Context) error {
-		_ = bot.botInstance.Delete(c.Message())
+	bot.botInstance.Handle("/start", func(ctx tele.Context) error {
+		_ = bot.botInstance.Delete(ctx.Message())
 
-		return c.Send("Pagu Main Menu", menu)
+		return ctx.Send("Pagu Main Menu", menu)
 	})
 
 	bot.botInstance.Handle(tele.OnText, func(ctx tele.Context) error {
