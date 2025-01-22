@@ -289,7 +289,7 @@ Version : {{.version}}
 
 	cmd.ResultTemplate = aboutTemplate
 	aboutCmd := &Command{
-		Emoji:          "ℹ",
+		Emoji:          "📝",
 		Name:           "about",
 		Help:           "About Pagu",
 		AppIDs:         entity.AllAppIDs(),
