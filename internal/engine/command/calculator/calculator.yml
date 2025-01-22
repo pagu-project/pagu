@@ -1,0 +1,29 @@
+---
+name: calculator
+emoji: 🧮
+help: Perform calculations such as reward and fee estimations
+sub_commands:
+  - name: reward
+    help: Calculate the PAC coins you can earn based on your validator stake
+    result_template: |
+      Approximately you earn {{.reward}} PAC reward, with {{.stake}} stake 🔒 on your validator in {{.days}} days ⏰ with {{.totalPower}} total power ⚡ of committee.
+
+      > Note📝: This number is just an estimation. It will vary depending on your stake amount and total network power.
+    args:
+      - name: stake
+        desc: The amount of stake in your validator
+        input_box: Integer
+        optional: false
+      - name: days
+        desc: "The number of days to calculate rewards for (range : 1-365)"
+        input_box: Integer
+        optional: false
+  - name: fee
+    help: Return the estimated transaction fee on the network
+    result_template: |
+      Sending {{.amount}} will cost {{.fee}} with current fee percentage.
+    args:
+      - name: amount
+        desc: The amount of PAC coins to calculate fee for
+        input_box: Integer
+        optional: false
