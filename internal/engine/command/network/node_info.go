@@ -16,7 +16,7 @@ func (n *NetworkCmd) nodeInfoHandler(_ *entity.User,
 
 	peerInfo, err := n.clientMgr.GetPeerInfo(valAddress)
 	if err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	ip := utils2.ExtractIPFromMultiAddr(peerInfo.Address)
@@ -61,11 +61,18 @@ func (n *NetworkCmd) nodeInfoHandler(_ *entity.User,
 		pip19Score = fmt.Sprintf("%v⚠️", nodeInfo.AvailabilityScore)
 	}
 
-	return cmd.SuccessfulResultF("PeerID: %s\nIP Address: %s\nAgent: %s\n"+
-		"Moniker: %s\nCountry: %s\nCity: %s\nRegion Name: %s\nTimeZone: %s\n"+
-		"ISP: %s\n\nValidator Info🔍\nNumber: %v\nPIP-19 Score: %s\nStake: %v PAC's\n",
-		nodeInfo.PeerID, nodeInfo.IPAddress, nodeInfo.Agent, nodeInfo.Moniker, nodeInfo.Country,
-		nodeInfo.City, nodeInfo.RegionName, nodeInfo.TimeZone, nodeInfo.ISP,
-		utils2.FormatNumber(int64(nodeInfo.ValidatorNum)),
-		pip19Score, utils2.FormatNumber(nodeInfo.StakeAmount))
+	return cmd.RenderResultTemplate(
+		"PeerID", nodeInfo.PeerID,
+		"IPAddress", nodeInfo.IPAddress,
+		"Agent", nodeInfo.Agent,
+		"Moniker", nodeInfo.Moniker,
+		"Country", nodeInfo.Country,
+		"City", nodeInfo.City,
+		"RegionName", nodeInfo.RegionName,
+		"TimeZone", nodeInfo.TimeZone,
+		"ISP", nodeInfo.ISP,
+		"Number", utils2.FormatNumber(int64(nodeInfo.ValidatorNum)),
+		"AvailabilityScore", pip19Score,
+		"Stake", utils2.FormatNumber(nodeInfo.StakeAmount),
+	)
 }

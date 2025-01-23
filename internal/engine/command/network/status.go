@@ -39,17 +39,14 @@ func (n *NetworkCmd) statusHandler(
 		CirculatingSupply:   int64(circulatingSupply),
 	}
 
-	return cmd.SuccessfulResultF("Network Name: %s\nConnected Peers: %v\n"+
-		"Validators Count: %v\nAccounts Count: %v\nCurrent Block Height: %v\nTotal Power: %v PAC\n"+
-		"Total Committee Power: %v PAC\nCirculating Supply: %v PAC\n"+
-		"\n> Note📝: This info is from one random network node. Non-calculator data may not be consistent.",
-		net.NetworkName,
-		utils.FormatNumber(int64(net.ConnectedPeersCount)),
-		utils.FormatNumber(int64(net.ValidatorsCount)),
-		utils.FormatNumber(int64(net.TotalAccounts)),
-		utils.FormatNumber(int64(net.CurrentBlockHeight)),
-		utils.FormatNumber(net.TotalNetworkPower),
-		utils.FormatNumber(net.TotalCommitteePower),
-		utils.FormatNumber(net.CirculatingSupply),
+	return cmd.RenderResultTemplate(
+		"NetworkName", net.NetworkName,
+		"ConnectedPeers", utils.FormatNumber(int64(net.ConnectedPeersCount)),
+		"ValidatorsCount", utils.FormatNumber(int64(net.ValidatorsCount)),
+		"AccountsCount", utils.FormatNumber(int64(net.TotalAccounts)),
+		"CurrentBlockHeight", utils.FormatNumber(int64(net.CurrentBlockHeight)),
+		"TotalPower", utils.FormatNumber(net.TotalNetworkPower),
+		"TotalCommitteePower", utils.FormatNumber(net.TotalCommitteePower),
+		"CirculatingSupply", utils.FormatNumber(net.CirculatingSupply),
 	)
 }

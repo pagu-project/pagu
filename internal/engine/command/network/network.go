@@ -9,6 +9,8 @@ import (
 )
 
 type NetworkCmd struct {
+	*networkSubCmds
+
 	ctx       context.Context
 	clientMgr client.IManager
 }
@@ -51,56 +53,18 @@ type NetStatus struct {
 }
 
 func (n *NetworkCmd) GetCommand() *command.Command {
-	subCmdNodeInfo := &command.Command{
-		Name: "node-info",
-		Help: "View information about a specific node",
-		Args: []*command.Args{
-			{
-				Name:     "validator_address",
-				Desc:     "The validator address",
-				InputBox: command.InputBoxText,
-				Optional: false,
-			},
-		},
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.nodeInfoHandler,
-		TargetFlag:  command.TargetMaskAll,
-	}
+	cmd := n.buildNetworkCommand()
+	cmd.AppIDs = entity.AllAppIDs()
+	cmd.TargetFlag = command.TargetMaskAll
 
-	subCmdHealth := &command.Command{
-		Name:        "health",
-		Help:        "Check the network health status",
-		Args:        []*command.Args{},
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.healthHandler,
-		TargetFlag:  command.TargetMaskAll,
-	}
+	n.subCmdNodeInfo.AppIDs = entity.AllAppIDs()
+	n.subCmdNodeInfo.TargetFlag = command.TargetMaskAll
 
-	subCmdStatus := &command.Command{
-		Name:        "status",
-		Help:        "View network statistics",
-		Args:        []*command.Args{},
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Handler:     n.statusHandler,
-		TargetFlag:  command.TargetMaskAll,
-	}
+	n.subCmdStatus.AppIDs = entity.AllAppIDs()
+	n.subCmdStatus.TargetFlag = command.TargetMaskAll
 
-	cmdNetwork := &command.Command{
-		Name:        "network",
-		Help:        "Commands for network metrics and information",
-		Args:        nil,
-		AppIDs:      entity.AllAppIDs(),
-		SubCommands: make([]*command.Command, 0),
-		Handler:     nil,
-		TargetFlag:  command.TargetMaskAll,
-	}
+	n.subCmdHealth.AppIDs = entity.AllAppIDs()
+	n.subCmdHealth.TargetFlag = command.TargetMaskAll
 
-	cmdNetwork.AddSubCommand(subCmdNodeInfo)
-	cmdNetwork.AddSubCommand(subCmdHealth)
-	cmdNetwork.AddSubCommand(subCmdStatus)
-
-	return cmdNetwork
+	return cmd
 }
