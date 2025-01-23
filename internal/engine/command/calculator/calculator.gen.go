@@ -5,13 +5,15 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 )
 
-const argNameRewardStake = "stake"
-const argNameRewardDays = "days"
-const argNameFeeAmount = "amount"
+const (
+	argNameRewardStake = "stake"
+	argNameRewardDays  = "days"
+	argNameFeeAmount   = "amount"
+)
 
 type calculatorSubCmds struct {
 	subCmdReward *command.Command
-	subCmdFee *command.Command
+	subCmdFee    *command.Command
 }
 
 func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
@@ -52,13 +54,13 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 
 	return &calculatorSubCmds{
 		subCmdReward: subCmdReward,
-		subCmdFee: subCmdFee,
+		subCmdFee:    subCmdFee,
 	}
 }
 
 func (c *CalculatorCmd) buildCalculatorCommand() *command.Command {
 	calculatorCmd := &command.Command{
-		Emoji:          "🧮",
+		Emoji:       "🧮",
 		Name:        "calculator",
 		Help:        "Perform calculations such as reward and fee estimations",
 		SubCommands: make([]*command.Command, 0),

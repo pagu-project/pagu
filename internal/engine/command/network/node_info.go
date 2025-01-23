@@ -72,7 +72,7 @@ func (n *NetworkCmd) nodeInfoHandler(_ *entity.User,
 		"TimeZone", nodeInfo.TimeZone,
 		"ISP", nodeInfo.ISP,
 		"Number", utils2.FormatNumber(int64(nodeInfo.ValidatorNum)),
-		"PIP-19Score", pip19Score,
+		"AvailabilityScore", pip19Score,
 		"Stake", utils2.FormatNumber(nodeInfo.StakeAmount),
 	)
 }

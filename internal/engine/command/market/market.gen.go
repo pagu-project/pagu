@@ -5,7 +5,6 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 )
 
-
 type marketSubCmds struct {
 	subCmdPrice *command.Command
 }
@@ -25,7 +24,7 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 
 func (c *MarketCmd) buildMarketCommand() *command.Command {
 	marketCmd := &command.Command{
-		Emoji:          "📈",
+		Emoji:       "📈",
 		Name:        "market",
 		Help:        "Commands for managing market",
 		SubCommands: make([]*command.Command, 0),

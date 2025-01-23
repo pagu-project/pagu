@@ -5,7 +5,7 @@ import (
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	utils2 "github.com/pagu-project/pagu/pkg/utils"
+	utils "github.com/pagu-project/pagu/pkg/utils"
 )
 
 func (n *NetworkCmd) healthHandler(
@@ -31,10 +31,10 @@ func (n *NetworkCmd) healthHandler(
 	}
 
 	return cmd.RenderResultTemplate(
-		"NetworkIs", status,
+		"Status", status,
 		"CurrentTime", currentTime.Format("02/01/2006, 15:04:05"),
 		"LastBlockTime", lastBlockTimeFormatted,
 		"TimeDiff", timeDiff,
-		"LastBlockHeight", utils2.FormatNumber(int64(lastBlockHeight)),
+		"LastBlockHeight", utils.FormatNumber(int64(lastBlockHeight)),
 	)
 }

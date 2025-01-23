@@ -9,8 +9,8 @@ const argNameNodeInfoValidator_address = "validator_address"
 
 type networkSubCmds struct {
 	subCmdNodeInfo *command.Command
-	subCmdHealth *command.Command
-	subCmdStatus *command.Command
+	subCmdHealth   *command.Command
+	subCmdStatus   *command.Command
 }
 
 func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
@@ -18,7 +18,7 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		Name:           "node-info",
 		Help:           "View information about a specific node",
 		Handler:        c.nodeInfoHandler,
-		ResultTemplate: "PeerID: {{.PeerID}}\nIP Address: {{.IPAddress}}\nAgent: {{.Agent}}\nMoniker: {{.Moniker}}\nCountry: {{.Country}}\nCity: {{.City}}\nRegion Name: {{.RegionName}} \nTimeZone: {{.TimeZone}}\nISP: {{.ISP}}\n\nValidator Info🔍\nNumber: {{.Number}}\nPIP-19 Score: {{.PIP-19Score}}\nStake: {{.Stake}} PAC's\n",
+		ResultTemplate: "PeerID: {{.PeerID}}\nIP Address: {{.IPAddress}}\nAgent: {{.Agent}}\nMoniker: {{.Moniker}}\nCountry: {{.Country}}\nCity: {{.City}}\nRegion Name: {{.RegionName}}\nTimeZone: {{.TimeZone}}\nISP: {{.ISP}}\n\nValidator Info🔍\nNumber: {{.Number}}\nPIP-19 Score: {{.AvailabilityScore}}\nStake: {{.Stake}} PAC's\n",
 		Args: []*command.Args{
 			{
 				Name:     "validator_address",
@@ -32,7 +32,7 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		Name:           "health",
 		Help:           "Check the network health status",
 		Handler:        c.healthHandler,
-		ResultTemplate: "Network is {{.NetworkIs}}\nCurrentTime: {{.CurrentTime}}\nLastBlockTime: {{.LastBlockTime}}\nTime Diff: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
+		ResultTemplate: "Network is {{.Status}}\nCurrentTime: {{.CurrentTime}}\nLastBlockTime: {{.LastBlockTime}}\nTime Diff: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
 	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
@@ -43,14 +43,14 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 
 	return &networkSubCmds{
 		subCmdNodeInfo: subCmdNodeInfo,
-		subCmdHealth: subCmdHealth,
-		subCmdStatus: subCmdStatus,
+		subCmdHealth:   subCmdHealth,
+		subCmdStatus:   subCmdStatus,
 	}
 }
 
 func (c *NetworkCmd) buildNetworkCommand() *command.Command {
 	networkCmd := &command.Command{
-		Emoji:          "🌐",
+		Emoji:       "🌐",
 		Name:        "network",
 		Help:        "Commands for network metrics and information",
 		SubCommands: make([]*command.Command, 0),
