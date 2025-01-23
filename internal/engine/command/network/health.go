@@ -5,7 +5,7 @@ import (
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	utils "github.com/pagu-project/pagu/pkg/utils"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 func (n *NetworkCmd) healthHandler(
