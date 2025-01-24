@@ -10,6 +10,7 @@ func (p *PhoenixCmd) walletHandler(
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	return cmd.SuccessfulResultF(
-		"Pagu Phoenix Wallet Address: %s\nBalance: %d", p.wallet.Address(), p.wallet.Balance())
+	return cmd.RenderResultTemplate(
+		"address", p.wallet.Address(),
+		"balance", p.wallet.Balance())
 }

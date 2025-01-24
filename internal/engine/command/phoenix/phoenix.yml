@@ -1,0 +1,24 @@
+---
+emoji: 🛠️
+name: phoenix
+help: Phoenix Testnet tools and utils for developers
+sub_commands:
+  - name: faucet
+    help: Get tPAC Coins on Phoenix Testnet for Testing your code or project
+    result_template: |
+      You got {{.amount}} tPAC on Phoenix Testnet!
+
+      https://phoenix.testnet.pac.network/tx/{{.txHash}}
+    args:
+      - name: address
+        desc: "Your testnet address [example: tpc1z...]"
+        required: true
+        type: string
+        input_box: Text
+  - name: wallet
+    help: Show the faucet wallet balance
+    result_template: |
+      Pagu Phoenix wallet
+
+      Address: {{.address}}
+      Balance: {{.balance}}
