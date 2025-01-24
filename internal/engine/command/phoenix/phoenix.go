@@ -2,7 +2,6 @@ package phoenix
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
@@ -13,6 +12,8 @@ import (
 )
 
 type PhoenixCmd struct {
+	*phoenixSubCmds
+
 	ctx          context.Context
 	wallet       wallet.IWallet
 	db           *repository.Database
@@ -35,46 +36,16 @@ func NewPhoenixCmd(ctx context.Context, wlt wallet.IWallet, faucetAmount amount.
 func (p *PhoenixCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(p.db, p.wallet)
 
-	subCmdFaucet := &command.Command{
-		Name: "faucet",
-		Help: fmt.Sprintf("Get %f tPAC Coins on Phoenix Testnet for Testing your code or project", p.faucetAmount.ToPAC()),
-		Args: []*command.Args{
-			{
-				Name:     "address",
-				Desc:     "your testnet address [example: tpc1z...]",
-				InputBox: command.InputBoxText,
-				Optional: false,
-			},
-		},
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Middlewares: []command.MiddlewareFunc{middlewareHandler.WalletBalance},
-		Handler:     p.faucetHandler,
-		TargetFlag:  command.TargetMaskTestnet,
-	}
+	cmd := p.buildPhoenixCommand()
+	cmd.AppIDs = entity.AllAppIDs()
+	cmd.TargetFlag = command.TargetMaskTestnet
 
-	subCmdStatus := &command.Command{
-		Name:        "wallet",
-		Help:        "Show the faucet wallet balance",
-		SubCommands: nil,
-		AppIDs:      entity.AllAppIDs(),
-		Middlewares: nil,
-		Handler:     p.walletHandler,
-		TargetFlag:  command.TargetMaskTestnet,
-	}
+	p.subCmdFaucet.Middlewares = []command.MiddlewareFunc{middlewareHandler.WalletBalance}
+	p.subCmdFaucet.AppIDs = entity.AllAppIDs()
+	p.subCmdFaucet.TargetFlag = command.TargetMaskTestnet
 
-	cmdPhoenix := &command.Command{
-		Name:        "phoenix",
-		Help:        "Phoenix Testnet tools and utils for developers",
-		Args:        nil,
-		AppIDs:      entity.AllAppIDs(),
-		SubCommands: make([]*command.Command, 0),
-		Handler:     nil,
-		TargetFlag:  command.TargetMaskTestnet,
-	}
+	p.subCmdWallet.AppIDs = entity.AllAppIDs()
+	p.subCmdWallet.TargetFlag = command.TargetMaskTestnet
 
-	cmdPhoenix.AddSubCommand(subCmdFaucet)
-	cmdPhoenix.AddSubCommand(subCmdStatus)
-
-	return cmdPhoenix
+	return cmd
 }

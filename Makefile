@@ -55,7 +55,8 @@ gen:
 		"./internal/engine/command/voucher/voucher.yml" \
 		"./internal/engine/command/market/market.yml" \
 		"./internal/engine/command/calculator/calculator.yml" \
-		"./internal/engine/command/network/network.yml" 
+		"./internal/engine/command/network/network.yml" \
+		"./internal/engine/command/phoenix/phoenix.yml" \
 
 	find . -name "*.gen.go" -exec gofumpt -l -w {} +
 
