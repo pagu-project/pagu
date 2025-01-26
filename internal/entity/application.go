@@ -31,7 +31,7 @@ func (pid PlatformID) String() string {
 	return fmt.Sprintf("%d", pid)
 }
 
-func AllAppIDs() []PlatformID {
+func AllPlatformIDs() []PlatformID {
 	return []PlatformID{
 		PlatformIDCLI,
 		PlatformIDDiscord,

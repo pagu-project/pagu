@@ -37,14 +37,14 @@ func (p *PhoenixCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(p.db, p.wallet)
 
 	cmd := p.buildPhoenixCommand()
-	cmd.AppIDs = entity.AllAppIDs()
+	cmd.PlatformIDs = entity.AllPlatformIDs()
 	cmd.TargetFlag = command.TargetMaskTestnet
 
 	p.subCmdFaucet.Middlewares = []command.MiddlewareFunc{middlewareHandler.WalletBalance}
-	p.subCmdFaucet.AppIDs = entity.AllAppIDs()
+	p.subCmdFaucet.PlatformIDs = entity.AllPlatformIDs()
 	p.subCmdFaucet.TargetFlag = command.TargetMaskTestnet
 
-	p.subCmdWallet.AppIDs = entity.AllAppIDs()
+	p.subCmdWallet.PlatformIDs = entity.AllPlatformIDs()
 	p.subCmdWallet.TargetFlag = command.TargetMaskTestnet
 
 	return cmd

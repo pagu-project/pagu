@@ -25,10 +25,10 @@ func (db *Database) HasUser(id uint) bool {
 	return exists
 }
 
-func (db *Database) GetUserByPlatformID(appID entity.PlatformID, callerID string) (*entity.User, error) {
+func (db *Database) GetUserByPlatformID(platformID entity.PlatformID, callerID string) (*entity.User, error) {
 	var user *entity.User
 	tx := db.gormDB.Model(&entity.User{}).
-		Where("platform_id = ?", appID).
+		Where("platform_id = ?", platformID).
 		Where("platform_user_id = ?", callerID).
 		First(&user)
 

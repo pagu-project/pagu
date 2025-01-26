@@ -41,27 +41,27 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(c.db, c.wallet)
 	cmd := c.buildCrowdfundCommand()
 
-	cmd.AppIDs = entity.AllAppIDs()
+	cmd.PlatformIDs = entity.AllPlatformIDs()
 	cmd.TargetFlag = command.TargetMaskModerator | command.TargetMaskMainnet
 
-	c.subCmdCreate.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
+	c.subCmdCreate.PlatformIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
 	c.subCmdCreate.TargetFlag = command.TargetMaskModerator
 	c.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	c.subCmdDisable.AppIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
+	c.subCmdDisable.PlatformIDs = []entity.PlatformID{entity.PlatformIDCLI, entity.PlatformIDDiscord}
 	c.subCmdDisable.TargetFlag = command.TargetMaskModerator
 	c.subCmdDisable.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	c.subCmdReport.AppIDs = entity.AllAppIDs()
+	c.subCmdReport.PlatformIDs = entity.AllPlatformIDs()
 	c.subCmdReport.TargetFlag = command.TargetMaskMainnet
 
-	c.subCmdInfo.AppIDs = entity.AllAppIDs()
+	c.subCmdInfo.PlatformIDs = entity.AllPlatformIDs()
 	c.subCmdInfo.TargetFlag = command.TargetMaskMainnet
 
-	c.subCmdPurchase.AppIDs = entity.AllAppIDs()
+	c.subCmdPurchase.PlatformIDs = entity.AllPlatformIDs()
 	c.subCmdPurchase.TargetFlag = command.TargetMaskMainnet
 
-	c.subCmdClaim.AppIDs = entity.AllAppIDs()
+	c.subCmdClaim.PlatformIDs = entity.AllPlatformIDs()
 	c.subCmdClaim.TargetFlag = command.TargetMaskMainnet
 
 	activeCampaign := c.activeCampaign()

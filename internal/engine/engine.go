@@ -137,7 +137,7 @@ func newBotEngine(ctx context.Context,
 		Emoji:       "🤖",
 		Name:        "pagu",
 		Help:        "",
-		AppIDs:      entity.AllAppIDs(),
+		PlatformIDs: entity.AllPlatformIDs(),
 		SubCommands: make([]*command.Command, 0),
 	}
 
@@ -167,7 +167,7 @@ func (be *BotEngine) Commands() []*command.Command {
 // ParseAndExecute parses the input string and executes it.
 // It returns an error if parsing fails or execution is unsuccessful.
 func (be *BotEngine) ParseAndExecute(
-	appID entity.PlatformID,
+	platformID entity.PlatformID,
 	callerID string,
 	input string,
 ) command.CommandResult {
@@ -184,7 +184,7 @@ func (be *BotEngine) ParseAndExecute(
 		}
 	}
 
-	return be.executeCommand(appID, callerID, cmds, args)
+	return be.executeCommand(platformID, callerID, cmds, args)
 }
 
 func parseCommandInput(cmdInput string) []string {
@@ -268,7 +268,7 @@ func parseInput(input string) ([]string, map[string]string, error) {
 // executeCommand executes the parsed commands with their corresponding arguments.
 // It returns an error if the execution fails.
 func (be *BotEngine) executeCommand(
-	appID entity.PlatformID,
+	platformID entity.PlatformID,
 	callerID string,
 	commands []string,
 	args map[string]string,
@@ -276,19 +276,19 @@ func (be *BotEngine) executeCommand(
 	log.Debug("execute command", "callerID", callerID, "commands", commands, "args", args)
 
 	cmd := be.getTargetCommand(commands)
-	if !cmd.HasAppID(appID) {
-		return cmd.FailedResultF("unauthorized appID: %v", appID)
+	if !cmd.HasPlatformID(platformID) {
+		return cmd.FailedResultF("unauthorized platformID: %v", platformID)
 	}
 
 	if cmd.Handler == nil {
 		return cmd.RenderHelpTemplate()
 	}
 
-	caller, err := be.GetUser(appID, callerID)
+	caller, err := be.GetUser(platformID, callerID)
 	if err != nil {
 		log.Error(err.Error())
 
-		return cmd.ErrorResult(fmt.Errorf("user is not defined in %s application", appID.String()))
+		return cmd.ErrorResult(fmt.Errorf("user is not defined in %s application", platformID.String()))
 	}
 
 	for _, middlewareFunc := range cmd.Middlewares {
@@ -358,14 +358,14 @@ func (be *BotEngine) NetworkStatus() (*network.NetStatus, error) {
 	}, nil
 }
 
-func (be *BotEngine) GetUser(appID entity.PlatformID, platformUserID string) (*entity.User, error) {
-	existingUser, _ := be.db.GetUserByPlatformID(appID, platformUserID)
+func (be *BotEngine) GetUser(platformID entity.PlatformID, platformUserID string) (*entity.User, error) {
+	existingUser, _ := be.db.GetUserByPlatformID(platformID, platformUserID)
 	if existingUser != nil {
 		return existingUser, nil
 	}
 
 	newUser := &entity.User{
-		PlatformID:     appID,
+		PlatformID:     platformID,
 		PlatformUserID: platformUserID,
 		Role:           entity.BasicUser,
 	}
