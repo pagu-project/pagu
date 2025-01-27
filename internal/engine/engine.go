@@ -277,7 +277,7 @@ func (be *BotEngine) executeCommand(
 
 	cmd := be.getTargetCommand(commands)
 	if !cmd.HasPlatformID(platformID) {
-		return cmd.FailedResultF("unauthorized platformID: %v", platformID)
+		return cmd.FailedResultF("Unauthorized platform: %s", platformID)
 	}
 
 	if cmd.Handler == nil {
@@ -288,7 +288,7 @@ func (be *BotEngine) executeCommand(
 	if err != nil {
 		log.Error(err.Error())
 
-		return cmd.ErrorResult(fmt.Errorf("user is not defined in %s application", platformID.String()))
+		return cmd.ErrorResult(fmt.Errorf("user is not defined in %s application", platformID))
 	}
 
 	for _, middlewareFunc := range cmd.Middlewares {
