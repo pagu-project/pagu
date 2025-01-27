@@ -103,7 +103,7 @@ type Command struct {
 	ResultTemplate string              `yaml:"result_template"`
 	Middlewares    []MiddlewareFunc    `yaml:"-"`
 	Handler        HandlerFunc         `yaml:"-"`
-	AppIDs         []entity.PlatformID `yaml:"-"`
+	PlatformIDs    []entity.PlatformID `yaml:"-"`
 	TargetFlag     int                 `yaml:"-"`
 }
 
@@ -245,8 +245,8 @@ Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a 
 	}
 }
 
-func (cmd *Command) HasAppID(appID entity.PlatformID) bool {
-	return slices.Contains(cmd.AppIDs, appID)
+func (cmd *Command) HasPlatformID(platformID entity.PlatformID) bool {
+	return slices.Contains(cmd.PlatformIDs, platformID)
 }
 
 func (cmd *Command) HasSubCommand() bool {
@@ -267,11 +267,11 @@ func (cmd *Command) AddSubCommand(subCmd *Command) {
 
 func (cmd *Command) AddHelpSubCommand() {
 	helpCmd := &Command{
-		Emoji:      "❓",
-		Name:       "help",
-		Help:       fmt.Sprintf("Help for %v command", cmd.Name),
-		AppIDs:     entity.AllAppIDs(),
-		TargetFlag: TargetMaskAll,
+		Emoji:       "❓",
+		Name:        "help",
+		Help:        fmt.Sprintf("Help for %v command", cmd.Name),
+		PlatformIDs: entity.AllPlatformIDs(),
+		TargetFlag:  TargetMaskAll,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
 			return cmd.RenderHelpTemplate()
 		},
@@ -292,7 +292,7 @@ Version : {{.version}}
 		Emoji:          "📝",
 		Name:           "about",
 		Help:           "About Pagu",
-		AppIDs:         entity.AllAppIDs(),
+		PlatformIDs:    entity.AllPlatformIDs(),
 		TargetFlag:     TargetMaskAll,
 		ResultTemplate: aboutTemplate,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {

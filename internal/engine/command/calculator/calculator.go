@@ -20,13 +20,13 @@ func NewCalculatorCmd(clientMgr client.IManager) *CalculatorCmd {
 
 func (c *CalculatorCmd) GetCommand() *command.Command {
 	cmd := c.buildCalculatorCommand()
-	cmd.AppIDs = entity.AllAppIDs()
+	cmd.PlatformIDs = entity.AllPlatformIDs()
 	cmd.TargetFlag = command.TargetMaskMainnet
 
-	c.subCmdReward.AppIDs = entity.AllAppIDs()
+	c.subCmdReward.PlatformIDs = entity.AllPlatformIDs()
 	c.subCmdReward.TargetFlag = command.TargetMaskMainnet
 
-	c.subCmdFee.AppIDs = entity.AllAppIDs()
+	c.subCmdFee.PlatformIDs = entity.AllPlatformIDs()
 	c.subCmdFee.TargetFlag = command.TargetMaskMainnet
 
 	return cmd

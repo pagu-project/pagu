@@ -32,7 +32,7 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 			},
 		},
 		SubCommands: nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
+		PlatformIDs: []entity.PlatformID{entity.PlatformIDDiscord},
 		Handler:     z.claimHandler,
 		TargetFlag:  command.TargetMaskMainnet,
 	}
@@ -42,7 +42,7 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 		Help:        "Check the status of Zealy reward claims",
 		Args:        nil,
 		SubCommands: nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
+		PlatformIDs: []entity.PlatformID{entity.PlatformIDDiscord},
 		Handler:     z.statusHandler,
 		TargetFlag:  command.TargetMaskModerator,
 	}
@@ -51,7 +51,7 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 		Name:        "zealy",
 		Help:        "Commands for managing Zealy campaign",
 		Args:        nil,
-		AppIDs:      []entity.PlatformID{entity.PlatformIDDiscord},
+		PlatformIDs: []entity.PlatformID{entity.PlatformIDDiscord},
 		SubCommands: make([]*command.Command, 0),
 		Handler:     nil,
 		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,

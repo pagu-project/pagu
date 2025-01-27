@@ -95,7 +95,7 @@ func (bot *Bot) registerCommands() error {
 	commands := make([]tele.Command, 0)
 
 	for i, beCmd := range bot.engine.Commands() {
-		if !beCmd.HasAppID(entity.PlatformIDTelegram) {
+		if !beCmd.HasPlatformID(entity.PlatformIDTelegram) {
 			continue
 		}
 

@@ -54,16 +54,16 @@ type NetStatus struct {
 
 func (n *NetworkCmd) GetCommand() *command.Command {
 	cmd := n.buildNetworkCommand()
-	cmd.AppIDs = entity.AllAppIDs()
+	cmd.PlatformIDs = entity.AllPlatformIDs()
 	cmd.TargetFlag = command.TargetMaskAll
 
-	n.subCmdNodeInfo.AppIDs = entity.AllAppIDs()
+	n.subCmdNodeInfo.PlatformIDs = entity.AllPlatformIDs()
 	n.subCmdNodeInfo.TargetFlag = command.TargetMaskAll
 
-	n.subCmdStatus.AppIDs = entity.AllAppIDs()
+	n.subCmdStatus.PlatformIDs = entity.AllPlatformIDs()
 	n.subCmdStatus.TargetFlag = command.TargetMaskAll
 
-	n.subCmdHealth.AppIDs = entity.AllAppIDs()
+	n.subCmdHealth.PlatformIDs = entity.AllPlatformIDs()
 	n.subCmdHealth.TargetFlag = command.TargetMaskAll
 
 	return cmd
