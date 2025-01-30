@@ -94,24 +94,25 @@ func (bot *Bot) registerCommands() error {
 	menu := &tele.ReplyMarkup{ResizeKeyboard: true}
 	commands := make([]tele.Command, 0)
 
-	for i, beCmd := range bot.engine.Commands() {
-		if !beCmd.HasPlatformID(entity.PlatformIDTelegram) {
+	cmds := bot.engine.Commands()
+	for i, cmd := range cmds {
+		if !cmd.HasPlatformID(entity.PlatformIDTelegram) {
 			continue
 		}
 
 		switch bot.target {
 		case config.BotNamePaguMainnet:
-			if !utils.IsFlagSet(beCmd.TargetFlag, command.TargetMaskMainnet) {
+			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskMainnet) {
 				continue
 			}
 
 		case config.BotNamePaguTestnet:
-			if !utils.IsFlagSet(beCmd.TargetFlag, command.TargetMaskTestnet) {
+			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskTestnet) {
 				continue
 			}
 
 		case config.BotNamePaguModerator:
-			if !utils.IsFlagSet(beCmd.TargetFlag, command.TargetMaskModerator) {
+			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
 				continue
 			}
 
@@ -121,28 +122,28 @@ func (bot *Bot) registerCommands() error {
 			continue
 		}
 
-		log.Info("registering new command", "name", beCmd.Name, "desc", beCmd.Help, "index", i, "object", beCmd)
+		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
 
-		btn := menu.Data(cases.Title(language.English).String(beCmd.Name), beCmd.Name)
-		commands = append(commands, tele.Command{Text: beCmd.Name, Description: beCmd.Help})
+		btn := menu.Data(cases.Title(language.English).String(cmd.Name), cmd.Name)
+		commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
 		rows = append(rows, menu.Row(btn))
-		if beCmd.HasSubCommand() {
+		if cmd.HasSubCommand() {
 			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 			subRows := make([]tele.Row, 0)
-			for _, sCmd := range beCmd.SubCommands {
+			for _, subCmd := range cmd.SubCommands {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
-					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskMainnet) {
+					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskMainnet) {
 						continue
 					}
 
 				case config.BotNamePaguTestnet:
-					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskTestnet) {
+					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskTestnet) {
 						continue
 					}
 
 				case config.BotNamePaguModerator:
-					if !utils.IsFlagSet(sCmd.TargetFlag, command.TargetMaskModerator) {
+					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskModerator) {
 						continue
 					}
 
@@ -152,17 +153,17 @@ func (bot *Bot) registerCommands() error {
 					continue
 				}
 
-				log.Info("adding command sub-command", "command", beCmd.Name,
-					"sub-command", sCmd.Name, "desc", sCmd.Help)
+				log.Info("adding command sub-command", "command", cmd.Name,
+					"sub-command", subCmd.Name, "desc", subCmd.Help)
 
-				subBtn := subMenu.Data(cases.Title(language.English).String(sCmd.Name), sCmd.Name)
+				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), subCmd.Name)
 
 				bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
-					if len(sCmd.Args) > 0 {
-						return bot.handleArgCommand(c, []string{beCmd.Name, sCmd.Name}, sCmd.Args)
+					if len(subCmd.Args) > 0 {
+						return bot.handleArgCommand(c, []string{cmd.Name, subCmd.Name}, subCmd.Args)
 					}
 
-					return bot.handleCommand(c, []string{beCmd.Name, sCmd.Name})
+					return bot.handleCommand(c, []string{cmd.Name, subCmd.Name})
 				})
 				subRows = append(subRows, subMenu.Row(subBtn))
 			}
@@ -171,29 +172,29 @@ func (bot *Bot) registerCommands() error {
 			bot.botInstance.Handle(&btn, func(c tele.Context) error {
 				_ = bot.botInstance.Delete(c.Message())
 
-				return c.Send(beCmd.Name, subMenu)
+				return c.Send(cmd.Name, subMenu, tele.ModeMarkdown)
 			})
 
-			bot.botInstance.Handle(fmt.Sprintf("/%s", beCmd.Name), func(ctx tele.Context) error {
+			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
 				_ = bot.botInstance.Delete(ctx.Message())
 
-				return ctx.Send(beCmd.Name, subMenu)
+				return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
 			})
 		} else {
 			bot.botInstance.Handle(&btn, func(ctx tele.Context) error {
-				if len(beCmd.Args) > 0 {
-					return bot.handleArgCommand(ctx, []string{beCmd.Name}, beCmd.Args)
+				if len(cmd.Args) > 0 {
+					return bot.handleArgCommand(ctx, []string{cmd.Name}, cmd.Args)
 				}
 
 				_ = bot.botInstance.Delete(ctx.Message())
 
-				return bot.handleCommand(ctx, []string{beCmd.Name})
+				return bot.handleCommand(ctx, []string{cmd.Name})
 			})
 
-			bot.botInstance.Handle(fmt.Sprintf("/%s", beCmd.Name), func(ctx tele.Context) error {
+			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
 				_ = bot.botInstance.Delete(ctx.Message())
 
-				err := bot.handleCommand(ctx, []string{beCmd.Name})
+				err := bot.handleCommand(ctx, []string{cmd.Name})
 
 				return err
 			})
@@ -206,7 +207,7 @@ func (bot *Bot) registerCommands() error {
 	bot.botInstance.Handle("/start", func(ctx tele.Context) error {
 		_ = bot.botInstance.Delete(ctx.Message())
 
-		return ctx.Send("Pagu Main Menu", menu)
+		return ctx.Send("Pagu Main Menu", menu, tele.ModeMarkdown)
 	})
 
 	bot.botInstance.Handle(tele.OnText, func(ctx tele.Context) error {
@@ -282,7 +283,7 @@ func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
 	argsContext[senderID] = nil
 	argsValue[senderID] = nil
 
-	return ctx.Send(res.Message, tele.NoPreview)
+	return ctx.Send(res.Message, tele.NoPreview, tele.ModeMarkdown)
 }
 
 func findCommand(commands []*command.Command, senderID int64) *command.Command {
