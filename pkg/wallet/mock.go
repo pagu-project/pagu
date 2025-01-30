@@ -55,10 +55,10 @@ func (mr *MockIWalletMockRecorder) Address() *gomock.Call {
 }
 
 // Balance mocks base method.
-func (m *MockIWallet) Balance() int64 {
+func (m *MockIWallet) Balance() amount.Amount {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Balance")
-	ret0, _ := ret[0].(int64)
+	ret0, _ := ret[0].(amount.Amount)
 	return ret0
 }
 

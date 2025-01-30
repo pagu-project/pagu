@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/client"
@@ -161,7 +162,8 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 	mockClientManager := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 	mockNowPayments := nowpayments.NewMockINowPayments(ctrl)
-	eng := newBotEngine(ctx, cancel, testDB, mockClientManager, mockWallet, mockNowPayments, 5)
+	cfg := &config.Config{}
+	eng := newBotEngine(ctx, cancel, cfg, testDB, mockClientManager, mockWallet, mockNowPayments)
 
 	var checkCommands func(cmds []*command.Command)
 

@@ -1,24 +1,48 @@
 ---
-emoji: 🛠️
+emoji: 🐦
 name: phoenix
-help: Phoenix Testnet tools and utils for developers
+help: Commands for working with Phoenix Testnet
 sub_commands:
-  - name: faucet
-    help: Get tPAC Coins on Phoenix Testnet for Testing your code or project
+  - name: health
+    help: Check the network health status
     result_template: |
-      You got {{.amount}} tPAC on Phoenix Testnet!
+      Network is {{.Status}}
+      Current Time: {{.CurrentTime}}
+      Last Block Time: {{.LastBlockTime}}
+      Time Difference: {{.TimeDiff}}
+      Last Block Height: {{.LastBlockHeight}}
 
-      https://phoenix.testnet.pac.network/tx/{{.txHash}}
+  - name: status
+    help: View network statistics
+    result_template: |
+      Network Name: {{.NetworkName}}
+      Connected Peers: {{.ConnectedPeers}}
+      Validator Count: {{.ValidatorsCount}}
+      Account Count: {{.AccountsCount}}
+      Current Block Height: {{.CurrentBlockHeight}}
+      Total Power: {{.TotalPower}} PAC
+      Total Committee Power: {{.TotalCommitteePower}} PAC
+      Circulating Supply: {{.CirculatingSupply}} PAC
+
+      > Note📝: This info is from a random network node. Non-calculated data may not be consistent.
+
+  - name: faucet
+    help: Get tPAC test coins on Phoenix Testnet for testing your project
+    result_template: |
+      You received {{.amount}} tPAC on Phoenix Testnet!
+
+      https://phoenix.pacviewer.com/tx/{{.txHash}}
     args:
       - name: address
         desc: "Your testnet address [example: tpc1z...]"
         required: true
         type: string
         input_box: Text
+
   - name: wallet
     help: Show the faucet wallet balance
     result_template: |
-      Pagu Phoenix wallet
+      Pagu Phoenix Wallet:
 
       Address: {{.address}}
       Balance: {{.balance}}

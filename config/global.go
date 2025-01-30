@@ -6,6 +6,5 @@ const (
 
 const (
 	BotNamePaguMainnet   = "Pagu"
-	BotNamePaguTestnet   = "Pagu-Testnet"
 	BotNamePaguModerator = "Pagu-Moderator"
 )

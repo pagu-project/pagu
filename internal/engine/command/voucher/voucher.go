@@ -31,19 +31,19 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	cmd.PlatformIDs = entity.AllPlatformIDs()
 	cmd.TargetFlag = command.TargetMaskMainnet | command.TargetMaskModerator
 
-	v.subCmdClaim.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdClaim.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
 	v.subCmdClaim.TargetFlag = command.TargetMaskMainnet
 	v.subCmdClaim.Middlewares = []command.MiddlewareFunc{middlewareHandler.WalletBalance}
 
-	v.subCmdCreate.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdCreate.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
 	v.subCmdCreate.TargetFlag = command.TargetMaskModerator
 	v.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	v.subCmdCreateBulk.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdCreateBulk.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
 	v.subCmdCreateBulk.TargetFlag = command.TargetMaskModerator
 	v.subCmdCreateBulk.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
-	v.subCmdStatus.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord}
+	v.subCmdStatus.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
 	v.subCmdStatus.TargetFlag = command.TargetMaskModerator
 	v.subCmdStatus.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 

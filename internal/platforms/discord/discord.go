@@ -93,11 +93,6 @@ func (bot *Bot) registerCommands() error {
 				continue
 			}
 
-		case config.BotNamePaguTestnet:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskTestnet) {
-				continue
-			}
-
 		case config.BotNamePaguModerator:
 			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
 				continue
@@ -122,11 +117,6 @@ func (bot *Bot) registerCommands() error {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
 					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskMainnet) {
-						continue
-					}
-
-				case config.BotNamePaguTestnet:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskTestnet) {
 						continue
 					}
 

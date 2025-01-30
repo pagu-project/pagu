@@ -50,7 +50,7 @@ func TestCreateOne(t *testing.T) {
 			"amount":       "100",
 			"valid-months": "12",
 			"recipient":    "Kayhan",
-			"description":  "Testnet node",
+			"description":  "Some descriptions",
 		}
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)

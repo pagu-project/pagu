@@ -2,10 +2,10 @@ package wallet
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pactus-project/pactus/genesis"
 	"github.com/pactus-project/pactus/wallet"
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/log"
 )
@@ -13,22 +13,30 @@ import (
 type Wallet struct {
 	*wallet.Wallet
 
-	address  string
-	password string
-	fee      amount.Amount
+	address   string
+	password  string
+	fee       amount.Amount
+	chainType genesis.ChainType
+	server    string
 }
 
-func Open(cfg *config.Wallet) (*Wallet, error) {
+func New(cfg *Config) (*Wallet, error) {
 	wlt, err := wallet.Open(cfg.Path, false)
 	if err != nil {
 		return nil, err
 	}
 
+	chainType := genesis.Mainnet
+	if strings.ToLower(cfg.Network) == "testnet" {
+		chainType = genesis.Testnet
+	}
+
 	return &Wallet{
-		Wallet:   wlt,
-		address:  cfg.Address,
-		password: cfg.Password,
-		fee:      cfg.Fee,
+		Wallet:    wlt,
+		address:   cfg.Address,
+		password:  cfg.Password,
+		fee:       cfg.Fee,
+		chainType: chainType,
 	}, nil
 }
 
@@ -117,10 +125,10 @@ func (w *Wallet) Address() string {
 	return w.address
 }
 
-func (w *Wallet) Balance() int64 {
+func (w *Wallet) Balance() amount.Amount {
 	balance, _ := w.Wallet.Balance(w.address)
 
-	return int64(balance)
+	return amount.Amount(balance.ToNanoPAC())
 }
 
 func (w *Wallet) LinkToExplorer(txID string) string {

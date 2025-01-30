@@ -1,8 +1,5 @@
 bot_name: "Pagu-Development"
 
-# Specify the network the bot will use: Mainnet, Testnet, or Localnet.
-network: "Mainnet"
-
 # Pactus clients
 local_node: "bootstrap1.pactus.org:50051" # Address of the local Pactus node for direct communication.
 

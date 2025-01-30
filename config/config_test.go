@@ -3,6 +3,8 @@ package config
 import (
 	"testing"
 
+	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
+	"github.com/pagu-project/pagu/pkg/wallet"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,7 +22,7 @@ func TestBasicCheck(t *testing.T) {
 		{
 			name: "Valid config",
 			cfg: Config{
-				Wallet: &Wallet{
+				Wallet: &wallet.Config{
 					Address:  "test_wallet_address",
 					Path:     tempWalletPath, // Use the temporary directory
 					Password: "test_password",
@@ -30,14 +32,14 @@ func TestBasicCheck(t *testing.T) {
 					Token:   "MTEabc123",
 					GuildID: "123456789",
 				},
-				Phoenix: &PhoenixNetwork{},
+				Phoenix: &phoenix.Config{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "Invalid RPCNodes",
 			cfg: Config{
-				Wallet: &Wallet{
+				Wallet: &wallet.Config{
 					Address:  "test_wallet_address",
 					Path:     "/valid/path",
 					Password: "test_password",

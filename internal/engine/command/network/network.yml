@@ -34,6 +34,7 @@ sub_commands:
       LastBlockTime: {{.LastBlockTime}}
       Time Diff: {{.TimeDiff}}
       Last Block Height: {{.LastBlockHeight}}
+
   - name: status
     help: View network statistics
     result_template: |
