@@ -15,6 +15,7 @@ type IClient interface {
 	GetValidatorInfo(context.Context, string) (*pactus.GetValidatorResponse, error)
 	GetValidatorInfoByNumber(context.Context, int32) (*pactus.GetValidatorResponse, error)
 	GetTransactionData(context.Context, string) (*pactus.GetTransactionResponse, error)
+	BroadcastTransaction(context.Context, []byte) (string, error)
 	GetBalance(context.Context, string) (int64, error)
 	GetFee(context.Context, int64) (int64, error)
 	Close() error

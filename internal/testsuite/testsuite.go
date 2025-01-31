@@ -7,8 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pactus-project/pactus/crypto/bls"
-	"github.com/pactus-project/pactus/crypto/ed25519"
+	"github.com/pactus-project/pactus/crypto"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/amount"
 )
@@ -228,26 +227,7 @@ func (*TestSuite) DecodingHex(in string) []byte {
 	return d
 }
 
-// RandBLSKeyPair generates a random BLS key pair for testing purposes.
-func (ts *TestSuite) RandBLSKeyPair() (*bls.PublicKey, *bls.PrivateKey) {
-	buf := make([]byte, bls.PrivateKeySize)
-	_, _ = ts.Rand.Read(buf)
-
-	prv, _ := bls.PrivateKeyFromBytes(buf)
-	pub := prv.PublicKeyNative()
-
-	return pub, prv
-}
-
-// RandEd25519KeyPair generates a random Ed25519 key pair for testing purposes.
-func (ts *TestSuite) RandEd25519KeyPair() (*ed25519.PublicKey, *ed25519.PrivateKey) {
-	buf := make([]byte, ed25519.PrivateKeySize)
-	_, err := ts.Rand.Read(buf)
-	if err != nil {
-		panic(err)
-	}
-	prv, _ := ed25519.PrivateKeyFromBytes(buf)
-	pub := prv.PublicKeyNative()
-
-	return pub, prv
+// RandAccAddress generates a random account address for testing purposes.
+func (ts *TestSuite) RandAccAddress() crypto.Address {
+	return crypto.NewAddress(crypto.AddressTypeEd25519Account, ts.RandBytes(20))
 }

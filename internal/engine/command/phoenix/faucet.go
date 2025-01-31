@@ -1,43 +1,70 @@
 package phoenix
 
 import (
+	"github.com/pactus-project/pactus/types/tx"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (p *PhoenixCmd) faucetHandler(
+func (c *PhoenixCmd) faucetHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	// if len(args) == 0 {
-	// 	return cmd.RenderFailedTemplate("Invalid wallet address")
-	// }
+	if len(args) == 0 {
+		return cmd.RenderFailedTemplate("Please provide a valid address to receive the faucet amount.")
+	}
 
-	// toAddr := args["address"]
-	// if len(toAddr) != 43 || toAddr[:3] != "tpc" {
-	// 	return cmd.RenderFailedTemplate("Invalid wallet address")
-	// }
+	lastFaucet, _ := c.db.GetLastFaucet(caller)
+	if lastFaucet != nil {
+		timeSinceLastFaucet := lastFaucet.ElapsedTime()
+		if timeSinceLastFaucet <= c.faucetCooldown {
+			timeToWait := c.faucetCooldown - timeSinceLastFaucet
+			return cmd.RenderFailedTemplateF(
+				"You have already used your faucet share. Please try again in %s.",
+				utils.FormatDuration(timeToWait))
+		}
+	}
 
-	// if !p.db.CanGetFaucet(caller) {
-	// 	return cmd.RenderFailedTemplate("Uh, you used your share of faucets today!")
-	// }
+	blockchainInfo, err := c.client.GetBlockchainInfo(c.ctx)
+	if err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
 
-	// txHash, err := p.wallet.TransferTransaction(toAddr, "Pagu Phoenix Faucet", p.faucetAmount)
-	// if err != nil {
-	// 	return cmd.RenderErrorTemplate(err)
-	// }
+	toAddr := args["address"]
+	receiverAddress, err := utils.TestnetAddressFromString(toAddr)
+	if err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
 
-	// if err = p.db.AddFaucet(&entity.PhoenixFaucet{
-	// 	UserID:  caller.ID,
-	// 	Address: toAddr,
-	// 	Amount:  p.faucetAmount,
-	// 	TxHash:  txHash,
-	// }); err != nil {
-	// 	return cmd.RenderErrorTemplate(err)
-	// }
+	trx := tx.NewTransferTx(blockchainInfo.LastBlockHeight, c.faucetAddress, receiverAddress,
+		c.faucetAmount.ToPactusAmount(),
+		c.faucetFee.ToPactusAmount(),
+		tx.WithMemo("Pagu Phoenix Faucet"))
+
+	signBytes := trx.SignBytes()
+
+	sig := c.privateKey.SignNative(signBytes)
+	trx.SetSignature(sig)
+	trx.SetPublicKey(c.privateKey.PublicKey())
+
+	trxData, _ := trx.Bytes()
+	txHash, err := c.client.BroadcastTransaction(c.ctx, trxData)
+	if err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
+
+	if err := c.db.AddFaucet(&entity.PhoenixFaucet{
+		UserID:  caller.ID,
+		Address: toAddr,
+		Amount:  c.faucetAmount,
+		TxHash:  txHash,
+	}); err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
 
 	return cmd.RenderResultTemplate(
-		"amount", p.faucetAmount.ToPAC(),
-		"txHash", "txHash")
+		"amount", c.faucetAmount,
+		"txHash", txHash)
 }

@@ -128,7 +128,7 @@ func newBotEngine(ctx context.Context,
 	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, db, wlt, nowPayments)
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
-	phoenixCmd := phoenix.NewPhoenixCmd(ctx, cfg.Phoenix, mgr, db)
+	phoenixCmd := phoenix.NewPhoenixCmd(ctx, cfg.Phoenix, db)
 	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr)
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
 

@@ -14,8 +14,6 @@ func TestWallet(t *testing.T) {
 
 	result := td.phoenixCmd.walletHandler(caller, td.phoenixCmd.subCmdWallet, nil)
 
-	// Verify that calling the `Balance` API works fine.
-	// For security reasons, we cannot use any existing private key in this test.
-	assert.False(t, result.Successful)
-	assert.Contains(t, result.Message, "account not found")
+	assert.True(t, result.Successful)
+	assert.Contains(t, result.Message, "tpc1r3666ga8venyjykp7ffyy96mccs82uh9ry3d2fk")
 }

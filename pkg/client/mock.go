@@ -41,6 +41,21 @@ func (m *MockIClient) EXPECT() *MockIClientMockRecorder {
 	return m.recorder
 }
 
+// BroadcastTransaction mocks base method.
+func (m *MockIClient) BroadcastTransaction(arg0 context.Context, arg1 []byte) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BroadcastTransaction", arg0, arg1)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BroadcastTransaction indicates an expected call of BroadcastTransaction.
+func (mr *MockIClientMockRecorder) BroadcastTransaction(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BroadcastTransaction", reflect.TypeOf((*MockIClient)(nil).BroadcastTransaction), arg0, arg1)
+}
+
 // Close mocks base method.
 func (m *MockIClient) Close() error {
 	m.ctrl.T.Helper()

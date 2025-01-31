@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/hex"
 
 	pactus "github.com/pactus-project/pactus/www/grpc/gen/go"
 	"github.com/pagu-project/pagu/pkg/log"
@@ -168,6 +169,18 @@ func (c *Client) GetFee(ctx context.Context, amt int64) (int64, error) {
 	}
 
 	return res.Fee, nil
+}
+
+func (c *Client) BroadcastTransaction(ctx context.Context, trxData []byte) (string, error) {
+	SignedRawTransaction := hex.EncodeToString(trxData)
+	res, err := c.transactionClient.BroadcastTransaction(ctx, &pactus.BroadcastTransactionRequest{
+		SignedRawTransaction: SignedRawTransaction,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return res.Id, nil
 }
 
 func (c *Client) Close() error {

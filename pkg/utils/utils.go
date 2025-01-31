@@ -3,7 +3,12 @@ package utils
 import (
 	"fmt"
 	"os"
+	"slices"
+	"time"
 
+	"github.com/pactus-project/pactus/crypto"
+	"github.com/pactus-project/pactus/crypto/ed25519"
+	"github.com/pactus-project/pactus/util/bech32m"
 	"golang.org/x/exp/constraints"
 )
 
@@ -54,4 +59,84 @@ func UnmarshalEnum[T comparable](str string, toString map[T]string) (T, error) {
 	var zero T
 
 	return zero, fmt.Errorf("unknown enum type: %s", str)
+}
+
+// TestnetPrivateKeyFromString parses a testnet private key and returns the Private Key object.
+// Note that for Testnet Private Keys, the HRP (Human-Readable Part) is set to `TSECRET1`,
+// which differs from the Pactus Mainnet where the HRP is set to `SECRET1`.
+// This function is a workaround to parse testnet Private Keys alongside mainnet Private Keys.
+func TestnetPrivateKeyFromString(text string) (*ed25519.PrivateKey, error) {
+	// Decode the bech32m encoded private key.
+	hrp, typ, data, err := bech32m.DecodeToBase256WithTypeNoLimit(text)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if hrp is valid
+	if hrp != "tsecret" {
+		return nil, crypto.InvalidHRPError(hrp)
+	}
+
+	if typ != crypto.SignatureTypeEd25519 {
+		return nil, crypto.InvalidSignatureTypeError(typ)
+	}
+
+	return ed25519.PrivateKeyFromBytes(data)
+}
+
+// TestnetAddressFromString parses a testnet address and returns the Address object.
+// Note that for Testnet addresses, the HRP (Human-Readable Part) is set to `tpc1`,
+// which differs from the Pactus Mainnet where the HRP is set to `pc1`.
+// This function is a workaround to parse testnet addresses alongside mainnet addresses.
+func TestnetAddressFromString(text string) (crypto.Address, error) {
+	// Decode the bech32m encoded address.
+	hrp, typ, data, err := bech32m.DecodeToBase256WithTypeNoLimit(text)
+	if err != nil {
+		return crypto.Address{}, err
+	}
+
+	// Check if hrp is valid
+	if hrp != "tpc" {
+		return crypto.Address{}, crypto.InvalidHRPError(hrp)
+	}
+
+	// check type is valid
+	validTypes := []crypto.AddressType{
+		crypto.AddressTypeValidator,
+		crypto.AddressTypeBLSAccount,
+		crypto.AddressTypeEd25519Account,
+	}
+	if !slices.Contains(validTypes, crypto.AddressType(typ)) {
+		return crypto.Address{}, crypto.InvalidAddressTypeError(typ)
+	}
+
+	// check length is valid
+	if len(data) != 20 {
+		return crypto.Address{}, crypto.InvalidLengthError(len(data) + 1)
+	}
+
+	var addr crypto.Address
+	addr[0] = typ
+	copy(addr[1:], data)
+
+	return addr, nil
+}
+
+func TestnetAddressToString(addr crypto.Address) string {
+	str, _ := bech32m.EncodeFromBase256WithType(
+		"tpc",
+		addr[0],
+		addr[1:])
+
+	return str
+}
+
+// Helper function to format duration into a human-readable string
+func FormatDuration(d time.Duration) string {
+	hours := int(d.Hours())
+	minutes := int(d.Minutes()) % 60
+	if hours > 0 {
+		return fmt.Sprintf("%d hours and %d minutes", hours, minutes)
+	}
+	return fmt.Sprintf("%d minutes", minutes)
 }
