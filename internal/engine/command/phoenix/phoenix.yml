@@ -22,7 +22,6 @@ sub_commands:
       Current Block Height: {{.CurrentBlockHeight}}
       Total Power: {{.TotalPower}} tPAC
       Total Committee Power: {{.TotalCommitteePower}} tPAC
-      Circulating Supply: {{.CirculatingSupply}} tPAC
 
       > Note📝: This info is from a random network node. Some data may not be consistent.
 
