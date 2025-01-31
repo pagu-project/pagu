@@ -20,11 +20,11 @@ sub_commands:
       Validator Count: {{.ValidatorsCount}}
       Account Count: {{.AccountsCount}}
       Current Block Height: {{.CurrentBlockHeight}}
-      Total Power: {{.TotalPower}} PAC
-      Total Committee Power: {{.TotalCommitteePower}} PAC
-      Circulating Supply: {{.CirculatingSupply}} PAC
+      Total Power: {{.TotalPower}} tPAC
+      Total Committee Power: {{.TotalCommitteePower}} tPAC
+      Circulating Supply: {{.CirculatingSupply}} tPAC
 
-      > Note📝: This info is from a random network node. Non-calculated data may not be consistent.
+      > Note📝: This info is from a random network node. Some data may not be consistent.
 
   - name: faucet
     help: Get tPAC test coins on Phoenix Testnet for testing your project

@@ -32,13 +32,13 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		Name:           "health",
 		Help:           "Check the network health status",
 		Handler:        c.healthHandler,
-		ResultTemplate: "Network is {{.Status}}\nCurrentTime: {{.CurrentTime}}\nLastBlockTime: {{.LastBlockTime}}\nTime Diff: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
+		ResultTemplate: "Network is {{.Status}}\nCurrent Time: {{.CurrentTime}}\nLast Block Time: {{.LastBlockTime}}\nTime Difference: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
 	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
 		Help:           "View network statistics",
 		Handler:        c.statusHandler,
-		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidators Count: {{.ValidatorsCount}}\nAccounts Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} PAC\nTotal Committee Power: {{.TotalCommitteePower}} PAC\nCirculating Supply: {{.CirculatingSupply}} PAC\n\n> Note📝: This info is from one random network node. Non-calculator data may not be consistent.\n",
+		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidator Count: {{.ValidatorsCount}}\nAccount Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} PAC\nTotal Committee Power: {{.TotalCommitteePower}} PAC\nCirculating Supply: {{.CirculatingSupply}} PAC\n\n> Note📝: This info is from one random network node. Some data may not be consistent.\n",
 	}
 
 	return &networkSubCmds{
