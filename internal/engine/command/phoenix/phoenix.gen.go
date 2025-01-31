@@ -31,7 +31,7 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 		Name:           "faucet",
 		Help:           "Get tPAC test coins on Phoenix Testnet for testing your project",
 		Handler:        c.faucetHandler,
-		ResultTemplate: "You received {{.amount}} tPAC on Phoenix Testnet!\n\nhttps://phoenix.pacviewer.com/tx/{{.txHash}}\n",
+		ResultTemplate: "You received {{.amount}} tPAC on Phoenix Testnet!\n\nhttps://phoenix.pacviewer.com/transaction/{{.txHash}}\n",
 		Args: []*command.Args{
 			{
 				Name:     "address",

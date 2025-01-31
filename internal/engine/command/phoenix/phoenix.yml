@@ -30,7 +30,7 @@ sub_commands:
     result_template: |
       You received {{.amount}} tPAC on Phoenix Testnet!
 
-      https://phoenix.pacviewer.com/tx/{{.txHash}}
+      https://phoenix.pacviewer.com/transaction/{{.txHash}}
     args:
       - name: address
         desc: "Your testnet address [example: tpc1z...]"
