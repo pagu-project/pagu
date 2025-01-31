@@ -26,24 +26,27 @@ sub_commands:
         input_box: Text
         optional: false
 
+  # In case you update this message, please update the phoenix message as well.
   - name: health
     help: Check the network health status
     result_template: |
       Network is {{.Status}}
-      CurrentTime: {{.CurrentTime}}
-      LastBlockTime: {{.LastBlockTime}}
-      Time Diff: {{.TimeDiff}}
+      Current Time: {{.CurrentTime}}
+      Last Block Time: {{.LastBlockTime}}
+      Time Difference: {{.TimeDiff}}
       Last Block Height: {{.LastBlockHeight}}
+
+  # In case you update this message, please update the phoenix message as well.
   - name: status
     help: View network statistics
     result_template: |
       Network Name: {{.NetworkName}}
       Connected Peers: {{.ConnectedPeers}}
-      Validators Count: {{.ValidatorsCount}}
-      Accounts Count: {{.AccountsCount}}
+      Validator Count: {{.ValidatorsCount}}
+      Account Count: {{.AccountsCount}}
       Current Block Height: {{.CurrentBlockHeight}}
       Total Power: {{.TotalPower}} PAC
       Total Committee Power: {{.TotalCommitteePower}} PAC
       Circulating Supply: {{.CirculatingSupply}} PAC
 
-      > Note📝: This info is from one random network node. Non-calculator data may not be consistent.
+      > Note📝: This info is from one random network node. Some data may not be consistent.

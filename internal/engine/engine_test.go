@@ -7,7 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/client"
 	"github.com/pagu-project/pagu/pkg/nowpayments"
@@ -161,7 +163,12 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 	mockClientManager := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 	mockNowPayments := nowpayments.NewMockINowPayments(ctrl)
-	eng := newBotEngine(ctx, cancel, testDB, mockClientManager, mockWallet, mockNowPayments, 5)
+	cfg := &config.Config{
+		Phoenix: &phoenix.Config{
+			PrivateKey: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z",
+		},
+	}
+	eng := newBotEngine(ctx, cancel, cfg, testDB, mockClientManager, mockWallet, mockNowPayments)
 
 	var checkCommands func(cmds []*command.Command)
 

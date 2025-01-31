@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
@@ -17,16 +15,15 @@ func (db *Database) AddFaucet(f *entity.PhoenixFaucet) error {
 	return nil
 }
 
-func (db *Database) CanGetFaucet(user *entity.User) bool {
-	var lastFaucet entity.PhoenixFaucet
-	err := db.gormDB.Model(&entity.PhoenixFaucet{}).Where("user_id = ?", user.ID).Order("id DESC").First(&lastFaucet).Error
-	if err != nil {
-		return true
+func (db *Database) GetLastFaucet(user *entity.User) (*entity.PhoenixFaucet, error) {
+	var lastFaucet *entity.PhoenixFaucet
+	tx := db.gormDB.Model(&entity.PhoenixFaucet{}).Where("user_id = ?", user.ID).Order("id DESC").First(&lastFaucet)
+
+	if tx.Error != nil {
+		return nil, ReadError{
+			Message: tx.Error.Error(),
+		}
 	}
 
-	if lastFaucet.ElapsedTime() > 24*time.Hour {
-		return true
-	}
-
-	return false
+	return lastFaucet, nil
 }

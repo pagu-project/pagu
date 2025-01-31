@@ -24,10 +24,9 @@ const errorTemplate = `
 
 var (
 	TargetMaskMainnet   = 1
-	TargetMaskTestnet   = 2
-	TargetMaskModerator = 4
+	TargetMaskModerator = 2
 
-	TargetMaskAll = TargetMaskMainnet | TargetMaskTestnet | TargetMaskModerator
+	TargetMaskAll = TargetMaskMainnet | TargetMaskModerator
 )
 
 type InputBox int

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pactus-project/pactus/crypto"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/amount"
 )
@@ -224,4 +225,9 @@ func (*TestSuite) DecodingHex(in string) []byte {
 	}
 
 	return d
+}
+
+// RandAccAddress generates a random account address for testing purposes.
+func (ts *TestSuite) RandAccAddress() crypto.Address {
+	return crypto.NewAddress(crypto.AddressTypeEd25519Account, ts.RandBytes(20))
 }

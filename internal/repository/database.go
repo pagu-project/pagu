@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Database struct {
@@ -24,12 +25,15 @@ func NewDB(path string) (*Database, error) {
 
 	var db *gorm.DB
 	var err error
+	conf := &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	}
 
 	switch dbType {
 	case "mysql":
-		db, err = gorm.Open(mysql.Open(connStr), &gorm.Config{})
+		db, err = gorm.Open(mysql.Open(connStr), conf)
 	case "sqlite":
-		db, err = gorm.Open(sqlite.Open(connStr), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(connStr), conf)
 	default:
 		return nil, errors.New("unsupported database type: " + dbType)
 	}

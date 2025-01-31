@@ -4,24 +4,24 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/utils"
+	"github.com/pagu-project/pagu/pkg/wallet"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	BotName      string              `yaml:"bot_name"`
-	Network      string              `yaml:"network"`
 	NetworkNodes []string            `yaml:"network_nodes"`
 	LocalNode    string              `yaml:"local_node"`
 	Database     Database            `yaml:"database"`
 	GRPC         *GRPC               `yaml:"grpc"` // ! TODO: config for modules should moved to the module.
-	Wallet       *Wallet             `yaml:"wallet"`
+	Wallet       *wallet.Config      `yaml:"wallet"`
 	Logger       *log.Config         `yaml:"logger"`
 	HTTP         *HTTP               `yaml:"http"`
-	Phoenix      *PhoenixNetwork     `yaml:"phoenix"`
+	Phoenix      *phoenix.Config     `yaml:"phoenix"`
 	Discord      *DiscordBot         `yaml:"discord"`
 	Telegram     *Telegram           `yaml:"telegram"`
 	Notification *Notification       `yaml:"notification"`
@@ -30,13 +30,6 @@ type Config struct {
 
 type Database struct {
 	URL string `yaml:"url"`
-}
-
-type Wallet struct {
-	Address  string        `yaml:"address"`
-	Path     string        `yaml:"path"`
-	Password string        `yaml:"password"`
-	Fee      amount.Amount `yaml:"fee"`
 }
 
 type DiscordBot struct {
@@ -50,10 +43,6 @@ type GRPC struct {
 
 type HTTP struct {
 	Listen string `yaml:"listen"`
-}
-
-type PhoenixNetwork struct {
-	FaucetAmount amount.Amount `yaml:"faucet_amount"`
 }
 
 type Telegram struct {

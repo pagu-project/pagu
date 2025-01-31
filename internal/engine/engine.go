@@ -13,12 +13,11 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command/crowdfund"
 	"github.com/pagu-project/pagu/internal/engine/command/market"
 	"github.com/pagu-project/pagu/internal/engine/command/network"
-	phoenixtestnet "github.com/pagu-project/pagu/internal/engine/command/phoenix"
+	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
 	"github.com/pagu-project/pagu/internal/engine/command/voucher"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/job"
 	"github.com/pagu-project/pagu/internal/repository"
-	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/cache"
 	"github.com/pagu-project/pagu/pkg/client"
 	"github.com/pagu-project/pagu/pkg/log"
@@ -70,7 +69,7 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		mgr.AddClient(client)
 	}
 
-	wlt, err := wallet.Open(cfg.Wallet)
+	wlt, err := wallet.New(cfg.Wallet)
 	if err != nil {
 		cancel()
 
@@ -108,16 +107,16 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 		return nil, err
 	}
 
-	return newBotEngine(ctx, cancel, db, mgr, wlt, nowPayments, cfg.Phoenix.FaucetAmount), nil
+	return newBotEngine(ctx, cancel, cfg, db, mgr, wlt, nowPayments), nil
 }
 
 func newBotEngine(ctx context.Context,
 	cancel context.CancelFunc,
+	cfg *config.Config,
 	db *repository.Database,
 	mgr client.IManager,
 	wlt wallet.IWallet,
 	nowPayments nowpayments.INowPayments,
-	phoenixFaucetAmount amount.Amount,
 ) *BotEngine {
 	// price caching job
 	priceCache := cache.NewBasic[string, entity.Price](10 * time.Second)
@@ -129,7 +128,7 @@ func newBotEngine(ctx context.Context,
 	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, db, wlt, nowPayments)
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
-	phoenixCmd := phoenixtestnet.NewPhoenixCmd(ctx, wlt, phoenixFaucetAmount, mgr, db)
+	phoenixCmd := phoenix.NewPhoenixCmd(ctx, cfg.Phoenix, db)
 	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr)
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
 

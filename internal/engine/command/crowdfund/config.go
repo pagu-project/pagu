@@ -1,5 +1,5 @@
 package crowdfund
 
 type Config struct {
-	ActiveCampaignID uint
+	// Nothing for now, Maybe in future
 }
