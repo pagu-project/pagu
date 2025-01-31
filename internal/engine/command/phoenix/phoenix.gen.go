@@ -25,7 +25,7 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 		Name:           "status",
 		Help:           "View network statistics",
 		Handler:        c.statusHandler,
-		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidator Count: {{.ValidatorsCount}}\nAccount Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} tPAC\nTotal Committee Power: {{.TotalCommitteePower}} tPAC\nCirculating Supply: {{.CirculatingSupply}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
+		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidator Count: {{.ValidatorsCount}}\nAccount Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} tPAC\nTotal Committee Power: {{.TotalCommitteePower}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
 	}
 	subCmdFaucet := &command.Command{
 		Name:           "faucet",

@@ -172,9 +172,9 @@ func (c *Client) GetFee(ctx context.Context, amt int64) (int64, error) {
 }
 
 func (c *Client) BroadcastTransaction(ctx context.Context, trxData []byte) (string, error) {
-	SignedRawTransaction := hex.EncodeToString(trxData)
+	signedRawTransaction := hex.EncodeToString(trxData)
 	res, err := c.transactionClient.BroadcastTransaction(ctx, &pactus.BroadcastTransactionRequest{
-		SignedRawTransaction: SignedRawTransaction,
+		SignedRawTransaction: signedRawTransaction,
 	})
 	if err != nil {
 		return "", err

@@ -7,5 +7,4 @@ type Config struct {
 	Path     string        `yaml:"path"`
 	Password string        `yaml:"password"`
 	Fee      amount.Amount `yaml:"fee"`
-	Network  string        `yaml:"network"`
 }

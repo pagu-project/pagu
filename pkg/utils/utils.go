@@ -131,12 +131,13 @@ func TestnetAddressToString(addr crypto.Address) string {
 	return str
 }
 
-// Helper function to format duration into a human-readable string
+// FormatDuration formats the duration into a human-readable string.
 func FormatDuration(d time.Duration) string {
 	hours := int(d.Hours())
 	minutes := int(d.Minutes()) % 60
 	if hours > 0 {
 		return fmt.Sprintf("%d hours and %d minutes", hours, minutes)
 	}
+
 	return fmt.Sprintf("%d minutes", minutes)
 }

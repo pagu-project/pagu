@@ -5,10 +5,10 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (p *PhoenixCmd) statusHandler(
-	caller *entity.User,
+func (*PhoenixCmd) statusHandler(
+	_ *entity.User,
 	cmd *command.Command,
-	args map[string]string,
+	_ map[string]string,
 ) command.CommandResult {
 	return cmd.RenderFailedTemplate("TODO!")
 }

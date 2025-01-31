@@ -42,13 +42,12 @@ func TestFaucet(t *testing.T) {
 			time.Sleep(1 * time.Second)
 
 			// Test cooldown period
-			result := td.phoenixCmd.faucetHandler(caller, td.phoenixCmd.subCmdFaucet, args)
-			assert.False(t, result.Successful)
-			assert.Contains(t, result.Message, "Please try again in 59 minutes")
+			result2 := td.phoenixCmd.faucetHandler(caller, td.phoenixCmd.subCmdFaucet, args)
+			assert.False(t, result2.Successful)
+			assert.Contains(t, result2.Message, "Please try again in 59 minutes")
 		} else {
 			// In case the test wallet is empty
 			assert.Contains(t, result.Message, "insufficient funds")
 		}
-
 	})
 }

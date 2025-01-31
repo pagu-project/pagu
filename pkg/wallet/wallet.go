@@ -2,7 +2,6 @@ package wallet
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/pactus-project/pactus/genesis"
 	"github.com/pactus-project/pactus/wallet"
@@ -13,11 +12,9 @@ import (
 type Wallet struct {
 	*wallet.Wallet
 
-	address   string
-	password  string
-	fee       amount.Amount
-	chainType genesis.ChainType
-	server    string
+	address  string
+	password string
+	fee      amount.Amount
 }
 
 func New(cfg *Config) (*Wallet, error) {
@@ -26,17 +23,11 @@ func New(cfg *Config) (*Wallet, error) {
 		return nil, err
 	}
 
-	chainType := genesis.Mainnet
-	if strings.ToLower(cfg.Network) == "testnet" {
-		chainType = genesis.Testnet
-	}
-
 	return &Wallet{
-		Wallet:    wlt,
-		address:   cfg.Address,
-		password:  cfg.Password,
-		fee:       cfg.Fee,
-		chainType: chainType,
+		Wallet:   wlt,
+		address:  cfg.Address,
+		password: cfg.Password,
+		fee:      cfg.Fee,
 	}, nil
 }
 

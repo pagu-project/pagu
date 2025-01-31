@@ -21,6 +21,7 @@ func (c *PhoenixCmd) faucetHandler(
 		timeSinceLastFaucet := lastFaucet.ElapsedTime()
 		if timeSinceLastFaucet <= c.faucetCooldown {
 			timeToWait := c.faucetCooldown - timeSinceLastFaucet
+
 			return cmd.RenderFailedTemplateF(
 				"You have already used your faucet share. Please try again in %s.",
 				utils.FormatDuration(timeToWait))
