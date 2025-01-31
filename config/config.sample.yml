@@ -36,8 +36,15 @@ wallet:
 
 # Phoenix (TestNet) configuration
 phoenix:
-  # Number of coins to send when the faucet is used.
+  # A node in Phoenix Tesnet network
+  client: "testnet1.pactus.org:50052"
+
+  # The private key to sign the faucet message
+  private_key: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z"
+
   faucet_amount: 5
+  faucet_fee: 0.01
+  faucet_cooldown: "24h"
 
 # Database configuration
 database:

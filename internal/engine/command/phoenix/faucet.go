@@ -12,7 +12,7 @@ func (c *PhoenixCmd) faucetHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	if len(args) == 0 {
+	if args[argNameFaucetAddress] == "" {
 		return cmd.RenderFailedTemplate("Please provide a valid address to receive the faucet amount.")
 	}
 
@@ -32,7 +32,7 @@ func (c *PhoenixCmd) faucetHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	toAddr := args["address"]
+	toAddr := args[argNameFaucetAddress]
 	receiverAddress, err := utils.TestnetAddressFromString(toAddr)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
