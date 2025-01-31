@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,5 +16,5 @@ func TestWallet(t *testing.T) {
 	result := td.phoenixCmd.walletHandler(caller, td.phoenixCmd.subCmdWallet, nil)
 
 	assert.True(t, result.Successful)
-	assert.Contains(t, result.Message, "tpc1r3666ga8venyjykp7ffyy96mccs82uh9ry3d2fk")
+	assert.Contains(t, result.Message, utils.TestnetAddressToString(td.phoenixCmd.faucetAddress))
 }
