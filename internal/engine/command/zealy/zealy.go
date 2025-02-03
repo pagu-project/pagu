@@ -31,30 +31,27 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 				Optional: false,
 			},
 		},
-		SubCommands: nil,
-		PlatformIDs: []entity.PlatformID{entity.PlatformIDDiscord},
-		Handler:     z.claimHandler,
-		TargetFlag:  command.TargetMaskMainnet,
+		SubCommands:  nil,
+		TargetBotIDs: []entity.BotID{entity.BotID_Discord},
+		Handler:      z.claimHandler,
 	}
 
 	subCmdStatus := &command.Command{
-		Name:        "status",
-		Help:        "Check the status of Zealy reward claims",
-		Args:        nil,
-		SubCommands: nil,
-		PlatformIDs: []entity.PlatformID{entity.PlatformIDDiscord},
-		Handler:     z.statusHandler,
-		TargetFlag:  command.TargetMaskModerator,
+		Name:         "status",
+		Help:         "Check the status of Zealy reward claims",
+		Args:         nil,
+		SubCommands:  nil,
+		TargetBotIDs: []entity.BotID{entity.BotID_Discord},
+		Handler:      z.statusHandler,
 	}
 
 	cmdZealy := &command.Command{
-		Name:        "zealy",
-		Help:        "Commands for managing Zealy campaign",
-		Args:        nil,
-		PlatformIDs: []entity.PlatformID{entity.PlatformIDDiscord},
-		SubCommands: make([]*command.Command, 0),
-		Handler:     nil,
-		TargetFlag:  command.TargetMaskMainnet | command.TargetMaskModerator,
+		Name:         "zealy",
+		Help:         "Commands for managing Zealy campaign",
+		Args:         nil,
+		TargetBotIDs: []entity.BotID{entity.BotID_Discord},
+		SubCommands:  make([]*command.Command, 0),
+		Handler:      nil,
 	}
 
 	cmdZealy.AddSubCommand(subCmdClaim)

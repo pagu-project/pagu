@@ -3,6 +3,7 @@ package {{.Name}}
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 {{ range .SubCommands}}
 {{- $subCmdName := .Name }}
@@ -24,6 +25,15 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *{{.Name}}SubCmds {
 		Help:           "{{.Help}}",
 		Handler:        c.{{.Name | handlerName}}Handler,
 		ResultTemplate: {{.ResultTemplate | quoted}},
+		{{- if .TargetBotIDs }}
+		TargetBotIDs: []entity.BotID{
+			{{- range .TargetBotIDs }}
+			entity.BotID_{{ . | botIDName }},
+			{{- end }}
+		},
+		{{- else }}
+		TargetBotIDs: entity.AllBotIDs(),
+		{{- end }}
 		{{- if .Args }}
 		Args: []*command.Args{
 			{{- range .Args}}
@@ -65,6 +75,15 @@ func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command() *command.Command 
 		Name:        "{{.Name}}",
 		Help:        "{{.Help}}",
 		SubCommands: make([]*command.Command, 0),
+		{{- if .TargetBotIDs }}
+		TargetBotIDs: []entity.BotID{
+			{{- range .TargetBotIDs }}
+			entity.BotID_{{ . | botIDName }},
+			{{- end }}
+		},
+		{{- else }}
+		TargetBotIDs: entity.AllBotIDs(),
+		{{- end }}
 	}
 
 	c.{{.Name}}SubCmds = c.buildSubCmds()

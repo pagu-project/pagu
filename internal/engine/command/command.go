@@ -22,13 +22,6 @@ const errorTemplate = `
 {{.err}}
 `
 
-var (
-	TargetMaskMainnet   = 1
-	TargetMaskModerator = 2
-
-	TargetMaskAll = TargetMaskMainnet | TargetMaskModerator
-)
-
 type InputBox int
 
 const (
@@ -94,16 +87,15 @@ type Args struct {
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji          string              `yaml:"emoji"`
-	Name           string              `yaml:"name"`
-	Help           string              `yaml:"help"`
-	Args           []*Args             `yaml:"args"`
-	SubCommands    []*Command          `yaml:"sub_commands"`
-	ResultTemplate string              `yaml:"result_template"`
-	Middlewares    []MiddlewareFunc    `yaml:"-"`
-	Handler        HandlerFunc         `yaml:"-"`
-	PlatformIDs    []entity.PlatformID `yaml:"-"`
-	TargetFlag     int                 `yaml:"-"`
+	Emoji          string           `yaml:"emoji"`
+	Name           string           `yaml:"name"`
+	Help           string           `yaml:"help"`
+	Args           []*Args          `yaml:"args"`
+	SubCommands    []*Command       `yaml:"sub_commands"`
+	ResultTemplate string           `yaml:"result_template"`
+	Middlewares    []MiddlewareFunc `yaml:"-"`
+	Handler        HandlerFunc      `yaml:"-"`
+	TargetBotIDs   []entity.BotID   `yaml:"target_bot_ids"` //nolint //underscores used for ids
 }
 
 type CommandResult struct {
@@ -244,8 +236,8 @@ Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a 
 	}
 }
 
-func (cmd *Command) HasPlatformID(platformID entity.PlatformID) bool {
-	return slices.Contains(cmd.PlatformIDs, platformID)
+func (cmd *Command) HasBotID(botID entity.BotID) bool {
+	return slices.Contains(cmd.TargetBotIDs, botID)
 }
 
 func (cmd *Command) HasSubCommand() bool {
@@ -266,11 +258,10 @@ func (cmd *Command) AddSubCommand(subCmd *Command) {
 
 func (cmd *Command) AddHelpSubCommand() {
 	helpCmd := &Command{
-		Emoji:       "❓",
-		Name:        "help",
-		Help:        fmt.Sprintf("Help for %v command", cmd.Name),
-		PlatformIDs: entity.AllPlatformIDs(),
-		TargetFlag:  TargetMaskAll,
+		Emoji:        "❓",
+		Name:         "help",
+		Help:         fmt.Sprintf("Help for %v command", cmd.Name),
+		TargetBotIDs: entity.AllBotIDs(),
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
 			return cmd.RenderHelpTemplate()
 		},
@@ -291,8 +282,7 @@ Version : {{.version}}
 		Emoji:          "📝",
 		Name:           "about",
 		Help:           "About Pagu",
-		PlatformIDs:    entity.AllPlatformIDs(),
-		TargetFlag:     TargetMaskAll,
+		TargetBotIDs:   entity.AllBotIDs(),
 		ResultTemplate: aboutTemplate,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
 			return cmd.RenderResultTemplate("version", version.StringVersion())

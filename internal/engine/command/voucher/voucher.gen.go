@@ -3,6 +3,7 @@ package voucher
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 const (
@@ -30,6 +31,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Claim voucher coins and bond them to a validator",
 		Handler:        c.claimHandler,
 		ResultTemplate: "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/{{.txHash}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Discord,
+			entity.BotID_CLI,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -50,6 +55,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Generate a single voucher code",
 		Handler:        c.createHandler,
 		ResultTemplate: "Voucher created successfully!\nCode: {{.voucher.Code}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Discord,
+			entity.BotID_CLI,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "amount",
@@ -82,6 +91,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Generate multiple voucher codes by importing a file",
 		Handler:        c.createBulkHandler,
 		ResultTemplate: "Vouchers created successfully!\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Discord,
+			entity.BotID_CLI,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "file",
@@ -102,6 +115,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "View the status of vouchers or a specific voucher",
 		Handler:        c.statusHandler,
 		ResultTemplate: "Code: {{.voucher.Code}}\nAmount: {{.voucher.Amount}}\nExpire At: {{.expireAt}}\nRecipient: {{.voucher.Recipient}}\nDescription: {{.voucher.Desc}}\nClaimed: {{.isClaimed}}\nTx Link: {{.txLink}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Discord,
+			entity.BotID_CLI,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -122,10 +139,11 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 
 func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 	voucherCmd := &command.Command{
-		Emoji:       "🎁",
-		Name:        "voucher",
-		Help:        "Commands for managing vouchers",
-		SubCommands: make([]*command.Command, 0),
+		Emoji:        "🎁",
+		Name:         "voucher",
+		Help:         "Commands for managing vouchers",
+		SubCommands:  make([]*command.Command, 0),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 
 	c.voucherSubCmds = c.buildSubCmds()

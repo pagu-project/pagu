@@ -83,7 +83,7 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for i, cmd := range cmds {
-		if !cmd.HasPlatformID(entity.PlatformIDDiscord) {
+		if !cmd.HasBotID(entity.BotID_Discord) {
 			continue
 		}
 

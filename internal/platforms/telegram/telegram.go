@@ -12,7 +12,6 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/log"
-	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	tele "gopkg.in/telebot.v3"
@@ -88,7 +87,6 @@ func (bot *Bot) deleteAllCommands() {
 	}
 }
 
-//nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands() error {
 	rows := make([]tele.Row, 0)
 	menu := &tele.ReplyMarkup{ResizeKeyboard: true}
@@ -96,24 +94,7 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for i, cmd := range cmds {
-		if !cmd.HasPlatformID(entity.PlatformIDTelegram) {
-			continue
-		}
-
-		switch bot.target {
-		case config.BotNamePaguMainnet:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskMainnet) {
-				continue
-			}
-
-		case config.BotNamePaguModerator:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
-				continue
-			}
-
-		default:
-			log.Warn("invalid target", "target", bot.target)
-
+		if !cmd.HasBotID(entity.BotID_Telegram) {
 			continue
 		}
 
@@ -126,23 +107,6 @@ func (bot *Bot) registerCommands() error {
 			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 			subRows := make([]tele.Row, 0)
 			for _, subCmd := range cmd.SubCommands {
-				switch bot.target {
-				case config.BotNamePaguMainnet:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskMainnet) {
-						continue
-					}
-
-				case config.BotNamePaguModerator:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskModerator) {
-						continue
-					}
-
-				default:
-					log.Warn("invalid target", "target", bot.target)
-
-					continue
-				}
-
 				log.Info("adding command sub-command", "command", cmd.Name,
 					"sub-command", subCmd.Name, "desc", subCmd.Help)
 
