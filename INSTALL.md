@@ -53,6 +53,56 @@ These can be obtained by following the [Discord Developer Guide](https://discord
 
 If you plan to run Pagu on Telegram, you will need a Telegram Bot Token.
 
+
+### 7. Install Glow (Optional)
+
+The CLI outputs results in Markdown format for better readability.
+
+It makes output results format better in term of readability.
+
+```bash
+# macOS or Linux
+brew install glow
+
+# macOS (with MacPorts)
+sudo port install glow
+
+# Arch Linux (btw)
+pacman -S glow
+
+# Void Linux
+xbps-install -S glow
+
+# Nix shell
+nix-shell -p glow --command glow
+
+# FreeBSD
+pkg install glow
+
+# Solus
+eopkg install glow
+
+# Windows (with Chocolatey, Scoop, or Winget)
+choco install glow
+scoop install glow
+winget install charmbracelet.glow
+
+# Android (with termux)
+pkg install glow
+
+# Debian/Ubuntu
+sudo apt install glow
+
+# Fedora/RHEL
+echo '[charm]
+name=Charm
+baseurl=https://repo.charm.sh/yum/
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
+sudo yum install glow
+```
+
 ## Running Pagu
 
 Run Pagu using the Command-Line Interface (CLI) without the need for integration into Discord or Telegram.
