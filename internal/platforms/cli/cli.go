@@ -45,6 +45,6 @@ func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
 		command.Stdin = strings.NewReader(chatHistory.String())
 		command.Stdout = os.Stdout
 		command.Stderr = os.Stderr
-		command.Run()
+		_ = command.Run()
 	}
 }
