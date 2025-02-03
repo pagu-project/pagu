@@ -58,7 +58,7 @@ If you plan to run Pagu on Telegram, you will need a Telegram Bot Token.
 
 The CLI outputs results in Markdown format for better readability.
 
-To enhance your experience, you can use Glow to render Markdown directly in the terminal.
+It makes output results format better in term of readability.
 
 ```bash
 # macOS or Linux
