@@ -4,7 +4,7 @@ name: crowdfund
 help: Commands for managing crowdfunding campaigns
 sub_commands:
   - name: create
-    target_bot_ids: [Moderator, CLI]
+    target_bot_ids: [Moderator, CLI, Moderator]
     help: Create a new crowdfunding campaign
     result_template: |
       Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages
@@ -22,7 +22,7 @@ sub_commands:
         input_box: MultilineText
         optional: false
   - name: disable
-    target_bot_ids: [Moderator, CLI]
+    target_bot_ids: [Moderator, CLI, Moderator]
     help: Disable an existing crowdfunding campaign
   - name: report
     help: View reports of a crowdfunding campaign

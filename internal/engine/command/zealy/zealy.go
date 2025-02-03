@@ -41,7 +41,7 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 		Help:         "Check the status of Zealy reward claims",
 		Args:         nil,
 		SubCommands:  nil,
-		TargetBotIDs: []entity.BotID{entity.BotID_Discord},
+		TargetBotIDs: []entity.BotID{entity.BotID_Discord, entity.BotID_Moderator},
 		Handler:      z.statusHandler,
 	}
 
@@ -49,7 +49,7 @@ func (z *ZealyCmd) GetCommand() *command.Command {
 		Name:         "zealy",
 		Help:         "Commands for managing Zealy campaign",
 		Args:         nil,
-		TargetBotIDs: []entity.BotID{entity.BotID_Discord},
+		TargetBotIDs: []entity.BotID{entity.BotID_Discord, entity.BotID_Moderator},
 		SubCommands:  make([]*command.Command, 0),
 		Handler:      nil,
 	}

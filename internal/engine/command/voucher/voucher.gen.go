@@ -58,6 +58,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_Discord,
 			entity.BotID_CLI,
+			entity.BotID_Moderator,
 		},
 		Args: []*command.Args{
 			{
@@ -94,6 +95,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_Discord,
 			entity.BotID_CLI,
+			entity.BotID_Moderator,
 		},
 		Args: []*command.Args{
 			{
@@ -118,6 +120,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_Discord,
 			entity.BotID_CLI,
+			entity.BotID_Moderator,
 		},
 		Args: []*command.Args{
 			{
