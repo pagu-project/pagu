@@ -23,11 +23,6 @@ func NewMarketCmd(clientMgr client.IManager, priceCache cache.Cache[string, enti
 
 func (m *MarketCmd) GetCommand() *command.Command {
 	cmd := m.buildMarketCommand()
-	cmd.PlatformIDs = entity.AllPlatformIDs()
-	cmd.TargetFlag = command.TargetMaskMainnet
-
-	m.subCmdPrice.PlatformIDs = entity.AllPlatformIDs()
-	m.subCmdPrice.TargetFlag = command.TargetMaskMainnet
 
 	return cmd
 }

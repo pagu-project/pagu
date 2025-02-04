@@ -2,7 +2,6 @@ package voucher
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
-	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/client"
 	"github.com/pagu-project/pagu/pkg/wallet"
@@ -28,23 +27,10 @@ func (v *VoucherCmd) GetCommand() *command.Command {
 	middlewareHandler := command.NewMiddlewareHandler(v.db, v.wallet)
 
 	cmd := v.buildVoucherCommand()
-	cmd.PlatformIDs = entity.AllPlatformIDs()
-	cmd.TargetFlag = command.TargetMaskMainnet | command.TargetMaskModerator
 
-	v.subCmdClaim.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
-	v.subCmdClaim.TargetFlag = command.TargetMaskMainnet
 	v.subCmdClaim.Middlewares = []command.MiddlewareFunc{middlewareHandler.WalletBalance}
-
-	v.subCmdCreate.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
-	v.subCmdCreate.TargetFlag = command.TargetMaskModerator
 	v.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
-
-	v.subCmdCreateBulk.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
-	v.subCmdCreateBulk.TargetFlag = command.TargetMaskModerator
 	v.subCmdCreateBulk.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
-
-	v.subCmdStatus.PlatformIDs = []entity.PlatformID{entity.PlatformIDDiscord, entity.PlatformIDCLI}
-	v.subCmdStatus.TargetFlag = command.TargetMaskModerator
 	v.subCmdStatus.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
 	return cmd

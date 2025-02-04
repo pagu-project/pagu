@@ -133,11 +133,11 @@ func newBotEngine(ctx context.Context,
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
 
 	rootCmd := &command.Command{
-		Emoji:       "🤖",
-		Name:        "pagu",
-		Help:        "",
-		PlatformIDs: entity.AllPlatformIDs(),
-		SubCommands: make([]*command.Command, 0),
+		Emoji:        "🤖",
+		Name:         "pagu",
+		Help:         "",
+		TargetBotIDs: entity.AllBotIDs(),
+		SubCommands:  make([]*command.Command, 0),
 	}
 
 	rootCmd.AddSubCommand(crowdfundCmd.GetCommand())
@@ -275,9 +275,6 @@ func (be *BotEngine) executeCommand(
 	log.Debug("execute command", "callerID", callerID, "commands", commands, "args", args)
 
 	cmd := be.getTargetCommand(commands)
-	if !cmd.HasPlatformID(platformID) {
-		return cmd.FailedResultF("Unauthorized platform: %s", platformID)
-	}
 
 	if cmd.Handler == nil {
 		return cmd.RenderHelpTemplate()
@@ -287,14 +284,14 @@ func (be *BotEngine) executeCommand(
 	if err != nil {
 		log.Error(err.Error())
 
-		return cmd.ErrorResult(fmt.Errorf("user is not defined in %s application", platformID))
+		return cmd.RenderErrorTemplate(fmt.Errorf("user is not defined in %s application", platformID))
 	}
 
 	for _, middlewareFunc := range cmd.Middlewares {
 		if err := middlewareFunc(caller, cmd, args); err != nil {
 			log.Error(err.Error())
 
-			return cmd.ErrorResult(errors.New("command is not available. please try again later"))
+			return cmd.RenderErrorTemplate(errors.New("command is not available. please try again later"))
 		}
 	}
 

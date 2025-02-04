@@ -3,6 +3,7 @@ package calculator
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 const (
@@ -22,6 +23,7 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 		Help:           "Calculate the PAC coins you can earn based on your validator stake",
 		Handler:        c.rewardHandler,
 		ResultTemplate: "Approximately you earn {{.reward}} PAC reward, with {{.stake}} stake 🔒 on your validator in {{.days}} days ⏰ with {{.totalPower}} total power ⚡ of committee.\n\n> Note📝: This number is just an estimation. It will vary depending on your stake amount and total network power.\n",
+		TargetBotIDs:   entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "stake",
@@ -42,6 +44,7 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 		Help:           "Return the estimated transaction fee on the network",
 		Handler:        c.feeHandler,
 		ResultTemplate: "Sending {{.amount}} will cost {{.fee}} with current fee percentage.\n",
+		TargetBotIDs:   entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "amount",
@@ -60,10 +63,11 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 
 func (c *CalculatorCmd) buildCalculatorCommand() *command.Command {
 	calculatorCmd := &command.Command{
-		Emoji:       "🧮",
-		Name:        "calculator",
-		Help:        "Perform calculations such as reward and fee estimations",
-		SubCommands: make([]*command.Command, 0),
+		Emoji:        "🧮",
+		Name:         "calculator",
+		Help:         "Perform calculations such as reward and fee estimations",
+		SubCommands:  make([]*command.Command, 0),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 
 	c.calculatorSubCmds = c.buildSubCmds()

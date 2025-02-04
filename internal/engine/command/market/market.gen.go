@@ -3,6 +3,7 @@ package market
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
 type marketSubCmds struct {
@@ -15,6 +16,7 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 		Help:           "Shows the latest price of PAC coin across different markets",
 		Handler:        c.priceHandler,
 		ResultTemplate: "Xeggex Price: **{{.xeggexPrice}} USDT**\n[Xeggex](https://xeggex.com/market/PACTUS_USDT)\n\nAzbit Price: **{{.azbitPrice}} USDT**\n[Azbit](https://azbit.com/exchange/PAC_USDT)\n",
+		TargetBotIDs:   entity.AllBotIDs(),
 	}
 
 	return &marketSubCmds{
@@ -24,10 +26,11 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 
 func (c *MarketCmd) buildMarketCommand() *command.Command {
 	marketCmd := &command.Command{
-		Emoji:       "📈",
-		Name:        "market",
-		Help:        "Commands for managing market",
-		SubCommands: make([]*command.Command, 0),
+		Emoji:        "📈",
+		Name:         "market",
+		Help:         "Commands for managing market",
+		SubCommands:  make([]*command.Command, 0),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 
 	c.marketSubCmds = c.buildSubCmds()

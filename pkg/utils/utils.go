@@ -9,6 +9,7 @@ import (
 	"github.com/pactus-project/pactus/crypto"
 	"github.com/pactus-project/pactus/crypto/ed25519"
 	"github.com/pactus-project/pactus/util/bech32m"
+	"github.com/pagu-project/pagu/internal/entity"
 	"golang.org/x/exp/constraints"
 )
 
@@ -34,6 +35,17 @@ func UnsetFlag[T constraints.Integer](flags, mask T) T {
 // IsFlagSet checks if the mask is set for the given flags.
 func IsFlagSet[T constraints.Integer](flags, mask T) bool {
 	return flags&mask == mask
+}
+
+// IsDefinedOnBotID checks if any of the given bot IDs is defined on the target bot ID.
+func IsDefinedOnBotID(botIDs []entity.BotID, target entity.BotID) bool {
+	for _, botID := range botIDs {
+		if botID == target {
+			return true
+		}
+	}
+
+	return false
 }
 
 // MarshalEnum serializes an enum value into its string representation using the provided `toString` map.
