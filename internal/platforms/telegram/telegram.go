@@ -146,7 +146,7 @@ func (bot *Bot) registerCommands() error {
 				log.Info("adding command sub-command", "command", cmd.Name,
 					"sub-command", subCmd.Name, "desc", subCmd.Help)
 
-				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), subCmd.Name)
+				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
 
 				bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
 					if len(subCmd.Args) > 0 {
@@ -171,16 +171,6 @@ func (bot *Bot) registerCommands() error {
 				return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
 			})
 		} else {
-			bot.botInstance.Handle(&btn, func(ctx tele.Context) error {
-				if len(cmd.Args) > 0 {
-					return bot.handleArgCommand(ctx, []string{cmd.Name}, cmd.Args)
-				}
-
-				_ = bot.botInstance.Delete(ctx.Message())
-
-				return bot.handleCommand(ctx, []string{cmd.Name})
-			})
-
 			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
 				_ = bot.botInstance.Delete(ctx.Message())
 
