@@ -42,11 +42,17 @@ func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
 
 		response := botEngine.ParseAndExecute(entity.PlatformIDCLI, "0", input)
 
-		mdRresponse, err := r.Render(fmt.Sprintf("%v\n%v", response.Title, response.Message))
-		if err != nil {
-			log.Error("error in rendering mark down", "error", err)
+		res := fmt.Sprintf("%v\n%v", response.Title, response.Message)
+
+		if r != nil {
+			richRresponse, err := r.Render(res)
+			if err != nil {
+				log.Error("error in rendering mark down", "error", err)
+			} else {
+				res = richRresponse
+			}
 		}
 
-		cmd.Print(mdRresponse)
+		cmd.Print(res)
 	}
 }
