@@ -6,22 +6,20 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pagu-project/pagu/pkg/log"
-
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )
 
 const PROMPT = "\n>> "
 
 func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
-
 	r, err := glamour.NewTermRenderer(
 		glamour.WithColorProfile(lipgloss.ColorProfile()),
-		glamour.TermRendererOption(glamour.WithAutoStyle()),
+		glamour.WithAutoStyle(),
 		glamour.WithPreservedNewLines(),
 	)
 	if err != nil {
@@ -49,6 +47,6 @@ func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
 			log.Error("error in rendering mark down", "error", err)
 		}
 
-		cmd.Printf(mdRresponse)
+		cmd.Print(mdRresponse)
 	}
 }
