@@ -56,7 +56,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Handler:        c.createHandler,
 		ResultTemplate: "Voucher created successfully!\nCode: {{.voucher.Code}}\n",
 		TargetBotIDs: []entity.BotID{
-			entity.BotID_Discord,
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
@@ -93,7 +92,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Handler:        c.createBulkHandler,
 		ResultTemplate: "Vouchers created successfully!\n",
 		TargetBotIDs: []entity.BotID{
-			entity.BotID_Discord,
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
@@ -118,7 +116,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Handler:        c.statusHandler,
 		ResultTemplate: "Code: {{.voucher.Code}}\nAmount: {{.voucher.Amount}}\nExpire At: {{.expireAt}}\nRecipient: {{.voucher.Recipient}}\nDescription: {{.voucher.Desc}}\nClaimed: {{.isClaimed}}\nTx Link: {{.txLink}}\n",
 		TargetBotIDs: []entity.BotID{
-			entity.BotID_Discord,
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
