@@ -2,12 +2,14 @@ package cli
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 
+	"github.com/pagu-project/pagu/pkg/log"
+
+	"github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/spf13/cobra"
@@ -16,10 +18,19 @@ import (
 const PROMPT = "\n>> "
 
 func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
+
+	r, err := glamour.NewTermRenderer(
+		glamour.WithColorProfile(lipgloss.ColorProfile()),
+		glamour.TermRendererOption(glamour.WithAutoStyle()),
+		glamour.WithPreservedNewLines(),
+	)
+	if err != nil {
+		log.Error("error on rendering terminal", "error", err)
+	}
+
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		chatHistory := bytes.Buffer{}
 		cmd.Print(PROMPT)
 
 		input, _ := reader.ReadString('\n')
@@ -33,18 +44,11 @@ func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
 
 		response := botEngine.ParseAndExecute(entity.PlatformIDCLI, "0", input)
 
-		chatHistory.WriteString(fmt.Sprintf("%v\n%v", response.Title, response.Message))
-
-		// Pass response to Glow via stdin
-		command := exec.Command("glow")
-		if command.Err != nil {
-			cmd.Printf("%v\n%v", response.Title, response.Message)
-
-			continue
+		mdRresponse, err := r.Render(fmt.Sprintf("%v\n%v", response.Title, response.Message))
+		if err != nil {
+			log.Error("error in rendering mark down", "error", err)
 		}
-		command.Stdin = strings.NewReader(chatHistory.String())
-		command.Stdout = os.Stdout
-		command.Stderr = os.Stderr
-		_ = command.Run()
+
+		cmd.Printf(mdRresponse)
 	}
 }
