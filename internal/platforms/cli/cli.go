@@ -23,7 +23,7 @@ func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
 		glamour.WithPreservedNewLines(),
 	)
 	if err != nil {
-		log.Error("error on rendering terminal", "error", err)
+		log.Warn("error on rendering terminal", "Warn", err)
 	}
 
 	reader := bufio.NewReader(os.Stdin)
@@ -47,7 +47,7 @@ func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
 		if r != nil {
 			richRresponse, err := r.Render(res)
 			if err != nil {
-				log.Error("error in rendering mark down", "error", err)
+				log.Warn("error in rendering mark down", "Warn", err)
 			} else {
 				res = richRresponse
 			}
