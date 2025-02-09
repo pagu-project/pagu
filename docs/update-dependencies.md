@@ -11,7 +11,7 @@ go get -u ./...
 go mod tidy
 ```
 
-Once all packages got updated, make sure you run `make build` and `make test` commands to
+Once all packages got updated, make sure you run `make build`, `make check` and `make test` commands to
 make sure none of previous behaviors are broken.
 If any packages had breaking changes or some of them are deprecated,
 you need to update the code and use new methods or use another package.
@@ -26,4 +26,5 @@ Make sure you are updating version of Golang on [Dockerfile](../deployment/Docke
 ### Example Pull Request
 
 Here is an example pull request to find out what you need to update and how to set commit message:
+
 https://github.com/pagu-project/pagu/pull/314
