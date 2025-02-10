@@ -242,6 +242,7 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
 				bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
 					commands = append(commands, choices[0])
+
 					return bot.handleCommand(c, commands)
 				})
 			}
