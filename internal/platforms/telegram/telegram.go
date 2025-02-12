@@ -232,12 +232,12 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 
 	choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 	choiceRows := make([]tele.Row, 0)
-	choiceMeg := fmt.Sprintf("Please Select %s\nSome description goes here\n\n", args[0].Name)
+	choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n\n", args[0].Name)
 	for _, arg := range args {
 		if len(arg.Choices) > 0 {
 			for _, choice := range arg.Choices {
 				choices := strings.Split(choice.Name, " ")
-				choiceMeg += fmt.Sprintf("-%s : %s\n", choices[0], strings.Join(choices[1:], " "))
+				choiceMeg += fmt.Sprintf("- %s : %s\n", choices[0], strings.Join(choices[1:], " "))
 				choiceBtn := choiceMenu.Data(cases.Title(language.English).String(choices[0]), choices[0])
 				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
 				bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
