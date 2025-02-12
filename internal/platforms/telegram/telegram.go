@@ -230,7 +230,27 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 	argsValue[ctx.Sender().ID] = nil
 	_ = bot.botInstance.Delete(ctx.Message())
 
-	return ctx.Send(fmt.Sprintf("Please Enter %s", args[0].Name))
+	choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
+	choiceRows := make([]tele.Row, 0)
+	choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n", args[0].Name)
+	for _, arg := range args {
+		if len(arg.Choices) > 0 {
+			for _, choice := range arg.Choices {
+				choices := strings.Split(choice.Name, " ")
+				choiceMeg += fmt.Sprintf("- %s : %s\n", choices[0], strings.Join(choices[1:], " "))
+				choiceBtn := choiceMenu.Data(cases.Title(language.English).String(choices[0]), choices[0])
+				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
+				bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
+					commands = append(commands, choices[0])
+
+					return bot.handleCommand(c, commands)
+				})
+			}
+		}
+	}
+	choiceMenu.Inline(choiceRows...)
+
+	return ctx.Send(choiceMeg, choiceMenu)
 }
 
 // handleCommand executes a command with its arguments for the user.

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -87,7 +88,7 @@ func Load(path string) (*Config, error) {
 // BasicCheck validate presence of required config variables.
 func (cfg *Config) BasicCheck() error {
 	if cfg.Wallet.Address == "" {
-		return fmt.Errorf("config: Wallet address dose not set")
+		return errors.New("config: Wallet address dose not set")
 	}
 
 	// Check if the WalletPath exists.
@@ -96,7 +97,7 @@ func (cfg *Config) BasicCheck() error {
 	}
 
 	if len(cfg.NetworkNodes) == 0 {
-		return fmt.Errorf("config: network nodes is empty")
+		return errors.New("config: network nodes is empty")
 	}
 
 	return nil
