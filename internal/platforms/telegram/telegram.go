@@ -241,7 +241,8 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 				choiceBtn := choiceMenu.Data(cases.Title(language.English).String(choices[0]), choices[0])
 				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
 				bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
-					commands = append(commands, choices[0])
+					choices = strings.Split(choices[0], "-")
+					commands = append(commands, fmt.Sprintf("--%s=%v", choices[0], choices[1]))
 
 					return bot.handleCommand(c, commands)
 				})
