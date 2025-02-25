@@ -88,7 +88,6 @@ func (p *price) start() {
 
 	wg.Wait()
 
-	// price.XeggexPacToUSDT = xeggex
 	price.TradeOgrePacToUSDT = tradeOgre
 	if len(azbit) > 0 {
 		price.AzbitPacToUSDT = azbit[0]
