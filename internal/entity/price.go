@@ -1,8 +1,9 @@
 package entity
 
 type Price struct {
-	XeggexPacToUSDT XeggexPriceResponse
-	AzbitPacToUSDT  AzbitPriceResponse
+	XeggexPacToUSDT    XeggexPriceResponse
+	AzbitPacToUSDT     AzbitPriceResponse
+	TradeOgrePacToUSDT TradeOgrePriceResponse
 }
 
 //nolint:tagliatelle // External dependency
@@ -32,4 +33,15 @@ type AzbitPriceResponse struct {
 	AskPrice                 float64 `json:"askPrice"`
 	Low24H                   float64 `json:"low24h"`
 	High24H                  float64 `json:"high24h"`
+}
+
+//nolint:tagliatelle // External dependency
+type TradeOgrePriceResponse struct {
+	InitialPrice string `json:"initialprice"`
+	Price        string `json:"price"`
+	High         string `json:"high"`
+	Low          string `json:"low"`
+	Volume       string `json:"volume"`
+	Bid          string `json:"bid"`
+	Ask          string `json:"ask"`
 }
