@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	_defaultTradeOgreEndpoint  = "https://tradeogre.com/api/v1/ticker/PAC-USDT"
-	_defaultAzbitPriceEndpoint = "https://data.azbit.com/api/tickers?currencyPairCode=PAC_USDT"
+	_defaultXeggexPriceEndpoint = "https://api.xeggex.com/api/v2/market/getbysymbol/Pactus%2Fusdt"
+	_defaultTradeOgreEndpoint   = "https://tradeogre.com/api/v1/ticker/PAC-USDT"
+	_defaultAzbitPriceEndpoint  = "https://data.azbit.com/api/tickers?currencyPairCode=PAC_USDT"
 )
 
 type price struct {
@@ -48,11 +49,22 @@ func (p *price) start() {
 	var (
 		wg        sync.WaitGroup
 		price     entity.Price
+		xeggex    entity.XeggexPriceResponse
 		tradeOgre entity.TradeOgrePriceResponse
 		azbit     []entity.AzbitPriceResponse
 	)
 
 	ctx := context.Background()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := p.getPrice(ctx, _defaultXeggexPriceEndpoint, &xeggex); err != nil {
+			log.Error(err.Error())
+
+			return
+		}
+	}()
 
 	wg.Add(1)
 	go func() {
@@ -76,6 +88,7 @@ func (p *price) start() {
 
 	wg.Wait()
 
+	price.XeggexPacToUSDT = xeggex
 	price.TradeOgrePacToUSDT = tradeOgre
 	if len(azbit) > 0 {
 		price.AzbitPacToUSDT = azbit[0]

@@ -7,6 +7,9 @@ sub_commands:
   help: Shows the latest price of PAC coin across different markets
   result_template: |
   
+    Xeggex Price: **{{.xeggexPrice}} USDT**
+    [Xeggex](https://xeggex.com/market/PACTUS_USDT)
+
     Tradeogre Price: **{{.tradeOgre}} USDT**
     [Trade Ogre](https://tradeogre.com/exchange/PAC-USDT)
 
