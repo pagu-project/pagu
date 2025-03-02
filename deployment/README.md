@@ -7,18 +7,27 @@ This project includes an automated deployment process for both the `stable` and 
 #### Database User Setup
 
 To grant the correct privileges to a single database user, execute the following SQL commands.
-Make sure to replace `<MYSQL_USER>` and `<MYSQL_PASSWORD>` with the appropriate values for your setup.
+Make sure to replace `<MYSQL_USER>`, `<USER_PASSWORD>`, `<MYSQL_READONLY>` and `<READONLY_PASSWORD>`
+with the appropriate values for your setup.
+The read_only user granted to just read the database and ahs no write or update privilages.
 
 ```sql
 CREATE DATABASE IF NOT EXISTS pagu;
 CREATE DATABASE IF NOT EXISTS pagu_staging;
 
 -- Ensure the user exists
-CREATE USER IF NOT EXISTS '<MYSQL_USER>'@'%' IDENTIFIED BY '<MYSQL_PASSWORD>';
+CREATE USER IF NOT EXISTS '<MYSQL_USER>'@'%' IDENTIFIED BY '<USER_PASSWORD>';
+CREATE USER IF NOT EXISTS '<MYSQL_READONLY>'@'%' IDENTIFIED BY '<READONLY_PASSWORD>';;
+
+GRANT SELECT ON `databasename`.* TO 'username'@'localhost';
 
 -- Grant privileges to the user on both databases
 GRANT ALL PRIVILEGES ON pagu.* TO '<MYSQL_USER>'@'%';
 GRANT ALL PRIVILEGES ON pagu_staging.* TO '<MYSQL_USER>'@'%';
+
+-- Grant select privileges to the read_only on both databases
+GRANT SELECT ON pagu.* TO '<MYSQL_READONLY>'@'%';
+GRANT SELECT ON pagu_staging.* TO '<MYSQL_READONLY>'@'%';
 
 -- Apply the changes
 FLUSH PRIVILEGES;
