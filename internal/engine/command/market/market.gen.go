@@ -16,7 +16,7 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 		Name:           "price",
 		Help:           "Shows the latest price of PAC coin across different markets",
 		Handler:        c.priceHandler,
-		ResultTemplate: "\nTradeogre Price: **{{.tradeOgre}} USDT**\n[Trade ogre](https://tradeogre.com/exchange/PAC-USDT)\n\nAzbit Price: **{{.azbitPrice}} USDT**\n[Azbit](https://azbit.com/exchange/PAC_USDT)\n",
+		ResultTemplate: "\nTradeogre Price: **{{.tradeOgre}} USDT**\n[Trade Ogre](https://tradeogre.com/exchange/PAC-USDT)\n\nAzbit Price: **{{.azbitPrice}} USDT**\n[Azbit](https://azbit.com/exchange/PAC_USDT)\n",
 		TargetBotIDs: entity.AllBotIDs(),
 	}
 
