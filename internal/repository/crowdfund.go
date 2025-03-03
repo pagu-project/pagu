@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 func (db *Database) AddCrowdfundCampaign(campaign *entity.CrowdfundCampaign) error {
@@ -80,32 +81,34 @@ func (db *Database) GetCrowdfundPurchases(userID uint) ([]*entity.CrowdfundPurch
 	return purchases, nil
 }
 
-func (db *Database) GetTotalPurchasedPackages() (int64, error) {
+func (db *Database) GetTotalPurchasedPackages() int64 {
 	var count int64
 	tx := db.gormDB.Model(&entity.CrowdfundPurchase{}).
 		Where("tx_hash <> ''").
 		Count(&count)
 
 	if tx.Error != nil {
-		return 0, ReadError{
-			Message: tx.Error.Error(),
-		}
+		log.Error(tx.Error.Error())
+
+		return -1
 	}
 
-	return count, nil
+	return count
 }
 
-func (db *Database) GetTotalCrowdfundedAmount() (int64, error) {
+// GetTotalCrowdfundedAmount returns the total crowdfunded amount in USD with successfully claimed transactions.
+// It does not include any paid but unclaimed purchases.
+func (db *Database) GetTotalCrowdfundedAmount() int64 {
 	var totalUSD int64
 	tx := db.gormDB.Model(&entity.CrowdfundPurchase{}).
 		Where("tx_hash <> ''").
 		Select("SUM(usd_amount)").
 		Scan(&totalUSD)
 	if tx.Error != nil {
-		return 0, ReadError{
-			Message: tx.Error.Error(),
-		}
+		log.Error(tx.Error.Error())
+
+		return -1
 	}
 
-	return totalUSD, nil
+	return totalUSD
 }

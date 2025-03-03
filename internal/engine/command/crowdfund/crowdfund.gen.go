@@ -66,7 +66,7 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Name:           "report",
 		Help:           "View reports of a crowdfunding campaign",
 		Handler:        c.reportHandler,
-		ResultTemplate: "Crowdfunding Report\n\n- Total purchased packages: **{{.count}}**  \n- Total crowdfunded amount: **{{.amount}} USDT**  \n",
+		ResultTemplate: "## Crowdfunding Report\n\n- Total purchased packages: **{{.count}}**  \n- Total crowdfunded amount: **{{.amount}} USDT**  \n",
 		TargetBotIDs: entity.AllBotIDs(),
 	}
 	subCmdInfo := &command.Command{

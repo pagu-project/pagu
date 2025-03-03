@@ -27,7 +27,7 @@ sub_commands:
   - name: report
     help: View reports of a crowdfunding campaign
     result_template: |
-      Crowdfunding Report
+      ## Crowdfunding Report
 
       - Total purchased packages: **{{.count}}**  
       - Total crowdfunded amount: **{{.amount}} USDT**  
