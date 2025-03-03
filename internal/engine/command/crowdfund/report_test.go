@@ -11,6 +11,6 @@ func TestReport(t *testing.T) {
 
 	t.Run("ok", func(t *testing.T) {
 		result := td.crowdfundCmd.reportHandler(nil, td.crowdfundCmd.subCmdReport, nil)
-		assert.False(t, result.Successful)
+		assert.True(t, result.Successful)
 	})
 }
