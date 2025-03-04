@@ -5,10 +5,13 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (*CrowdfundCmd) reportHandler(
+func (c *CrowdfundCmd) reportHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	return cmd.SuccessfulResult("TODO")
+	count := c.db.GetTotalPurchasedPackages()
+	amount := c.db.GetTotalCrowdfundedAmount()
+
+	return cmd.RenderResultTemplate("count", count, "amount", amount)
 }
