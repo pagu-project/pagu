@@ -96,18 +96,18 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for i, cmd := range cmds {
-		if !cmd.HasPlatformID(entity.PlatformIDTelegram) {
+		if !cmd.HasBotID(entity.BotID_Telegram) {
 			continue
 		}
 
 		switch bot.target {
 		case config.BotNamePaguMainnet:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskMainnet) {
+			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
 				continue
 			}
 
 		case config.BotNamePaguModerator:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
+			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
 				continue
 			}
 
@@ -128,12 +128,12 @@ func (bot *Bot) registerCommands() error {
 			for _, subCmd := range cmd.SubCommands {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskMainnet) {
+					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Telegram) {
 						continue
 					}
 
 				case config.BotNamePaguModerator:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskModerator) {
+					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
 						continue
 					}
 
@@ -146,7 +146,7 @@ func (bot *Bot) registerCommands() error {
 				log.Info("adding command sub-command", "command", cmd.Name,
 					"sub-command", subCmd.Name, "desc", subCmd.Help)
 
-				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), subCmd.Name)
+				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
 
 				bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
 					if len(subCmd.Args) > 0 {
@@ -171,16 +171,6 @@ func (bot *Bot) registerCommands() error {
 				return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
 			})
 		} else {
-			bot.botInstance.Handle(&btn, func(ctx tele.Context) error {
-				if len(cmd.Args) > 0 {
-					return bot.handleArgCommand(ctx, []string{cmd.Name}, cmd.Args)
-				}
-
-				_ = bot.botInstance.Delete(ctx.Message())
-
-				return bot.handleCommand(ctx, []string{cmd.Name})
-			})
-
 			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
 				_ = bot.botInstance.Delete(ctx.Message())
 
@@ -240,7 +230,28 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 	argsValue[ctx.Sender().ID] = nil
 	_ = bot.botInstance.Delete(ctx.Message())
 
-	return ctx.Send(fmt.Sprintf("Please Enter %s", args[0].Name))
+	choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
+	choiceRows := make([]tele.Row, 0)
+	choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n", args[0].Name)
+	for _, arg := range args {
+		if len(arg.Choices) > 0 {
+			for _, choice := range arg.Choices {
+				choices := strings.Split(choice.Name, " ")
+				choiceMeg += fmt.Sprintf("- %s : %s\n", choices[0], strings.Join(choices[1:], " "))
+				choiceBtn := choiceMenu.Data(cases.Title(language.English).String(choices[0]), choices[0])
+				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
+				bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
+					choices = strings.Split(choices[0], "-")
+					commands = append(commands, fmt.Sprintf("--%s=%v", choices[0], choices[1]))
+
+					return bot.handleCommand(c, commands)
+				})
+			}
+		}
+	}
+	choiceMenu.Inline(choiceRows...)
+
+	return ctx.Send(choiceMeg, choiceMenu)
 }
 
 // handleCommand executes a command with its arguments for the user.

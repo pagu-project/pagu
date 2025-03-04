@@ -1,7 +1,7 @@
 package zealy
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
@@ -25,7 +25,7 @@ func (z *ZealyCmd) claimHandler(caller *entity.User,
 	txHash, err := z.wallet.TransferTransaction(address, "Pagu Zealy reward distribution", user.Amount)
 	if err != nil {
 		log.Error("error in transfer zealy reward", "err", err)
-		transferErr := fmt.Errorf("failed to transfer zealy reward. Please make sure the address is valid")
+		transferErr := errors.New("failed to transfer zealy reward. Please make sure the address is valid")
 
 		return cmd.ErrorResult(transferErr)
 	}

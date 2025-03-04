@@ -119,7 +119,7 @@ func (v *VoucherCmd) createBulkHandler(
 	}
 
 	if len(records) == 0 {
-		err = fmt.Errorf("no record founded. Please add at least one record to csv file")
+		err = errors.New("no record founded. Please add at least one record to csv file")
 
 		return cmd.RenderErrorTemplate(err)
 	}
@@ -165,7 +165,7 @@ func (v *VoucherCmd) createBulkVoucher(records []BulkRecorder, callerID uint) ([
 
 		maxStake, _ := amount.NewAmount(1000)
 		if amt > maxStake {
-			return nil, fmt.Errorf("stake amount is more than 1000")
+			return nil, errors.New("stake amount is more than 1000")
 		}
 
 		validMonths := record.ValidatedInMonth

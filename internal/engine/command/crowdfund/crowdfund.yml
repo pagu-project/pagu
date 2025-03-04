@@ -3,60 +3,67 @@ emoji: 🤝
 name: crowdfund
 help: Commands for managing crowdfunding campaigns
 sub_commands:
-- name: create
-  help: Create a new crowdfunding campaign
-  result_template: |
-    Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages
-  args:
-  - name: title
-    desc: The title of this crowdfunding campaign
-    input_box: Text
-    optional: false
-  - name: desc
-    desc: A description of this crowdfunding campaign
-    input_box: MultilineText
-    optional: false
-  - name: packages
-    desc: The packages for this campaign in JSON format
-    input_box: MultilineText
-    optional: false
-- name: disable
-  help: Disable an existing crowdfunding campaign
-- name: report
-  help: View reports of a crowdfunding campaign
-- name: info
-  help: Get detailed information about a crowdfunding campaign
-  result_template: |
-    **{{.campaign.Title}}**
-    {{.campaign.Desc}}
+  - name: create
+    target_bot_ids: [Moderator, CLI]
+    help: Create a new crowdfunding campaign
+    result_template: |
+      Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages
+    args:
+      - name: title
+        desc: The title of this crowdfunding campaign
+        input_box: Text
+        optional: false
+      - name: desc
+        desc: A description of this crowdfunding campaign
+        input_box: MultilineText
+        optional: false
+      - name: packages
+        desc: The packages for this campaign in JSON format
+        input_box: MultilineText
+        optional: false
+  - name: disable
+    target_bot_ids: [Moderator, CLI]
+    help: Disable an existing crowdfunding campaign
+  - name: report
+    help: View reports of a crowdfunding campaign
+    result_template: |
+      **Crowdfunding Report**
 
-    Packages:
-    {{range .campaign.Packages}}
-    - {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}
-    {{- end}}
-- name: purchase
-  help: Make a purchase in a crowdfunding campaign
-  args:
-  - name: package
-    desc: Select the crowdfunding package
-    input_box: Choice
-    optional: false
-  result_template: |
-    Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.
-    Please visit {{ .paymentLink }} to make the payment.
+      - Total purchased packages: **{{.count}}**
+      - Total crowdfunded amount: **{{.amount}} USDT**
+  - name: info
+    help: Get detailed information about a crowdfunding campaign
+    result_template: |
+      **{{.campaign.Title}}**
+      {{.campaign.Desc}}
 
-    Once the payment is done, you can claim your PAC coins using "claim" command.
+      Packages:
+      {{range .campaign.Packages}}
+      - {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}
+      {{- end}}
+  - name: purchase
+    help: Make a purchase in a crowdfunding campaign
+    args:
+      - name: package
+        desc: Select the crowdfunding package
+        input_box: Choice
+        optional: false
+    result_template: |
+      Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.
+      Please visit {{ .paymentLink }} to make the payment.
 
-    Thanks
-- name: claim
-  help: Claim packages from a crowdfunding campaign
-  args:
-  - name: address
-    desc: Set your Pactus address
-    input_box: Text
-    optional: false
-  result_template: |
-    Thank you for supporting the Pactus blockchain!
+      Once the payment is done, you can claim your PAC coins using "claim" command.
 
-    You can track your transaction here: {{.txLink}}
-    If you have any questions or need assistance, feel free to reach out to our community.
+      Thanks
+  - name: claim
+    help: Claim packages from a crowdfunding campaign
+    args:
+      - name: address
+        desc: Set your Pactus address
+        input_box: Text
+        optional: false
+    result_template: |
+      Thank you for supporting the Pactus blockchain!
+
+      You can track your transaction here: {{.txLink}}
+      If you have any questions or need assistance, feel free to reach out to our community.

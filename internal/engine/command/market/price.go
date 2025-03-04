@@ -20,5 +20,14 @@ func (m *MarketCmd) priceHandler(_ *entity.User, cmd *command.Command, _ map[str
 		log.Error("unable to parse float", "error", err)
 	}
 
-	return cmd.RenderResultTemplate("xeggexPrice", xeggexPrice, "azbitPrice", priceData.AzbitPacToUSDT.Price)
+	tradeOgre, err := strconv.ParseFloat(priceData.TradeOgrePacToUSDT.Price, 64)
+	if err != nil {
+		log.Error("unable to parse float", "error", err)
+	}
+
+	return cmd.RenderResultTemplate(
+		"xeggexPrice", xeggexPrice,
+		"tradeOgre", tradeOgre,
+		"azbitPrice", priceData.AzbitPacToUSDT.Price,
+	)
 }

@@ -53,6 +53,7 @@ These can be obtained by following the [Discord Developer Guide](https://discord
 
 If you plan to run Pagu on Telegram, you will need a Telegram Bot Token.
 
+
 ## Running Pagu
 
 Run Pagu using the Command-Line Interface (CLI) without the need for integration into Discord or Telegram.
