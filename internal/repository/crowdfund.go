@@ -88,7 +88,7 @@ func (db *Database) GetTotalPurchasedPackages() int64 {
 		Count(&count)
 
 	if tx.Error != nil {
-		log.Error(tx.Error.Error())
+		log.Error("failed to get total purchased packages", "error", tx.Error.Error())
 
 		return -1
 	}
@@ -105,7 +105,7 @@ func (db *Database) GetTotalCrowdfundedAmount() int64 {
 		Select("SUM(usd_amount)").
 		Scan(&totalUSD)
 	if tx.Error != nil {
-		log.Error(tx.Error.Error())
+		log.Error("failed to get total crowdfunded amount", "error", tx.Error.Error())
 
 		return -1
 	}
