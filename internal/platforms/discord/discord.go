@@ -169,7 +169,7 @@ func (bot *Bot) registerCommands() error {
 			}
 		}
 
-		cmd, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, bot.cfg.GuildID, &discordCmd)
+		cmd, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, "", &discordCmd)
 		if err != nil {
 			log.Error("can not register discord command", "name", discordCmd.Name, "error", err)
 
