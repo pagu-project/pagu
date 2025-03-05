@@ -1,0 +1,11 @@
+[Unit]
+Description=Forward port 50051 from Docker to the host
+After=network.target
+
+[Service]
+ExecStart=%h/pagu/docker2host.sh 50051:50051
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

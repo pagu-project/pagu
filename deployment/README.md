@@ -41,6 +41,27 @@ create an external Docker network with the following command:
 docker network create pagu_network
 ```
 
+### Docker To Host Port Forwarding
+
+Copy the `docker2host.service` file to the user's systemd unit directory on the target server.
+This is typically located at `~/.config/systemd/user/` on most Linux distributions.
+
+Next, enable and start the service:
+
+```bash
+chmod +x docker2host.sh
+
+systemctl --user enable docker2host.service
+systemctl --user start  docker2host.service
+```
+
+To ensure the service continues running even after you log out, enable lingering for the user account:
+
+```bash
+sudo loginctl enable-linger
+sudo loginctl enable-linger <USERNAME>
+```
+
 ## Deployment Overview
 
 The deployment system operates as follows:
@@ -66,7 +87,7 @@ git push origin v${VERSION}
 
 After creating the tag, the stable version will be released, and the deployment process will be triggered automatically.
 
-## Updating the Working Version
+### Updating the Working Version
 
 Once a stable version is released, immediately update the [version.go](../version.go) file and open a Pull Request.
 For reference, you can check this [Pull Request](https://github.com/pagu-project/pagu/pull/215).
