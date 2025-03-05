@@ -174,6 +174,10 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 
 	checkCommands = func(cmds []*command.Command) {
 		for _, cmd := range cmds {
+			if cmd.Help == "" {
+				t.Errorf("Command has no help: %s", cmd.Name)
+			}
+
 			if !isLowerCase(cmd.Name) {
 				t.Errorf("Command name is not lowercase: %s", cmd.Name)
 			}
