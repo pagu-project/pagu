@@ -31,10 +31,6 @@ func (c *CrowdfundCmd) createHandler(
 		return cmd.RenderFailedTemplate("The title of the crowdfunding campaign cannot be empty")
 	}
 
-	if len(packages) < 2 {
-		return cmd.RenderFailedTemplate("At least 3 packages are required for the crowdfunding campaign")
-	}
-
 	campaign := &entity.CrowdfundCampaign{
 		CreatorID: caller.ID,
 		Title:     title,

@@ -15,7 +15,7 @@ func TestInfo(t *testing.T) {
 	t.Run("No active Campaign", func(t *testing.T) {
 		result := td.crowdfundCmd.infoHandler(caller, td.crowdfundCmd.subCmdInfo, nil)
 		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "No active campaign")
+		assert.Contains(t, result.Message, "There is no active campaign")
 	})
 
 	t.Run("OK", func(t *testing.T) {

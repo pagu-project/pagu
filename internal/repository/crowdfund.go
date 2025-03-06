@@ -16,6 +16,29 @@ func (db *Database) AddCrowdfundCampaign(campaign *entity.CrowdfundCampaign) err
 	return nil
 }
 
+func (db *Database) UpdateCrowdfundCampaign(campaign *entity.CrowdfundCampaign) error {
+	tx := db.gormDB.Save(campaign)
+	if tx.Error != nil {
+		return WriteError{
+			Message: tx.Error.Error(),
+		}
+	}
+
+	return nil
+}
+
+func (db *Database) GetCrowdfundLastCampaign() *entity.CrowdfundCampaign {
+	var campaign *entity.CrowdfundCampaign
+	tx := db.gormDB.Model(&entity.CrowdfundCampaign{}).
+		Last(&campaign)
+
+	if tx.Error != nil {
+		return nil
+	}
+
+	return campaign
+}
+
 func (db *Database) GetCrowdfundActiveCampaign() *entity.CrowdfundCampaign {
 	var campaign *entity.CrowdfundCampaign
 	tx := db.gormDB.Model(&entity.CrowdfundCampaign{}).

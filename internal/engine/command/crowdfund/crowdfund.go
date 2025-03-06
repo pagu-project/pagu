@@ -33,6 +33,10 @@ func NewCrowdfundCmd(ctx context.Context,
 	}
 }
 
+func (c *CrowdfundCmd) lastCampaign() *entity.CrowdfundCampaign {
+	return c.db.GetCrowdfundActiveCampaign()
+}
+
 func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
 	return c.db.GetCrowdfundActiveCampaign()
 }
@@ -42,7 +46,7 @@ func (c *CrowdfundCmd) GetCommand() *command.Command {
 	cmd := c.buildCrowdfundCommand()
 
 	c.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
-	c.subCmdDisable.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
+	c.subCmdEdit.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {
