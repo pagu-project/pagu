@@ -205,7 +205,7 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 		inputBuilder.WriteString(fmt.Sprintf(" --%s=%s", k, v))
 	}
 
-	callerID := ""
+	var callerID string
 	if i.Member != nil {
 		callerID = i.Member.User.ID
 	} else if i.User != nil {
