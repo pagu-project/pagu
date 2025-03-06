@@ -2,6 +2,7 @@ package crowdfund
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
@@ -28,7 +29,7 @@ func (c *CrowdfundCmd) editHandler(
 	}
 
 	if desc != "" {
-		campaign.Desc = desc
+		campaign.Desc = strings.ReplaceAll(desc, `\n`, "\n")
 	}
 
 	if packagesJSON != "" {
