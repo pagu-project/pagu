@@ -182,6 +182,12 @@ func (bot *Bot) registerCommands() error {
 }
 
 func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.GuildID != bot.cfg.GuildID {
+		bot.respondErrMsg("Please send messages on server chat", s, i)
+
+		return
+	}
+
 	var inputBuilder strings.Builder
 	args := make(map[string]string)
 
@@ -246,6 +252,15 @@ func parseArgs(
 	}
 
 	return result
+}
+
+func (bot *Bot) respondErrMsg(errStr string, s *discordgo.Session, i *discordgo.InteractionCreate) {
+	errorEmbed := &discordgo.MessageEmbed{
+		Title:       "Error",
+		Description: errStr,
+		Color:       color.Yellow.ToInt(),
+	}
+	bot.respondEmbed(errorEmbed, s, i)
 }
 
 func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session, i *discordgo.InteractionCreate) {
