@@ -32,6 +32,12 @@ GRANT SELECT ON pagu_staging.* TO '<MYSQL_READONLY>'@'%';
 FLUSH PRIVILEGES;
 ```
 
+You can check users by:
+
+```sql
+SELECT * FROM mysql.user;
+```
+
 ### Docker Network Setup
 
 To enable Docker containers to communicate on the same network,
