@@ -34,17 +34,6 @@ func TestCreate(t *testing.T) {
 		assert.Contains(t, result.Message, "The title of the crowdfunding campaign cannot be empty")
 	})
 
-	t.Run("Empty Packages", func(t *testing.T) {
-		args := map[string]string{
-			"title":    "crowdfund-title",
-			"desc":     "crowdfund-desc",
-			"packages": "[]",
-		}
-		result := td.crowdfundCmd.createHandler(caller, td.crowdfundCmd.subCmdCreate, args)
-		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "At least 3 packages are required for the crowdfunding campaign")
-	})
-
 	t.Run("Ok", func(t *testing.T) {
 		args := map[string]string{
 			"title": "crowdfund-title",

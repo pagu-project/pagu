@@ -12,7 +12,7 @@ func (c *CrowdfundCmd) infoHandler(
 ) command.CommandResult {
 	activeCampaign := c.activeCampaign()
 	if activeCampaign == nil {
-		return cmd.RenderFailedTemplate("No active campaign")
+		return cmd.RenderFailedTemplate("There is no active campaign")
 	}
 
 	return cmd.RenderResultTemplate("campaign", activeCampaign)

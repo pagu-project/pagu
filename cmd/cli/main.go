@@ -18,12 +18,12 @@ func run(cmd *cobra.Command, _ []string) {
 
 	log.InitGlobalLogger(configs.Logger)
 
-	botEngine, err := engine.NewBotEngine(configs)
+	eng, err := engine.NewBotEngine(configs)
 	pagucmd.ExitOnError(cmd, err)
 
-	botEngine.Start()
+	eng.Start()
 
-	cli.HandleCliCommands(cmd, botEngine)
+	cli.HandleCliCommands(cmd, eng)
 }
 
 func main() {

@@ -29,26 +29,26 @@ func runCommand(parentCmd *cobra.Command) {
 		// Initialize global logger.
 		log.InitGlobalLogger(configs.Logger)
 
-		// starting botEngine.
-		botEngine, err := engine.NewBotEngine(configs)
+		// starting eng.
+		eng, err := engine.NewBotEngine(configs)
 		pagucmd.ExitOnError(cmd, err)
 
-		botEngine.Start()
+		eng.Start()
 
-		discordBot, err := discord.NewDiscordBot(botEngine, configs.Discord, configs.BotName)
+		bot, err := discord.NewDiscordBot(eng, configs.Discord, configs.BotName)
 		pagucmd.ExitOnError(cmd, err)
 
-		err = discordBot.Start()
+		err = bot.Start()
 		pagucmd.ExitOnError(cmd, err)
 
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 		<-sigChan
 
-		if err := discordBot.Stop(); err != nil {
+		if err := bot.Stop(); err != nil {
 			pagucmd.ExitOnError(cmd, err)
 		}
 
-		botEngine.Stop()
+		eng.Stop()
 	}
 }
