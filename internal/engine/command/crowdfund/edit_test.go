@@ -42,7 +42,7 @@ func TestEdit(t *testing.T) {
 		assert.Contains(t, resultInfo.Message, "edited")
 	})
 
-	t.Run("Disable", func(t *testing.T) {
+	t.Run("Disable Campaign", func(t *testing.T) {
 		args := map[string]string{
 			"disable": "true",
 		}
@@ -51,5 +51,16 @@ func TestEdit(t *testing.T) {
 
 		resultInfo := td.crowdfundCmd.infoHandler(caller, td.crowdfundCmd.subCmdInfo, nil)
 		assert.Contains(t, resultInfo.Message, "There is no active campaign")
+	})
+
+	t.Run("Enable Campaign", func(t *testing.T) {
+		args := map[string]string{
+			"disable": "false",
+		}
+		result := td.crowdfundCmd.editHandler(caller, td.crowdfundCmd.subCmdEdit, args)
+		assert.True(t, result.Successful)
+
+		resultInfo := td.crowdfundCmd.infoHandler(caller, td.crowdfundCmd.subCmdInfo, nil)
+		assert.Contains(t, resultInfo.Message, "crowdfund-title-edited")
 	})
 }
