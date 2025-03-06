@@ -237,11 +237,7 @@ func parseArgs(
 		result[opt.Name] = v
 
 	case discordgo.ApplicationCommandOptionBoolean:
-		if opt.BoolValue() {
-			result[opt.Name] = "true"
-		} else {
-			result[opt.Name] = "false"
-		}
+		result[opt.Name] = strconv.FormatBool(opt.BoolValue())
 
 	case discordgo.ApplicationCommandOptionAttachment:
 		// TODO: handle multiple attachment
