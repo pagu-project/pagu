@@ -16,9 +16,10 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: pagu_mysql
+      PMA_ABSOLUTE_URI: ${PHPMYADMIN_ABSOLUTE_URI}
     container_name: pagu_phpmyadmin
     ports:
-      - "${PHPMYADMIN_PORT}:80"
+      - "127.0.0.1:${PHPMYADMIN_PORT}:80"
     networks:
       - pagu_network
 
