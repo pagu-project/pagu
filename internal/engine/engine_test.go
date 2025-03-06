@@ -3,7 +3,6 @@ package engine
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -108,7 +107,7 @@ func TestParseCommand(t *testing.T) {
 			input:    "command1 --=val1",
 			wantCmds: nil,
 			wantArgs: nil,
-			wantErr:  fmt.Errorf("invalid argument format: --=val1"),
+			wantErr:  errors.New("invalid argument format: --=val1"),
 		},
 		{
 			name:     "invalid argument format (empty value)",

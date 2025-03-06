@@ -3,25 +3,24 @@ package voucher
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
-const (
-	argNameClaimCode         = "code"
-	argNameClaimAddress      = "address"
-	argNameCreateAmount      = "amount"
-	argNameCreateValidMonths = "valid-months"
-	argNameCreateRecipient   = "recipient"
-	argNameCreateDescription = "description"
-	argNameCreateBulkFile    = "file"
-	argNameCreateBulkNotify  = "notify"
-	argNameStatusCode        = "code"
-)
+const argNameClaimCode = "code"
+const argNameClaimAddress = "address"
+const argNameCreateAmount = "amount"
+const argNameCreateValidMonths = "valid-months"
+const argNameCreateRecipient = "recipient"
+const argNameCreateDescription = "description"
+const argNameCreateBulkFile = "file"
+const argNameCreateBulkNotify = "notify"
+const argNameStatusCode = "code"
 
 type voucherSubCmds struct {
-	subCmdClaim      *command.Command
-	subCmdCreate     *command.Command
+	subCmdClaim *command.Command
+	subCmdCreate *command.Command
 	subCmdCreateBulk *command.Command
-	subCmdStatus     *command.Command
+	subCmdStatus *command.Command
 }
 
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
@@ -30,6 +29,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Claim voucher coins and bond them to a validator",
 		Handler:        c.claimHandler,
 		ResultTemplate: "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/{{.txHash}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Discord,
+			entity.BotID_CLI,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -50,6 +53,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Generate a single voucher code",
 		Handler:        c.createHandler,
 		ResultTemplate: "Voucher created successfully!\nCode: {{.voucher.Code}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "amount",
@@ -82,6 +89,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Generate multiple voucher codes by importing a file",
 		Handler:        c.createBulkHandler,
 		ResultTemplate: "Vouchers created successfully!\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "file",
@@ -102,6 +113,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "View the status of vouchers or a specific voucher",
 		Handler:        c.statusHandler,
 		ResultTemplate: "Code: {{.voucher.Code}}\nAmount: {{.voucher.Amount}}\nExpire At: {{.expireAt}}\nRecipient: {{.voucher.Recipient}}\nDescription: {{.voucher.Desc}}\nClaimed: {{.isClaimed}}\nTx Link: {{.txLink}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -113,19 +128,20 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	}
 
 	return &voucherSubCmds{
-		subCmdClaim:      subCmdClaim,
-		subCmdCreate:     subCmdCreate,
+		subCmdClaim: subCmdClaim,
+		subCmdCreate: subCmdCreate,
 		subCmdCreateBulk: subCmdCreateBulk,
-		subCmdStatus:     subCmdStatus,
+		subCmdStatus: subCmdStatus,
 	}
 }
 
 func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 	voucherCmd := &command.Command{
-		Emoji:       "🎁",
+		Emoji:          "🎁",
 		Name:        "voucher",
 		Help:        "Commands for managing vouchers",
 		SubCommands: make([]*command.Command, 0),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 
 	c.voucherSubCmds = c.buildSubCmds()

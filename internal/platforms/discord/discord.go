@@ -83,18 +83,18 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for i, cmd := range cmds {
-		if !cmd.HasPlatformID(entity.PlatformIDDiscord) {
+		if !cmd.HasBotID(entity.BotID_Discord) {
 			continue
 		}
 
 		switch bot.target {
 		case config.BotNamePaguMainnet:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskMainnet) {
+			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Discord) {
 				continue
 			}
 
 		case config.BotNamePaguModerator:
-			if !utils.IsFlagSet(cmd.TargetFlag, command.TargetMaskModerator) {
+			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
 				continue
 			}
 
@@ -116,12 +116,12 @@ func (bot *Bot) registerCommands() error {
 			for _, subCmd := range cmd.SubCommands {
 				switch bot.target {
 				case config.BotNamePaguMainnet:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskMainnet) {
+					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Discord) {
 						continue
 					}
 
 				case config.BotNamePaguModerator:
-					if !utils.IsFlagSet(subCmd.TargetFlag, command.TargetMaskModerator) {
+					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
 						continue
 					}
 
@@ -169,7 +169,7 @@ func (bot *Bot) registerCommands() error {
 			}
 		}
 
-		cmd, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, bot.cfg.GuildID, &discordCmd)
+		cmd, err := bot.Session.ApplicationCommandCreate(bot.Session.State.User.ID, "", &discordCmd)
 		if err != nil {
 			log.Error("can not register discord command", "name", discordCmd.Name, "error", err)
 
@@ -182,12 +182,6 @@ func (bot *Bot) registerCommands() error {
 }
 
 func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	if i.GuildID != bot.cfg.GuildID {
-		bot.respondErrMsg("Please send messages on server chat", s, i)
-
-		return
-	}
-
 	var inputBuilder strings.Builder
 	args := make(map[string]string)
 
@@ -252,15 +246,6 @@ func parseArgs(
 	}
 
 	return result
-}
-
-func (bot *Bot) respondErrMsg(errStr string, s *discordgo.Session, i *discordgo.InteractionCreate) {
-	errorEmbed := &discordgo.MessageEmbed{
-		Title:       "Error",
-		Description: errStr,
-		Color:       color.Yellow.ToInt(),
-	}
-	bot.respondEmbed(errorEmbed, s, i)
 }
 
 func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session, i *discordgo.InteractionCreate) {

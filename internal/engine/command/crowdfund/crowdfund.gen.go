@@ -3,23 +3,22 @@ package crowdfund
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 )
 
-const (
-	argNameCreateTitle     = "title"
-	argNameCreateDesc      = "desc"
-	argNameCreatePackages  = "packages"
-	argNamePurchasePackage = "package"
-	argNameClaimAddress    = "address"
-)
+const argNameCreateTitle = "title"
+const argNameCreateDesc = "desc"
+const argNameCreatePackages = "packages"
+const argNamePurchasePackage = "package"
+const argNameClaimAddress = "address"
 
 type crowdfundSubCmds struct {
-	subCmdCreate   *command.Command
-	subCmdDisable  *command.Command
-	subCmdReport   *command.Command
-	subCmdInfo     *command.Command
+	subCmdCreate *command.Command
+	subCmdDisable *command.Command
+	subCmdReport *command.Command
+	subCmdInfo *command.Command
 	subCmdPurchase *command.Command
-	subCmdClaim    *command.Command
+	subCmdClaim *command.Command
 }
 
 func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
@@ -28,6 +27,10 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Help:           "Create a new crowdfunding campaign",
 		Handler:        c.createHandler,
 		ResultTemplate: "Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Moderator,
+			entity.BotID_CLI,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "title",
@@ -54,24 +57,31 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Help:           "Disable an existing crowdfunding campaign",
 		Handler:        c.disableHandler,
 		ResultTemplate: ``,
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_Moderator,
+			entity.BotID_CLI,
+		},
 	}
 	subCmdReport := &command.Command{
 		Name:           "report",
 		Help:           "View reports of a crowdfunding campaign",
 		Handler:        c.reportHandler,
-		ResultTemplate: ``,
+		ResultTemplate: "**Crowdfunding Report**\n\n- Total purchased packages: **{{.count}}**\n- Total crowdfunded amount: **{{.amount}} USDT**\n",
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 	subCmdInfo := &command.Command{
 		Name:           "info",
 		Help:           "Get detailed information about a crowdfunding campaign",
 		Handler:        c.infoHandler,
 		ResultTemplate: "**{{.campaign.Title}}**\n{{.campaign.Desc}}\n\nPackages:\n{{range .campaign.Packages}}\n- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}\n{{- end}}\n",
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 	subCmdPurchase := &command.Command{
 		Name:           "purchase",
 		Help:           "Make a purchase in a crowdfunding campaign",
 		Handler:        c.purchaseHandler,
 		ResultTemplate: "Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.\nPlease visit {{ .paymentLink }} to make the payment.\n\nOnce the payment is done, you can claim your PAC coins using \"claim\" command.\n\nThanks\n",
+		TargetBotIDs: entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "package",
@@ -86,6 +96,7 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Help:           "Claim packages from a crowdfunding campaign",
 		Handler:        c.claimHandler,
 		ResultTemplate: "Thank you for supporting the Pactus blockchain!\n\nYou can track your transaction here: {{.txLink}}\nIf you have any questions or need assistance, feel free to reach out to our community.\n",
+		TargetBotIDs: entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "address",
@@ -97,21 +108,22 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 	}
 
 	return &crowdfundSubCmds{
-		subCmdCreate:   subCmdCreate,
-		subCmdDisable:  subCmdDisable,
-		subCmdReport:   subCmdReport,
-		subCmdInfo:     subCmdInfo,
+		subCmdCreate: subCmdCreate,
+		subCmdDisable: subCmdDisable,
+		subCmdReport: subCmdReport,
+		subCmdInfo: subCmdInfo,
 		subCmdPurchase: subCmdPurchase,
-		subCmdClaim:    subCmdClaim,
+		subCmdClaim: subCmdClaim,
 	}
 }
 
 func (c *CrowdfundCmd) buildCrowdfundCommand() *command.Command {
 	crowdfundCmd := &command.Command{
-		Emoji:       "🤝",
+		Emoji:          "🤝",
 		Name:        "crowdfund",
 		Help:        "Commands for managing crowdfunding campaigns",
 		SubCommands: make([]*command.Command, 0),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 
 	c.crowdfundSubCmds = c.buildSubCmds()

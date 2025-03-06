@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -76,6 +77,15 @@ func generateCode(cmd *command.Command) (string, error) {
 		"trim": strings.TrimSpace,
 		"quoted": func(s string) string {
 			return fmt.Sprintf("%#q", s)
+		},
+		"botIDName": func(bID entity.BotID) string {
+			for name, val := range entity.BotNameToID {
+				if val == bID {
+					return name
+				}
+			}
+
+			return fmt.Sprintf("%d", bID)
 		},
 	}
 
