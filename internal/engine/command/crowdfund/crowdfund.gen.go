@@ -10,10 +10,10 @@ const (
 	argNameCreateTitle     = "title"
 	argNameCreateDesc      = "desc"
 	argNameCreatePackages  = "packages"
+	argNameEditDisable     = "disable"
 	argNameEditTitle       = "title"
 	argNameEditDesc        = "desc"
 	argNameEditPackages    = "packages"
-	argNameEditDisable     = "disable"
 	argNamePurchasePackage = "package"
 	argNameClaimAddress    = "address"
 )
@@ -69,6 +69,12 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		},
 		Args: []*command.Args{
 			{
+				Name:     "disable",
+				Desc:     "Disable the current active campaign",
+				InputBox: command.InputBoxToggle,
+				Optional: false,
+			},
+			{
 				Name:     "title",
 				Desc:     "The title of this crowdfunding campaign",
 				InputBox: command.InputBoxText,
@@ -85,12 +91,6 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 				Desc:     "The packages for this campaign in JSON format",
 				InputBox: command.InputBoxMultilineText,
 				Optional: true,
-			},
-			{
-				Name:     "disable",
-				Desc:     "Disable the current active campaign",
-				InputBox: command.InputBoxToggle,
-				Optional: false,
 			},
 		},
 	}

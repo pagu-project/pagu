@@ -63,7 +63,6 @@ linters:
     - stylecheck
     - tagalign
     - tagliatelle
-    - tenv
     - testableexamples
     - thelper
     - tparallel
@@ -75,6 +74,7 @@ linters:
     # - wrapcheck
     - zerologlint
     - varnamelen
+    - usetesting
 
 linters-settings:
   staticcheck:

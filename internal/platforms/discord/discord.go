@@ -205,7 +205,18 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 		inputBuilder.WriteString(fmt.Sprintf(" --%s=%s", k, v))
 	}
 
-	res := bot.engine.ParseAndExecute(entity.PlatformIDDiscord, i.Member.User.ID, inputBuilder.String())
+	var callerID string
+	if i.Member != nil {
+		callerID = i.Member.User.ID
+	} else if i.User != nil {
+		callerID = i.User.ID
+	} else {
+		log.Warn("unable to obtain the callerID", "input", inputBuilder.String())
+
+		return
+	}
+
+	res := bot.engine.ParseAndExecute(entity.PlatformIDDiscord, callerID, inputBuilder.String())
 	bot.respondResultMsg(res, s, i)
 }
 
