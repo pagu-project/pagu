@@ -6,11 +6,11 @@ import (
 
 	"github.com/pactus-project/pactus/crypto"
 	"github.com/pactus-project/pactus/crypto/ed25519"
-	"github.com/pactus-project/pactus/util/logger"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/client"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
@@ -31,12 +31,12 @@ func NewPhoenixCmd(ctx context.Context, cfg *Config, db *repository.Database,
 ) *PhoenixCmd {
 	client, err := client.NewClient(cfg.Client)
 	if err != nil {
-		logger.Fatal("phoenix: bad client", "error", err)
+		log.Fatal("phoenix: bad client", "error", err)
 	}
 
 	privateKey, err := utils.TestnetPrivateKeyFromString(cfg.PrivateKey)
 	if err != nil {
-		logger.Fatal("phoenix: invalid private key", "error", err)
+		log.Fatal("phoenix: invalid private key", "error", err)
 	}
 	faucetAddress := privateKey.PublicKeyNative().AccountAddress()
 

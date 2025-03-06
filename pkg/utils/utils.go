@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/pactus-project/pactus/crypto"
@@ -152,4 +153,12 @@ func FormatDuration(d time.Duration) string {
 	}
 
 	return fmt.Sprintf("%d minutes", minutes)
+}
+
+// IsToggleEnabled converts a toggle-like string to a boolean value.
+// It returns true for "true", "yes", "on" and "1",
+// otherwise tt returns false.
+func IsToggleEnabled(toggleStr string) bool {
+	toggleStr = strings.ToLower(toggleStr)
+	return toggleStr == "true" || toggleStr == "yes" || toggleStr == "on" || toggleStr == "1"
 }

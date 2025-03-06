@@ -26,18 +26,18 @@ func runCommand(parentCmd *cobra.Command) {
 		configs, err := config.Load(configPath)
 		pagucmd.ExitOnError(cmd, err)
 
-		// Starting botEngine.
-		botEngine, err := engine.NewBotEngine(configs)
+		// Starting eng.
+		eng, err := engine.NewBotEngine(configs)
 		pagucmd.ExitOnError(cmd, err)
 
 		log.InitGlobalLogger(configs.Logger)
 
-		botEngine.Start()
+		eng.Start()
 
-		telegramBot, err := telegram.NewTelegramBot(botEngine, configs.Telegram.BotToken, configs)
+		bot, err := telegram.NewTelegramBot(eng, configs.Telegram.BotToken, configs)
 		pagucmd.ExitOnError(cmd, err)
 
-		err = telegramBot.Start()
+		err = bot.Start()
 		pagucmd.ExitOnError(cmd, err)
 
 		// Set up signal handling.
@@ -46,9 +46,9 @@ func runCommand(parentCmd *cobra.Command) {
 		go func() {
 			<-c
 			// When a signal is received, stop the bot and perform any other necessary cleanup.
-			telegramBot.Stop()
-			botEngine.Stop()
-			os.Exit(1)
+			bot.Stop()
+			eng.Stop()
+			os.Exit(0)
 		}()
 
 		// Block the main goroutine until a signal is received.
