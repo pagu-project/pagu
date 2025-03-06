@@ -160,5 +160,6 @@ func FormatDuration(d time.Duration) string {
 // otherwise tt returns false.
 func IsToggleEnabled(toggleStr string) bool {
 	toggleStr = strings.ToLower(toggleStr)
+
 	return toggleStr == "true" || toggleStr == "yes" || toggleStr == "on" || toggleStr == "1"
 }

@@ -18,7 +18,7 @@ func TestEdit(t *testing.T) {
 		}
 		result := td.crowdfundCmd.editHandler(caller, td.crowdfundCmd.subCmdEdit, args)
 		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "There is no active campaign")
+		assert.Contains(t, result.Message, "There is no campaign")
 	})
 
 	_ = td.createTestCampaign(t)

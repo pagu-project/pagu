@@ -9,7 +9,7 @@ import (
 )
 
 func (c *CrowdfundCmd) editHandler(
-	caller *entity.User,
+	_ *entity.User,
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
