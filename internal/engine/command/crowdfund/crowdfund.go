@@ -34,7 +34,7 @@ func NewCrowdfundCmd(ctx context.Context,
 }
 
 func (c *CrowdfundCmd) lastCampaign() *entity.CrowdfundCampaign {
-	return c.db.GetCrowdfundActiveCampaign()
+	return c.db.GetCrowdfundLastCampaign()
 }
 
 func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
