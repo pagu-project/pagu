@@ -77,6 +77,8 @@ now_payments:
   payment_url: "https://nowpayments.io"
   username:
   password:
+  fee_paid_by_user: false
+  fixed_rate: false
 
 # Logger configuration
 logger:
