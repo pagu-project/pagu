@@ -67,6 +67,11 @@ telegram:
   # Telegram bot token for authentication.
   bot_token:
 
+whatsup:
+  web_hook_token:
+  graph_token:
+  port:
+
 # NowPayments configuration.
 now_payments:
   webhook:
