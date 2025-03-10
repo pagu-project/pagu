@@ -15,7 +15,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/pagu-project/pagu/pkg/utils"
+	"github.com/tidwall/pretty"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	tele "gopkg.in/telebot.v3"
@@ -41,7 +41,17 @@ var (
 	WEBHOOK_VERIFY_TOKEN string
 	GRAPH_API_TOKEN      string
 	PORT                 int
+
+	storage = make(map[string]InteractiveMessage)
 )
+
+type InteractiveMessage struct {
+	MessagingProduct string `json:"messaging_product"`
+	RecipientType    string `json:"recipient_type"`
+	To               string `json:"to"`
+	Type             string `json:"type"`
+	Interactive      any    `json:"interactive"`
+}
 
 type WebhookRequest struct {
 	Object string `json:"object"`
@@ -113,20 +123,29 @@ func webhookHandler(c *fiber.Ctx) error {
 					} else if message.Type == "interactive" {
 						log.Printf("Received interactive message: %+v", message)
 
+						// Extract phone number ID
+						phoneNumberID := change.Value.Metadata.PhoneNumberID
+
 						// Send List Message response
 						// sendHelpCommand(phoneNumberID, message.From)
 						switch message.Interactive.ListReply.Title {
 						case "crowdfund":
-
+							sendCommand("crowdfund", phoneNumberID, message.From)
 						case "calculator":
+							sendCommand("calculator", phoneNumberID, message.From)
 						case "network":
+							sendCommand("network", phoneNumberID, message.From)
 						case "voucher":
+							sendCommand("voucher", phoneNumberID, message.From)
 						case "market":
+							sendCommand("market", phoneNumberID, message.From)
 						case "phoenix":
+							sendCommand("phoenix", phoneNumberID, message.From)
 						case "about":
+							sendCommand("about", phoneNumberID, message.From)
 						case "help":
+							sendCommand("help", phoneNumberID, message.From)
 						}
-
 					}
 				}
 			}
@@ -150,6 +169,7 @@ func verificationHandler(c *fiber.Ctx) error {
 
 func sendHelpCommand(phoneNumberID, to string) {
 	message := map[string]any{
+		"command":           "help",
 		"messaging_product": "whatsapp",
 		"recipient_type":    "individual",
 		"to":                to,
@@ -181,6 +201,50 @@ func sendHelpCommand(phoneNumberID, to string) {
 	}
 
 	jsonData, err := json.Marshal(message)
+	result := pretty.Pretty(jsonData)
+	fmt.Printf("### 1\n", string(result))
+	if err != nil {
+		log.Printf("Error marshalling list message: %s", err)
+		return
+	}
+
+	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
+
+	// Send the request using net/http (not fiber.Client)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Printf("Error creating request: %s", err)
+		return
+	}
+
+	// Set headers
+	req.Header.Set("Authorization", "Bearer "+GRAPH_API_TOKEN)
+	req.Header.Set("Content-Type", "application/json")
+
+	// Send the request using the default HTTP client
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("Error sending list message: %s", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Failed to send list message: %s", resp.Status)
+	}
+}
+
+func sendCommand(command, phoneNumberID, to string) {
+
+	cmd := storage[command]
+	cmd.To = to
+	storage[command] = cmd
+
+	jsonData, err := json.Marshal(storage[command])
+	result := pretty.Pretty(jsonData)
+	fmt.Printf("### 2\n", string(result))
+
 	if err != nil {
 		log.Printf("Error marshalling list message: %s", err)
 		return
@@ -243,7 +307,7 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 
 func (bot *Bot) Start() error {
 	bot.deleteAllCommands()
-	if err := bot.registerCommands(); err != nil {
+	if err := bot.registerCommands(""); err != nil {
 		return err
 	}
 	go func() {
@@ -267,87 +331,114 @@ func (bot *Bot) deleteAllCommands() {
 }
 
 //nolint:gocognit // Complexity cannot be reduced
-func (bot *Bot) registerCommands() error {
-	rows := make([]tele.Row, 0)
-	menu := &tele.ReplyMarkup{ResizeKeyboard: true}
+func (bot *Bot) registerCommands(to string) error {
 	commands := make([]tele.Command, 0)
 
 	cmds := bot.engine.Commands()
 	for i, cmd := range cmds {
-		if !cmd.HasBotID(entity.BotID_Telegram) {
-			continue
-		}
+		rowsSubCmd := []any{}
+		// if !cmd.HasBotID(entity.BotID_Telegram) {
+		// 	continue
+		// }
 
-		switch bot.target {
-		case config.BotNamePaguMainnet:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
-				continue
-			}
+		// switch bot.target {
+		// case config.BotNamePaguMainnet:
+		// 	if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
+		// 		continue
+		// 	}
 
-		case config.BotNamePaguModerator:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
-				continue
-			}
+		// case config.BotNamePaguModerator:
+		// 	if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
+		// 		continue
+		// 	}
 
-		default:
-			log.Warn("invalid target", "target", bot.target)
+		// default:
+		// 	log.Warn("invalid target", "target", bot.target)
 
-			continue
-		}
+		// 	continue
+		// }
 
 		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
 
-		btn := menu.Data(cases.Title(language.English).String(cmd.Name), cmd.Name)
 		commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
-		rows = append(rows, menu.Row(btn))
 		if cmd.HasSubCommand() {
-			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
-			subRows := make([]tele.Row, 0)
-			for _, subCmd := range cmd.SubCommands {
-				switch bot.target {
-				case config.BotNamePaguMainnet:
-					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Telegram) {
-						continue
-					}
-
-				case config.BotNamePaguModerator:
-					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
-						continue
-					}
-
-				default:
-					log.Warn("invalid target", "target", bot.target)
-
-					continue
-				}
-
-				log.Info("adding command sub-command", "command", cmd.Name,
-					"sub-command", subCmd.Name, "desc", subCmd.Help)
-
-				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
-
-				// bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
-				// 	if len(subCmd.Args) > 0 {
-				// 		return bot.handleArgCommand(c, []string{cmd.Name, subCmd.Name}, subCmd.Args)
-				// 	}
-
-				// 	return bot.handleCommand(c, []string{cmd.Name, subCmd.Name})
-				// })
-				subRows = append(subRows, subMenu.Row(subBtn))
+			for indx, subCmd := range cmd.SubCommands {
+				rowsSubCmd = append(rowsSubCmd, map[string]any{
+					"id":          fmt.Sprintf("%v", indx),
+					"title":       subCmd.Name,
+					"description": subCmd.Help,
+				})
 			}
+		}
+		storage[cmd.Name] = InteractiveMessage{
+			MessagingProduct: "whatsapp",
+			RecipientType:    "individual",
+			To:               to,
+			Type:             "interactive",
+			Interactive: map[string]any{
+				"type": "list",
+				"body": map[string]any{
+					"text": cmd.Help,
+				},
+				"action": map[string]any{
+					"button": "View Options",
+					"sections": []any{
+						map[string]any{
+							"title": "Menu",
+							"rows":  rowsSubCmd,
+						},
+					},
+				},
+			},
+		}
+		if cmd.HasSubCommand() {
+			// subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
+			// subRows := make([]tele.Row, 0)
+			// for _, subCmd := range cmd.SubCommands {
+			// 	switch bot.target {
+			// 	case config.BotNamePaguMainnet:
+			// 		if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Telegram) {
+			// 			continue
+			// 		}
 
-			subMenu.Inline(subRows...)
-			// bot.botInstance.Handle(&btn, func(c tele.Context) error {
-			// 	_ = bot.botInstance.Delete(c.Message())
+			// 	case config.BotNamePaguModerator:
+			// 		if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
+			// 			continue
+			// 		}
 
-			// 	return c.Send(cmd.Name, subMenu, tele.ModeMarkdown)
-			// })
+			// 	default:
+			// 		log.Warn("invalid target", "target", bot.target)
 
-			// bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
-			// 	_ = bot.botInstance.Delete(ctx.Message())
+			// 		continue
+			// 	}
 
-			// 	return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
-			// })
+			// 	log.Info("adding command sub-command", "command", cmd.Name,
+			// 		"sub-command", subCmd.Name, "desc", subCmd.Help)
+
+			// 	subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
+
+			// 	// bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
+			// 	// 	if len(subCmd.Args) > 0 {
+			// 	// 		return bot.handleArgCommand(c, []string{cmd.Name, subCmd.Name}, subCmd.Args)
+			// 	// 	}
+
+			// 	// 	return bot.handleCommand(c, []string{cmd.Name, subCmd.Name})
+			// 	// })
+			// 	subRows = append(subRows, subMenu.Row(subBtn))
+			// }
+
+			// // subMenu.Inline(subRows...)
+			// // bot.botInstance.Handle(&btn, func(c tele.Context) error {
+			// // 	_ = bot.botInstance.Delete(c.Message())
+
+			// // 	return c.Send(cmd.Name, subMenu, tele.ModeMarkdown)
+			// // })
+
+			// // bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
+			// // 	_ = bot.botInstance.Delete(ctx.Message())
+
+			// // 	return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
+			// // })
 		} else {
 			// bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
 			// 	_ = bot.botInstance.Delete(ctx.Message())
@@ -361,7 +452,6 @@ func (bot *Bot) registerCommands() error {
 
 	// initiate menu button
 	// _ = bot.botInstance.SetCommands(commands)
-	menu.Inline(rows...)
 	// bot.botInstance.Handle("/start", func(ctx tele.Context) error {
 	// 	_ = bot.botInstance.Delete(ctx.Message())
 
