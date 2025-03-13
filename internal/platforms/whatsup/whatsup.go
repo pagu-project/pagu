@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
+	"slices"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +15,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/tidwall/pretty"
+	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	tele "gopkg.in/telebot.v3"
@@ -28,6 +28,9 @@ type Bot struct {
 	engine      *engine.BotEngine
 	cfg         *config.Config
 	target      string
+	storage     map[string]InteractiveMessage
+	commandMap  map[string]string
+	commands    []string
 }
 
 type BotContext struct {
@@ -41,8 +44,6 @@ var (
 	WEBHOOK_VERIFY_TOKEN string
 	GRAPH_API_TOKEN      string
 	PORT                 int
-
-	storage = make(map[string]InteractiveMessage)
 )
 
 type InteractiveMessage struct {
@@ -93,7 +94,7 @@ type WebhookRequest struct {
 	} `json:"entry"`
 }
 
-func webhookHandler(c *fiber.Ctx) error {
+func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 	var resBody WebhookRequest
 
 	// log.Println("Incoming webhook message: ", string(c.Body()))
@@ -111,41 +112,25 @@ func webhookHandler(c *fiber.Ctx) error {
 				// Ensure there are messages in the change
 				if len(change.Value.Messages) > 0 {
 					message := change.Value.Messages[0]
-					if message.Type == "text" {
-						log.Printf("Received text message: %+v", message)
+					fmt.Printf("----message : %+v\n", message)
+					if message.Type == "text" && (strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start") {
+						// log.Printf("Received text message: %+v", message)
 
 						// Extract phone number ID
 						phoneNumberID := change.Value.Metadata.PhoneNumberID
 
 						// Send List Message response
-						sendHelpCommand(phoneNumberID, message.From)
+						bot.sendHelpCommand(phoneNumberID, message.From)
 
 					} else if message.Type == "interactive" {
-						log.Printf("Received interactive message: %+v", message)
+						// log.Printf("Received interactive message: %+v", message)
 
 						// Extract phone number ID
 						phoneNumberID := change.Value.Metadata.PhoneNumberID
 
 						// Send List Message response
 						// sendHelpCommand(phoneNumberID, message.From)
-						switch message.Interactive.ListReply.Title {
-						case "crowdfund":
-							sendCommand("crowdfund", phoneNumberID, message.From)
-						case "calculator":
-							sendCommand("calculator", phoneNumberID, message.From)
-						case "network":
-							sendCommand("network", phoneNumberID, message.From)
-						case "voucher":
-							sendCommand("voucher", phoneNumberID, message.From)
-						case "market":
-							sendCommand("market", phoneNumberID, message.From)
-						case "phoenix":
-							sendCommand("phoenix", phoneNumberID, message.From)
-						case "about":
-							sendCommand("about", phoneNumberID, message.From)
-						case "help":
-							sendCommand("help", phoneNumberID, message.From)
-						}
+						bot.sendCommand(message.Interactive.ListReply.Title, phoneNumberID, message.From)
 					}
 				}
 			}
@@ -155,7 +140,7 @@ func webhookHandler(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
-func verificationHandler(c *fiber.Ctx) error {
+func (bot *Bot) verificationHandler(c *fiber.Ctx) error {
 	mode := c.Query("hub.mode")
 	token := c.Query("hub.verify_token")
 	challenge := c.Query("hub.challenge")
@@ -167,7 +152,7 @@ func verificationHandler(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusForbidden).SendString("Forbidden")
 }
 
-func sendHelpCommand(phoneNumberID, to string) {
+func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
 	message := map[string]any{
 		"command":           "help",
 		"messaging_product": "whatsapp",
@@ -201,8 +186,8 @@ func sendHelpCommand(phoneNumberID, to string) {
 	}
 
 	jsonData, err := json.Marshal(message)
-	result := pretty.Pretty(jsonData)
-	fmt.Printf("### 1\n", string(result))
+	// result := pretty.Pretty(jsonData)
+	// fmt.Printf("### 1\n", string(result)
 	if err != nil {
 		log.Printf("Error marshalling list message: %s", err)
 		return
@@ -235,15 +220,55 @@ func sendHelpCommand(phoneNumberID, to string) {
 	}
 }
 
-func sendCommand(command, phoneNumberID, to string) {
+func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
+	var (
+		jsonData    []byte
+		err         error
+		commandList []string
+	)
 
-	cmd := storage[command]
+	cmd := bot.storage[command]
 	cmd.To = to
-	storage[command] = cmd
+	bot.storage[command] = cmd
 
-	jsonData, err := json.Marshal(storage[command])
-	result := pretty.Pretty(jsonData)
-	fmt.Printf("### 2\n", string(result))
+	if !slices.Contains(bot.commands, command) {
+		mainCommand := bot.commandMap[command]
+		commandList = append(commandList, []string{mainCommand, command}...)
+		commandRes := bot.handleCommand(commandList)
+
+		// cmd := bot.storage[command]
+		// cmd.Interactive = map[string]any{
+		// 	"type": "list",
+		// 	"body": map[string]any{
+		// 		"text": string(commandRes),
+		// 	},
+		// 	"action": map[string]any{
+		// 		"button": "View Options",
+		// 		"sections": []any{
+		// 			map[string]any{
+		// 				"title": "Menu",
+		// 				"rows":  []any{},
+		// 			},
+		// 		},
+		// 	},
+		// }
+		//
+		cmd := map[string]any{
+			"messaging_product": "whatsapp",
+			"recipient_type":    "individual",
+			"to":                to,
+			"type":              "text",
+			"text": map[string]any{
+				"body": string(commandRes),
+			},
+		}
+		jsonData, err = json.Marshal(cmd)
+	} else {
+		jsonData, err = json.Marshal(bot.storage[command])
+	}
+
+	// result := pretty.Pretty(jsonData)
+	// fmt.Printf("### 2\n", string(result))
 
 	if err != nil {
 		log.Printf("Error marshalling list message: %s", err)
@@ -283,26 +308,30 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 	PORT = cfg.WhatsUp.Port
 
 	app := fiber.New()
-
-	// Webhook handlers
-	app.Post("/webhook", webhookHandler)
-	app.Get("/webhook", verificationHandler)
-
-	// Default route
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("<pre>Nothing to see here. Checkout README.md to start.</pre>")
-	})
-
 	ctx, cancel := context.WithCancel(context.Background())
 
-	return &Bot{
+	bot := &Bot{
 		engine:      botEngine,
 		cfg:         cfg,
 		botInstance: app,
 		ctx:         ctx,
 		cancel:      cancel,
 		target:      cfg.BotName,
-	}, nil
+		storage:     make(map[string]InteractiveMessage),
+		commandMap:  make(map[string]string),
+		commands:    []string{},
+	}
+
+	// Webhook handlers
+	app.Post("/webhook", bot.webhookHandler)
+	app.Get("/webhook", bot.verificationHandler)
+
+	// Default route
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("<pre>Nothing to see here. Checkout README.md to start.</pre>")
+	})
+
+	return bot, nil
 }
 
 func (bot *Bot) Start() error {
@@ -332,37 +361,38 @@ func (bot *Bot) deleteAllCommands() {
 
 //nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands(to string) error {
-	commands := make([]tele.Command, 0)
 
 	cmds := bot.engine.Commands()
 	for i, cmd := range cmds {
 		rowsSubCmd := []any{}
-		// if !cmd.HasBotID(entity.BotID_Telegram) {
-		// 	continue
-		// }
+		if !cmd.HasBotID(entity.BotID_Telegram) {
+			continue
+		}
 
-		// switch bot.target {
-		// case config.BotNamePaguMainnet:
-		// 	if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
-		// 		continue
-		// 	}
+		switch bot.target {
+		case config.BotNamePaguMainnet:
+			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
+				continue
+			}
 
-		// case config.BotNamePaguModerator:
-		// 	if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
-		// 		continue
-		// 	}
+		case config.BotNamePaguModerator:
+			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
+				continue
+			}
 
-		// default:
-		// 	log.Warn("invalid target", "target", bot.target)
+		default:
+			log.Warn("invalid target", "target", bot.target)
 
-		// 	continue
-		// }
+			continue
+		}
 
 		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
 
-		commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
+		bot.commands = append(bot.commands, cmd.Name)
+
 		if cmd.HasSubCommand() {
 			for indx, subCmd := range cmd.SubCommands {
+				bot.commandMap[subCmd.Name] = cmd.Name
 				rowsSubCmd = append(rowsSubCmd, map[string]any{
 					"id":          fmt.Sprintf("%v", indx),
 					"title":       subCmd.Name,
@@ -370,7 +400,7 @@ func (bot *Bot) registerCommands(to string) error {
 				})
 			}
 		}
-		storage[cmd.Name] = InteractiveMessage{
+		bot.storage[cmd.Name] = InteractiveMessage{
 			MessagingProduct: "whatsapp",
 			RecipientType:    "individual",
 			To:               to,
@@ -391,105 +421,12 @@ func (bot *Bot) registerCommands(to string) error {
 				},
 			},
 		}
-		if cmd.HasSubCommand() {
-			// subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
-			// subRows := make([]tele.Row, 0)
-			// for _, subCmd := range cmd.SubCommands {
-			// 	switch bot.target {
-			// 	case config.BotNamePaguMainnet:
-			// 		if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Telegram) {
-			// 			continue
-			// 		}
-
-			// 	case config.BotNamePaguModerator:
-			// 		if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
-			// 			continue
-			// 		}
-
-			// 	default:
-			// 		log.Warn("invalid target", "target", bot.target)
-
-			// 		continue
-			// 	}
-
-			// 	log.Info("adding command sub-command", "command", cmd.Name,
-			// 		"sub-command", subCmd.Name, "desc", subCmd.Help)
-
-			// 	subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
-
-			// 	// bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
-			// 	// 	if len(subCmd.Args) > 0 {
-			// 	// 		return bot.handleArgCommand(c, []string{cmd.Name, subCmd.Name}, subCmd.Args)
-			// 	// 	}
-
-			// 	// 	return bot.handleCommand(c, []string{cmd.Name, subCmd.Name})
-			// 	// })
-			// 	subRows = append(subRows, subMenu.Row(subBtn))
-			// }
-
-			// // subMenu.Inline(subRows...)
-			// // bot.botInstance.Handle(&btn, func(c tele.Context) error {
-			// // 	_ = bot.botInstance.Delete(c.Message())
-
-			// // 	return c.Send(cmd.Name, subMenu, tele.ModeMarkdown)
-			// // })
-
-			// // bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
-			// // 	_ = bot.botInstance.Delete(ctx.Message())
-
-			// // 	return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
-			// // })
-		} else {
-			// bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
-			// 	_ = bot.botInstance.Delete(ctx.Message())
-
-			// 	err := bot.handleCommand(ctx, []string{cmd.Name})
-
-			// 	return err
-			// })
-		}
 	}
-
-	// initiate menu button
-	// _ = bot.botInstance.SetCommands(commands)
-	// bot.botInstance.Handle("/start", func(ctx tele.Context) error {
-	// 	_ = bot.botInstance.Delete(ctx.Message())
-
-	// 	return ctx.Send("Pagu Main Menu", menu, tele.ModeMarkdown)
-	// })
-
-	// bot.botInstance.Handle(tele.OnText, func(ctx tele.Context) error {
-	// 	if argsContext[ctx.Message().Sender.ID] == nil {
-	// 		return nil
-	// 	}
-
-	// 	if argsValue[ctx.Message().Sender.ID] == nil {
-	// 		argsValue[ctx.Message().Sender.ID] = make(map[string]string)
-	// 	}
-
-	// 	return bot.parsTextMessage(ctx)
-	// })
-
 	return nil
 }
 
-func (bot *Bot) parsTextMessage(ctx tele.Context) error {
-	senderID := ctx.Message().Sender.ID
-	cmd := findCommand(bot.engine.Commands(), senderID)
-	if cmd == nil {
-		return ctx.Send("Invalid command")
-	}
-
-	currentArgsIndex := len(argsValue[senderID])
-	argsValue[senderID][cmd.Args[currentArgsIndex].Name] = ctx.Message().Text
-
-	if len(argsValue[senderID]) == len(cmd.Args) {
-		return bot.handleCommand(ctx, argsContext[senderID].Commands)
-	}
-
-	// _ = bot.botInstance.Delete(ctx.Message())
-
-	return ctx.Send(fmt.Sprintf("Please Enter %s", cmd.Args[currentArgsIndex+1].Name))
+func (bot *Bot) parsTextMessage() error {
+	return nil
 }
 
 func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*command.Args) error {
@@ -525,34 +462,20 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 // handleCommand executes a command with its arguments for the user.
 // It combines the commands and arguments into a single string, calls the engine's Run method,
 // clears the user's context, and sends the result back to the user.
-func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
-	callerID := strconv.Itoa(int(ctx.Sender().ID))
+func (bot *Bot) handleCommand(commands []string) []byte {
 
 	// Retrieve the arguments for the sender
-	senderID := ctx.Message().Sender.ID
-	args := argsValue[senderID]
 
 	// Combine the commands into a single string
 	fullCommand := strings.Join(commands, " ")
 
-	// Append arguments as key-value pairs
-	if len(args) > 0 {
-		argPairs := []string{}
-		for key, value := range args {
-			argPairs = append(argPairs, fmt.Sprintf("--%s=%s", key, value))
-		}
-		fullCommand = fmt.Sprintf("%s %s", fullCommand, strings.Join(argPairs, " "))
-	}
-
 	// Call the engine's Run method with the full command string
-	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, callerID, fullCommand)
+	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, "", fullCommand)
 	// _ = bot.botInstance.Delete(ctx.Message())
 
 	// Clear the stored command context and arguments for the sender
-	argsContext[senderID] = nil
-	argsValue[senderID] = nil
 
-	return ctx.Send(res.Message, tele.NoPreview, tele.ModeMarkdown)
+	return []byte(res.Message)
 }
 
 func findCommand(commands []*command.Command, senderID int64) *command.Command {

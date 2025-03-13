@@ -4,7 +4,7 @@ name: crowdfund
 help: Commands for managing crowdfunding campaigns
 sub_commands:
   - name: create
-    target_bot_ids: [Moderator, CLI]
+    target_bot_ids: [Moderator, CLI, WhatsApp]
     help: Create a new crowdfunding campaign
     result_template: |
       Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages
@@ -24,26 +24,26 @@ sub_commands:
 
   - name: edit
     help: Edit current crowdfunding campaign
-    target_bot_ids: [Moderator, CLI]
+    target_bot_ids: [Moderator, CLI, WhatsApp]
     result_template: |
       Crowdfund campaign '{{.campaign.Title}}' updated successfully with {{ .campaign.Packages | len }} packages
     args:
-    - name: disable
-      desc: Disable the current active campaign
-      input_box: Toggle
-      optional: false
-    - name: title
-      desc: The title of this crowdfunding campaign
-      input_box: Text
-      optional: true
-    - name: desc
-      desc: A description of this crowdfunding campaign
-      input_box: MultilineText
-      optional: true
-    - name: packages
-      desc: The packages for this campaign in JSON format
-      input_box: MultilineText
-      optional: true
+      - name: disable
+        desc: Disable the current active campaign
+        input_box: Toggle
+        optional: false
+      - name: title
+        desc: The title of this crowdfunding campaign
+        input_box: Text
+        optional: true
+      - name: desc
+        desc: A description of this crowdfunding campaign
+        input_box: MultilineText
+        optional: true
+      - name: packages
+        desc: The packages for this campaign in JSON format
+        input_box: MultilineText
+        optional: true
 
   - name: report
     help: View reports of a crowdfunding campaign
