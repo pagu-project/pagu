@@ -113,7 +113,7 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 				if len(change.Value.Messages) > 0 {
 					message := change.Value.Messages[0]
 					fmt.Printf("----message : %+v\n", message)
-					if message.Type == "text" && (strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start") {
+					if (message.Type == "text" && (strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start")) || message.Interactive.ListReply.Title == "help" {
 						// log.Printf("Received text message: %+v", message)
 
 						// Extract phone number ID
@@ -230,8 +230,11 @@ func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
 	cmd := bot.storage[command]
 	cmd.To = to
 	bot.storage[command] = cmd
+	fmt.Println("----bot.commands : ", bot.commands)
+	fmt.Println("----command : ", command)
 
 	if !slices.Contains(bot.commands, command) {
+		fmt.Println("----1")
 		mainCommand := bot.commandMap[command]
 		commandList = append(commandList, []string{mainCommand, command}...)
 		commandRes := bot.handleCommand(commandList)
@@ -264,7 +267,23 @@ func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
 		}
 		jsonData, err = json.Marshal(cmd)
 	} else {
-		jsonData, err = json.Marshal(bot.storage[command])
+		fmt.Println("----2")
+		if command == "help" || command == "about" {
+			commandList = append(commandList, []string{command}...)
+			commandRes := bot.handleCommand(commandList)
+			cmd := map[string]any{
+				"messaging_product": "whatsapp",
+				"recipient_type":    "individual",
+				"to":                to,
+				"type":              "text",
+				"text": map[string]any{
+					"body": string(commandRes),
+				},
+			}
+			jsonData, err = json.Marshal(cmd)
+		} else {
+			jsonData, err = json.Marshal(bot.storage[command])
+		}
 	}
 
 	// result := pretty.Pretty(jsonData)
