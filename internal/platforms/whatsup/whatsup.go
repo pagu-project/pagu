@@ -9,6 +9,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/gofiber/fiber/v2"
 	"github.com/labstack/gommon/log"
 	"github.com/pagu-project/pagu/config"
@@ -16,21 +18,20 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/utils"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-	tele "gopkg.in/telebot.v3"
 )
 
 type Bot struct {
-	ctx         context.Context
-	cancel      context.CancelFunc
-	botInstance *fiber.App
-	engine      *engine.BotEngine
-	cfg         *config.Config
-	target      string
-	storage     map[string]InteractiveMessage
-	commandMap  map[string]string
-	commands    []string
+	ctx             context.Context
+	cancel          context.CancelFunc
+	botInstance     *fiber.App
+	engine          *engine.BotEngine
+	cfg             *config.Config
+	markDownRendere *glamour.TermRenderer
+	target          string
+	storage         map[string]InteractiveMessage
+	commandMap      map[string]string
+	argMap          map[string][]string
+	commands        []string
 }
 
 type BotContext struct {
@@ -113,24 +114,38 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 				if len(change.Value.Messages) > 0 {
 					message := change.Value.Messages[0]
 					fmt.Printf("----message : %+v\n", message)
-					if (message.Type == "text" && (strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start")) || message.Interactive.ListReply.Title == "help" {
-						// log.Printf("Received text message: %+v", message)
+					if (message.Type == "text" &&
+						(strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start")) ||
+						message.Interactive.ListReply.Title == "help" {
 
 						// Extract phone number ID
 						phoneNumberID := change.Value.Metadata.PhoneNumberID
 
 						// Send List Message response
 						bot.sendHelpCommand(phoneNumberID, message.From)
-
 					} else if message.Type == "interactive" {
-						// log.Printf("Received interactive message: %+v", message)
-
 						// Extract phone number ID
 						phoneNumberID := change.Value.Metadata.PhoneNumberID
-
-						// Send List Message response
-						// sendHelpCommand(phoneNumberID, message.From)
-						bot.sendCommand(message.Interactive.ListReply.Title, phoneNumberID, message.From)
+						args := bot.argMap[message.Interactive.ListReply.Title]
+						var msg string
+						if len(args) > 0 {
+							msg = fmt.Sprintf("Please enter a %s\nEnter it exactly same as format : %s=\"argument value\"\n", args[0], args[0])
+						} else {
+							msg = message.Interactive.ListReply.Title
+						}
+						bot.sendCommand(msg, phoneNumberID, message.From)
+					} else {
+						// Extract phone number ID
+						phoneNumberID := change.Value.Metadata.PhoneNumberID
+						commands := strings.Split(message.Text.Body, "=")
+						arg := commands[0]
+						val := commands[1]
+						command := findArg(bot.argMap, arg)
+						mainCommand := bot.commandMap[command]
+						argCommand := make(map[string]string)
+						argCommand[arg] = val
+						commandRes := bot.handleArgCommand([]string{mainCommand, command}, argCommand)
+						bot.sendCommand(string(commandRes), phoneNumberID, message.From)
 					}
 				}
 			}
@@ -220,6 +235,15 @@ func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
 	}
 }
 
+func findArg(argsMap map[string][]string, arg string) string {
+	for command, args := range argsMap {
+		if slices.Contains(args, arg) {
+			return command
+		}
+	}
+	return ""
+}
+
 func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
 	var (
 		jsonData    []byte
@@ -227,35 +251,43 @@ func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
 		commandList []string
 	)
 
-	cmd := bot.storage[command]
+	cmd, exist := bot.storage[command]
 	cmd.To = to
 	bot.storage[command] = cmd
 	fmt.Println("----bot.commands : ", bot.commands)
 	fmt.Println("----command : ", command)
+	var commandRes []byte
 
-	if !slices.Contains(bot.commands, command) {
+	if !exist {
+		fmt.Println("----0")
+		cmd := map[string]any{
+			"messaging_product": "whatsapp",
+			"recipient_type":    "individual",
+			"to":                to,
+			"type":              "text",
+			"text": map[string]any{
+				"body": command,
+			},
+		}
+		jsonData, err = json.Marshal(cmd)
+	} else if !slices.Contains(bot.commands, command) {
 		fmt.Println("----1")
 		mainCommand := bot.commandMap[command]
 		commandList = append(commandList, []string{mainCommand, command}...)
-		commandRes := bot.handleCommand(commandList)
+		commandRes = bot.handleCommand(commandList)
 
-		// cmd := bot.storage[command]
-		// cmd.Interactive = map[string]any{
-		// 	"type": "list",
-		// 	"body": map[string]any{
-		// 		"text": string(commandRes),
-		// 	},
-		// 	"action": map[string]any{
-		// 		"button": "View Options",
-		// 		"sections": []any{
-		// 			map[string]any{
-		// 				"title": "Menu",
-		// 				"rows":  []any{},
-		// 			},
-		// 		},
-		// 	},
+		// var renderCommandRes string
+		// if bot.markDownRendere != nil {
+		// 	richRresponse, err := bot.markDownRendere.Render(string(commandRes))
+		// 	if err != nil {
+		// 		log.Warn("error in rendering mark down", "Warn", err)
+		// 	} else {
+		// 		renderCommandRes = richRresponse
+		// 	}
 		// }
-		//
+
+		// fmt.Println("++++renderCommandRes : ", renderCommandRes)
+
 		cmd := map[string]any{
 			"messaging_product": "whatsapp",
 			"recipient_type":    "individual",
@@ -329,16 +361,27 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 	app := fiber.New()
 	ctx, cancel := context.WithCancel(context.Background())
 
+	r, err := glamour.NewTermRenderer(
+		glamour.WithColorProfile(lipgloss.ColorProfile()),
+		glamour.WithAutoStyle(),
+		glamour.WithPreservedNewLines(),
+	)
+	if err != nil {
+		log.Warn("error on rendering terminal", "Warn", err)
+	}
+
 	bot := &Bot{
-		engine:      botEngine,
-		cfg:         cfg,
-		botInstance: app,
-		ctx:         ctx,
-		cancel:      cancel,
-		target:      cfg.BotName,
-		storage:     make(map[string]InteractiveMessage),
-		commandMap:  make(map[string]string),
-		commands:    []string{},
+		engine:          botEngine,
+		cfg:             cfg,
+		botInstance:     app,
+		ctx:             ctx,
+		cancel:          cancel,
+		target:          cfg.BotName,
+		markDownRendere: r,
+		storage:         make(map[string]InteractiveMessage),
+		commandMap:      make(map[string]string),
+		argMap:          make(map[string][]string),
+		commands:        []string{},
 	}
 
 	// Webhook handlers
@@ -411,6 +454,13 @@ func (bot *Bot) registerCommands(to string) error {
 
 		if cmd.HasSubCommand() {
 			for indx, subCmd := range cmd.SubCommands {
+				if len(subCmd.Args) > 0 {
+					var args []string
+					for _, arg := range subCmd.Args {
+						args = append(args, arg.Name)
+					}
+					bot.argMap[subCmd.Name] = args
+				}
 				bot.commandMap[subCmd.Name] = cmd.Name
 				rowsSubCmd = append(rowsSubCmd, map[string]any{
 					"id":          fmt.Sprintf("%v", indx),
@@ -448,34 +498,12 @@ func (bot *Bot) parsTextMessage() error {
 	return nil
 }
 
-func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*command.Args) error {
-	msgCtx := &BotContext{Commands: commands}
-	argsContext[ctx.Sender().ID] = msgCtx
-	argsValue[ctx.Sender().ID] = nil
-	// _ = bot.botInstance.Delete(ctx.Message())
-
-	choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
-	choiceRows := make([]tele.Row, 0)
-	choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n", args[0].Name)
-	for _, arg := range args {
-		if len(arg.Choices) > 0 {
-			for _, choice := range arg.Choices {
-				choices := strings.Split(choice.Name, " ")
-				choiceMeg += fmt.Sprintf("- %s : %s\n", choices[0], strings.Join(choices[1:], " "))
-				choiceBtn := choiceMenu.Data(cases.Title(language.English).String(choices[0]), choices[0])
-				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
-				// bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
-				// 	choices = strings.Split(choices[0], "-")
-				// 	commands = append(commands, fmt.Sprintf("--%s=%v", choices[0], choices[1]))
-
-				// 	return bot.handleCommand(c, commands)
-				// })
-			}
-		}
+func (bot *Bot) handleArgCommand(commands []string, args map[string]string) []byte {
+	// choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n", args[0])
+	for key, val := range args {
+		commands = append(commands, fmt.Sprintf("--%s=%s", key, val))
 	}
-	choiceMenu.Inline(choiceRows...)
-
-	return ctx.Send(choiceMeg, choiceMenu)
+	return bot.handleCommand(commands)
 }
 
 // handleCommand executes a command with its arguments for the user.
@@ -484,7 +512,7 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 func (bot *Bot) handleCommand(commands []string) []byte {
 
 	// Retrieve the arguments for the sender
-
+	fmt.Println("+++++commands : ", commands)
 	// Combine the commands into a single string
 	fullCommand := strings.Join(commands, " ")
 
