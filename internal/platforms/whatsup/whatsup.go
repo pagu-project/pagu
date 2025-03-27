@@ -43,17 +43,14 @@ type Bot struct {
 	markDownRendere *glamour.TermRenderer
 	target          string
 
-	storage    map[string]InteractiveMessage
-	commandMap map[string]string
-	argMap     map[string][]string
-	commands   []string
+	storage map[string]InteractiveMessage
 
 	command    []string
 	subComnad  map[string][]string
 	argCommand map[string][]string
 
 	session map[string]Session
-	mtx     sync.Mutex
+	mtx     sync.RWMutex
 }
 
 func (bot *Bot) existSession(id string) bool {
@@ -88,13 +85,25 @@ func (bot *Bot) deleteSession(id string) error {
 
 func (bot *Bot) cleanSession(ttl time.Duration) {
 	for {
+		bot.mtx.RLock()
+		now := time.Now()
+		expiredSessions := []string{}
+
 		for id, session := range bot.session {
-			lastUpdate := session.lastUpdate
-			now := time.Now()
-			if liveTime := now.Sub(lastUpdate); liveTime > ttl {
-				bot.deleteSession(id)
+			if now.Sub(session.lastUpdate) > ttl {
+				expiredSessions = append(expiredSessions, id)
 			}
 		}
+		bot.mtx.RUnlock() // Release read lock
+
+		// Now delete sessions with a write lock
+		bot.mtx.Lock()
+		for _, id := range expiredSessions {
+			delete(bot.session, id)
+		}
+		bot.mtx.Unlock()
+
+		time.Sleep(time.Second)
 	}
 }
 
@@ -102,11 +111,8 @@ func (bot *Bot) checkCommand(command string) string {
 	isCommand := slices.Contains(bot.command, command)
 	if isCommand {
 		return COMMAND
-	} else {
-		return SUBCOMMAND
 	}
-
-	return ""
+	return SUBCOMMAND
 }
 
 func (bot *Bot) findCommand(subCommand string) string {
@@ -422,16 +428,12 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 
 		storage: make(map[string]InteractiveMessage),
 
-		commandMap: make(map[string]string),
-		argMap:     make(map[string][]string),
-		commands:   []string{},
-
 		command:    []string{},
 		subComnad:  make(map[string][]string),
 		argCommand: make(map[string][]string),
 
 		session: make(map[string]Session),
-		mtx:     sync.Mutex{},
+		mtx:     sync.RWMutex{},
 	}
 
 	go bot.cleanSession(60 * time.Second)
