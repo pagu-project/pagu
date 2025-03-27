@@ -65,10 +65,14 @@ func (bot *Bot) addSession(session Session, id string) {
 	bot.mtx.Unlock()
 }
 
-func (bot *Bot) editSession(session Session, id string) {
+func (bot *Bot) editSession(arg, id string) {
 	bot.mtx.Lock()
-	session.lastUpdate = time.Now()
-	bot.session[id] = session
+	session, exist := bot.session[id]
+	if exist {
+		session.lastUpdate = time.Now()
+		session.args = append(session.args, arg)
+		bot.session[id] = session
+	}
 	bot.mtx.Unlock()
 }
 
@@ -220,6 +224,8 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 						} else {
 							// args
 							fmt.Println("PING")
+							bot.editSession(message.Text.Body, phoneNumberID)
+							bot.sendCommand(phoneNumberID, message.From)
 						}
 					}
 				}
@@ -352,7 +358,17 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 	} else {
 		command := bot.findCommand(session.subCommand)
 		commands = append(commands, []string{command, session.subCommand}...)
-		commandRes = bot.handleCommand(commands)
+		args := bot.argCommand[session.subCommand]
+		if len(args) < 1 {
+			commandRes = bot.handleCommand(commands)
+		} else if len(session.args) == len(args) {
+			for indx, arg := range session.args {
+				commands = append(commands, fmt.Sprintf("--%s=%s", args[indx], arg))
+			}
+			commandRes = bot.handleCommand(commands)
+		} else {
+			commandRes = []byte(fmt.Sprintf("Enter your %s : ", args[len(session.args)]))
+		}
 		cmd := map[string]any{
 			"messaging_product": "whatsapp",
 			"recipient_type":    "individual",
