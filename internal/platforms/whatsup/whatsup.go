@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
@@ -15,10 +18,21 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
-	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
+
+const (
+	COMMAND    = "command"
+	SUBCOMMAND = "subCommand"
+)
+
+type Session struct {
+	lastUpdate time.Time
+	command    string
+	subCommand string
+	args       []string
+}
 
 type Bot struct {
 	ctx             context.Context
@@ -28,20 +42,83 @@ type Bot struct {
 	cfg             *config.Config
 	markDownRendere *glamour.TermRenderer
 	target          string
-	storage         map[string]InteractiveMessage
-	commandMap      map[string]string
-	argMap          map[string][]string
-	commands        []string
+
+	storage    map[string]InteractiveMessage
+	commandMap map[string]string
+	argMap     map[string][]string
+	commands   []string
+
+	command    []string
+	subComnad  map[string][]string
+	argCommand map[string][]string
+
+	session map[string]Session
+	mtx     sync.Mutex
 }
 
-type BotContext struct {
-	Commands []string
+func (bot *Bot) existSession(id string) bool {
+	_, exist := bot.session[id]
+	return exist
+}
+
+func (bot *Bot) addSession(session Session, id string) {
+	bot.mtx.Lock()
+	session.lastUpdate = time.Now()
+	bot.session[id] = session
+	bot.mtx.Unlock()
+}
+
+func (bot *Bot) editSession(session Session, id string) {
+	bot.mtx.Lock()
+	session.lastUpdate = time.Now()
+	bot.session[id] = session
+	bot.mtx.Unlock()
+}
+
+func (bot *Bot) deleteSession(id string) error {
+	_, exist := bot.session[id]
+	if exist {
+		bot.mtx.Lock()
+		delete(bot.session, id)
+		bot.mtx.Unlock()
+		return nil
+	}
+	return errors.New("session not found")
+}
+
+func (bot *Bot) cleanSession(ttl time.Duration) {
+	for {
+		for id, session := range bot.session {
+			lastUpdate := session.lastUpdate
+			now := time.Now()
+			if liveTime := now.Sub(lastUpdate); liveTime > ttl {
+				bot.deleteSession(id)
+			}
+		}
+	}
+}
+
+func (bot *Bot) checkCommand(command string) string {
+	isCommand := slices.Contains(bot.command, command)
+	if isCommand {
+		return COMMAND
+	} else {
+		return SUBCOMMAND
+	}
+
+	return ""
+}
+
+func (bot *Bot) findCommand(subCommand string) string {
+	for cmd, subCmd := range bot.subComnad {
+		if slices.Contains(subCmd, subCommand) {
+			return cmd
+		}
+	}
+	return ""
 }
 
 var (
-	argsContext = make(map[int64]*BotContext)
-	argsValue   = make(map[int64]map[string]string)
-
 	WEBHOOK_VERIFY_TOKEN string
 	GRAPH_API_TOKEN      string
 	PORT                 int
@@ -114,38 +191,30 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 				if len(change.Value.Messages) > 0 {
 					message := change.Value.Messages[0]
 					fmt.Printf("----message : %+v\n", message)
-					if (message.Type == "text" &&
-						(strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start")) ||
-						message.Interactive.ListReply.Title == "help" {
-
-						// Extract phone number ID
-						phoneNumberID := change.Value.Metadata.PhoneNumberID
-
-						// Send List Message response
-						bot.sendHelpCommand(phoneNumberID, message.From)
-					} else if message.Type == "interactive" {
-						// Extract phone number ID
-						phoneNumberID := change.Value.Metadata.PhoneNumberID
-						args := bot.argMap[message.Interactive.ListReply.Title]
-						var msg string
-						if len(args) > 0 {
-							msg = fmt.Sprintf("Please enter a %s\nEnter it exactly same as format : %s=\"argument value\"\n", args[0], args[0])
-						} else {
-							msg = message.Interactive.ListReply.Title
+					phoneNumberID := change.Value.Metadata.PhoneNumberID
+					if message.Type == "interactive" {
+						msg := message.Interactive.ListReply.Title
+						session := Session{}
+						fmt.Println("----msg : ", msg)
+						switch bot.checkCommand(msg) {
+						case COMMAND:
+							session.command = msg
+							bot.addSession(session, phoneNumberID)
+						case SUBCOMMAND:
+							session.command = bot.findCommand(msg)
+							session.subCommand = msg
+							bot.addSession(session, phoneNumberID)
+						default:
+							fmt.Println("error in add session")
 						}
-						bot.sendCommand(msg, phoneNumberID, message.From)
+						bot.sendCommand(phoneNumberID, message.From)
 					} else {
-						// Extract phone number ID
-						phoneNumberID := change.Value.Metadata.PhoneNumberID
-						commands := strings.Split(message.Text.Body, "=")
-						arg := commands[0]
-						val := commands[1]
-						command := findArg(bot.argMap, arg)
-						mainCommand := bot.commandMap[command]
-						argCommand := make(map[string]string)
-						argCommand[arg] = val
-						commandRes := bot.handleArgCommand([]string{mainCommand, command}, argCommand)
-						bot.sendCommand(string(commandRes), phoneNumberID, message.From)
+						if strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start" {
+							bot.sendHelpCommand(phoneNumberID, message.From)
+						} else {
+							// args
+							fmt.Println("PING")
+						}
 					}
 				}
 			}
@@ -244,65 +313,23 @@ func findArg(argsMap map[string][]string, arg string) string {
 	return ""
 }
 
-func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
+func (bot *Bot) sendCommand(phoneNumberID, to string) {
 	var (
-		jsonData    []byte
-		err         error
-		commandList []string
+		jsonData   []byte
+		err        error
+		commands   []string
+		commandRes []byte
+		session    = bot.session[phoneNumberID]
 	)
 
-	cmd, exist := bot.storage[command]
+	cmd, _ := bot.storage[session.command]
 	cmd.To = to
-	bot.storage[command] = cmd
-	fmt.Println("----bot.commands : ", bot.commands)
-	fmt.Println("----command : ", command)
-	var commandRes []byte
+	bot.storage[session.command] = cmd
 
-	if !exist {
-		fmt.Println("----0")
-		cmd := map[string]any{
-			"messaging_product": "whatsapp",
-			"recipient_type":    "individual",
-			"to":                to,
-			"type":              "text",
-			"text": map[string]any{
-				"body": command,
-			},
-		}
-		jsonData, err = json.Marshal(cmd)
-	} else if !slices.Contains(bot.commands, command) {
-		fmt.Println("----1")
-		mainCommand := bot.commandMap[command]
-		commandList = append(commandList, []string{mainCommand, command}...)
-		commandRes = bot.handleCommand(commandList)
-
-		// var renderCommandRes string
-		// if bot.markDownRendere != nil {
-		// 	richRresponse, err := bot.markDownRendere.Render(string(commandRes))
-		// 	if err != nil {
-		// 		log.Warn("error in rendering mark down", "Warn", err)
-		// 	} else {
-		// 		renderCommandRes = richRresponse
-		// 	}
-		// }
-
-		// fmt.Println("++++renderCommandRes : ", renderCommandRes)
-
-		cmd := map[string]any{
-			"messaging_product": "whatsapp",
-			"recipient_type":    "individual",
-			"to":                to,
-			"type":              "text",
-			"text": map[string]any{
-				"body": string(commandRes),
-			},
-		}
-		jsonData, err = json.Marshal(cmd)
-	} else {
-		fmt.Println("----2")
-		if command == "help" || command == "about" {
-			commandList = append(commandList, []string{command}...)
-			commandRes := bot.handleCommand(commandList)
+	if session.subCommand == "" {
+		if session.command == "help" || session.command == "about" {
+			commands = append(commands, []string{session.command}...)
+			commandRes := bot.handleCommand(commands)
 			cmd := map[string]any{
 				"messaging_product": "whatsapp",
 				"recipient_type":    "individual",
@@ -314,8 +341,22 @@ func (bot *Bot) sendCommand(command, phoneNumberID, to string) {
 			}
 			jsonData, err = json.Marshal(cmd)
 		} else {
-			jsonData, err = json.Marshal(bot.storage[command])
+			jsonData, err = json.Marshal(bot.storage[session.command])
 		}
+	} else {
+		command := bot.findCommand(session.subCommand)
+		commands = append(commands, []string{command, session.subCommand}...)
+		commandRes = bot.handleCommand(commands)
+		cmd := map[string]any{
+			"messaging_product": "whatsapp",
+			"recipient_type":    "individual",
+			"to":                to,
+			"type":              "text",
+			"text": map[string]any{
+				"body": string(commandRes),
+			},
+		}
+		jsonData, err = json.Marshal(cmd)
 	}
 
 	// result := pretty.Pretty(jsonData)
@@ -378,11 +419,22 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 		cancel:          cancel,
 		target:          cfg.BotName,
 		markDownRendere: r,
-		storage:         make(map[string]InteractiveMessage),
-		commandMap:      make(map[string]string),
-		argMap:          make(map[string][]string),
-		commands:        []string{},
+
+		storage: make(map[string]InteractiveMessage),
+
+		commandMap: make(map[string]string),
+		argMap:     make(map[string][]string),
+		commands:   []string{},
+
+		command:    []string{},
+		subComnad:  make(map[string][]string),
+		argCommand: make(map[string][]string),
+
+		session: make(map[string]Session),
+		mtx:     sync.Mutex{},
 	}
+
+	go bot.cleanSession(60 * time.Second)
 
 	// Webhook handlers
 	app.Post("/webhook", bot.webhookHandler)
@@ -450,24 +502,27 @@ func (bot *Bot) registerCommands(to string) error {
 
 		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
 
-		bot.commands = append(bot.commands, cmd.Name)
+		bot.command = append(bot.command, cmd.Name)
 
 		if cmd.HasSubCommand() {
+			var subCommands []string
 			for indx, subCmd := range cmd.SubCommands {
 				if len(subCmd.Args) > 0 {
 					var args []string
 					for _, arg := range subCmd.Args {
 						args = append(args, arg.Name)
 					}
-					bot.argMap[subCmd.Name] = args
+					bot.argCommand[subCmd.Name] = args
 				}
-				bot.commandMap[subCmd.Name] = cmd.Name
 				rowsSubCmd = append(rowsSubCmd, map[string]any{
 					"id":          fmt.Sprintf("%v", indx),
 					"title":       subCmd.Name,
 					"description": subCmd.Help,
 				})
+
+				subCommands = append(subCommands, subCmd.Name)
 			}
+			bot.subComnad[cmd.Name] = subCommands
 		}
 		bot.storage[cmd.Name] = InteractiveMessage{
 			MessagingProduct: "whatsapp",
@@ -512,7 +567,7 @@ func (bot *Bot) handleArgCommand(commands []string, args map[string]string) []by
 func (bot *Bot) handleCommand(commands []string) []byte {
 
 	// Retrieve the arguments for the sender
-	fmt.Println("+++++commands : ", commands)
+	// fmt.Println("+++++commands : ", commands)
 	// Combine the commands into a single string
 	fullCommand := strings.Join(commands, " ")
 
@@ -523,23 +578,4 @@ func (bot *Bot) handleCommand(commands []string) []byte {
 	// Clear the stored command context and arguments for the sender
 
 	return []byte(res.Message)
-}
-
-func findCommand(commands []*command.Command, senderID int64) *command.Command {
-	lastEnteredCommandIndex := len(argsContext[senderID].Commands) - 1
-	enteredCommand := argsContext[senderID].Commands[lastEnteredCommandIndex]
-
-	for _, cmd := range commands {
-		if cmd.Name == enteredCommand {
-			return cmd
-		}
-
-		for _, sc := range cmd.SubCommands {
-			if sc.Name == enteredCommand {
-				return sc
-			}
-		}
-	}
-
-	return nil
 }
