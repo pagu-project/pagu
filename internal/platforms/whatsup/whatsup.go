@@ -27,30 +27,24 @@ const (
 	SUBCOMMAND = "subCommand"
 )
 
-type Session struct {
-	lastUpdate time.Time
-	command    string
-	subCommand string
-	args       []string
-}
-
 type Bot struct {
-	ctx             context.Context
-	cancel          context.CancelFunc
-	botInstance     *fiber.App
-	engine          *engine.BotEngine
-	cfg             *config.Config
+	ctx         context.Context
+	cancel      context.CancelFunc
+	botInstance *fiber.App
+	engine      *engine.BotEngine
+	cfg         *config.Config
+
+	// it should not do this here .
 	markDownRendere *glamour.TermRenderer
-	target          string
 
-	storage map[string]InteractiveMessage
+	target string
 
+	storage    map[string]InteractiveMessage // storage better name :
 	command    []string
 	subComnad  map[string][]string
 	argCommand map[string][]string
 
-	session map[string]Session
-	mtx     sync.RWMutex
+	sessionManager SessionManager
 }
 
 func (bot *Bot) existSession(id string) bool {
