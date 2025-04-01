@@ -10,7 +10,7 @@ var configPath string
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:     "pagu-whatsup",
+		Use:     "pagu-whatsapp",
 		Version: version.StringVersion(),
 	}
 

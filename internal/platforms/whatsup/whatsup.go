@@ -1,4 +1,4 @@
-package whatsup
+package whatsapp
 
 import (
 	"bytes"
@@ -9,17 +9,14 @@ import (
 	"net/http"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/charmbracelet/glamour"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/gofiber/fiber/v2"
 	"github.com/labstack/gommon/log"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
+	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/pagu-project/pagu/pkg/utils"
 )
 
 const (
@@ -32,10 +29,8 @@ type Bot struct {
 	cancel      context.CancelFunc
 	botInstance *fiber.App
 	engine      *engine.BotEngine
+	cmds        []*command.Command
 	cfg         *config.Config
-
-	// it should not do this here .
-	markDownRendere *glamour.TermRenderer
 
 	target string
 
@@ -45,6 +40,70 @@ type Bot struct {
 	argCommand map[string][]string
 
 	sessionManager SessionManager
+}
+
+func (bot *Bot) renderPage(cmdName, to string) InteractiveMessage {
+	var (
+		rowsSubCmd []any
+		command    *command.Command
+	)
+
+	for _, cmd := range bot.cmds {
+		if cmd.Name == cmdName {
+			command = cmd
+			break
+		}
+		if cmd.HasSubCommand() {
+			for _, subCmd := range cmd.SubCommands {
+				if subCmd.Name == cmdName {
+					command = cmd
+					break
+				}
+			}
+		}
+	}
+
+	for indx, subCmd := range command.SubCommands {
+		rowsSubCmd = append(rowsSubCmd, map[string]any{
+			"id":          fmt.Sprintf("%v", indx),
+			"title":       subCmd.Name,
+			"description": subCmd.Help,
+		})
+	}
+
+	return InteractiveMessage{
+		MessagingProduct: "whatsapp",
+		RecipientType:    "individual",
+		To:               to,
+		Type:             "interactive",
+		Interactive: map[string]any{
+			"type": "list",
+			"body": map[string]any{
+				"text": command.Help,
+			},
+			"action": map[string]any{
+				"button": "View Options",
+				"sections": []any{
+					map[string]any{
+						"title": "Menu",
+						"rows":  rowsSubCmd,
+					},
+				},
+			},
+		},
+	}
+}
+
+func renderResult(result, to string) map[string]any {
+	return map[string]any{
+		"messaging_product": "whatsapp",
+		"recipient_type":    "individual",
+		"to":                to,
+		"type":              "text",
+		"text": map[string]any{
+			"body": result,
+		},
+	}
 }
 
 func (bot *Bot) existSession(id string) bool {
@@ -214,7 +273,7 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 						bot.sendCommand(phoneNumberID, message.From)
 					} else {
 						if strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start" {
-							bot.sendHelpCommand(phoneNumberID, message.From)
+							bot.sendCommand(phoneNumberID, message.From)
 						} else {
 							// args
 							fmt.Println("PING")
@@ -336,18 +395,11 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 		if session.command == "help" || session.command == "about" {
 			commands = append(commands, []string{session.command}...)
 			commandRes := bot.handleCommand(commands)
-			cmd := map[string]any{
-				"messaging_product": "whatsapp",
-				"recipient_type":    "individual",
-				"to":                to,
-				"type":              "text",
-				"text": map[string]any{
-					"body": string(commandRes),
-				},
-			}
+			cmd := renderResult(string(commandRes), to)
 			jsonData, err = json.Marshal(cmd)
 		} else {
-			jsonData, err = json.Marshal(bot.storage[session.command])
+			cmd := bot.renderPage(session.command, to)
+			jsonData, err = json.Marshal(cmd)
 		}
 	} else {
 		command := bot.findCommand(session.subCommand)
@@ -363,15 +415,7 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 		} else {
 			commandRes = []byte(fmt.Sprintf("Enter your %s : ", args[len(session.args)]))
 		}
-		cmd := map[string]any{
-			"messaging_product": "whatsapp",
-			"recipient_type":    "individual",
-			"to":                to,
-			"type":              "text",
-			"text": map[string]any{
-				"body": string(commandRes),
-			},
-		}
+		cmd := renderResult(string(commandRes), to)
 		jsonData, err = json.Marshal(cmd)
 	}
 
@@ -418,32 +462,22 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 	app := fiber.New()
 	ctx, cancel := context.WithCancel(context.Background())
 
-	r, err := glamour.NewTermRenderer(
-		glamour.WithColorProfile(lipgloss.ColorProfile()),
-		glamour.WithAutoStyle(),
-		glamour.WithPreservedNewLines(),
-	)
-	if err != nil {
-		log.Warn("error on rendering terminal", "Warn", err)
-	}
+	cmds := botEngine.Commands()
 
 	bot := &Bot{
-		engine:          botEngine,
-		cfg:             cfg,
-		botInstance:     app,
-		ctx:             ctx,
-		cancel:          cancel,
-		target:          cfg.BotName,
-		markDownRendere: r,
+		cmds:        cmds,
+		engine:      botEngine,
+		cfg:         cfg,
+		botInstance: app,
+		ctx:         ctx,
+		cancel:      cancel,
+		target:      cfg.BotName,
 
 		storage: make(map[string]InteractiveMessage),
 
 		command:    []string{},
 		subComnad:  make(map[string][]string),
 		argCommand: make(map[string][]string),
-
-		session: make(map[string]Session),
-		mtx:     sync.RWMutex{},
 	}
 
 	go bot.cleanSession(60 * time.Second)
@@ -482,82 +516,10 @@ func (bot *Bot) Stop() {
 }
 
 func (bot *Bot) deleteAllCommands() {
-
 }
 
 //nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands(to string) error {
-
-	cmds := bot.engine.Commands()
-	for i, cmd := range cmds {
-		rowsSubCmd := []any{}
-		if !cmd.HasBotID(entity.BotID_Telegram) {
-			continue
-		}
-
-		switch bot.target {
-		case config.BotNamePaguMainnet:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
-				continue
-			}
-
-		case config.BotNamePaguModerator:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
-				continue
-			}
-
-		default:
-			log.Warn("invalid target", "target", bot.target)
-
-			continue
-		}
-
-		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
-
-		bot.command = append(bot.command, cmd.Name)
-
-		if cmd.HasSubCommand() {
-			var subCommands []string
-			for indx, subCmd := range cmd.SubCommands {
-				if len(subCmd.Args) > 0 {
-					var args []string
-					for _, arg := range subCmd.Args {
-						args = append(args, arg.Name)
-					}
-					bot.argCommand[subCmd.Name] = args
-				}
-				rowsSubCmd = append(rowsSubCmd, map[string]any{
-					"id":          fmt.Sprintf("%v", indx),
-					"title":       subCmd.Name,
-					"description": subCmd.Help,
-				})
-
-				subCommands = append(subCommands, subCmd.Name)
-			}
-			bot.subComnad[cmd.Name] = subCommands
-		}
-		bot.storage[cmd.Name] = InteractiveMessage{
-			MessagingProduct: "whatsapp",
-			RecipientType:    "individual",
-			To:               to,
-			Type:             "interactive",
-			Interactive: map[string]any{
-				"type": "list",
-				"body": map[string]any{
-					"text": cmd.Help,
-				},
-				"action": map[string]any{
-					"button": "View Options",
-					"sections": []any{
-						map[string]any{
-							"title": "Menu",
-							"rows":  rowsSubCmd,
-						},
-					},
-				},
-			},
-		}
-	}
 	return nil
 }
 
