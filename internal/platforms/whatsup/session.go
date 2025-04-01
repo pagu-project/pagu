@@ -25,28 +25,18 @@ func NewSessionManager() *SessionManager {
 	}
 }
 
-func (sessionManage *SessionManager) OpenSession(userId string) *Session {
-	session := Session{}
-	session.openTime = time.Now()
-	sessionManage.mtx.Lock()
-	sessionManage.sessions[userId] = session
-	sessionManage.mtx.Unlock()
-	return &session
+func (sessionManage *SessionManager) ExistSession(userId string) bool {
+	sessionManage.mtx.RLock()
+	_, exist := sessionManage.sessions[userId]
+	sessionManage.mtx.RUnlock()
+	return exist
 }
 
-func (sessionManage *SessionManager) EditSession(userId string, command []string, args []string) *Session {
+func (sessionManage *SessionManager) OpenSession(userId string, session Session) {
 	sessionManage.mtx.Lock()
-	session := sessionManage.sessions[userId]
-	if command != nil {
-		session.commands = command
-	}
-
-	if args != nil {
-		session.args = args
-	}
-
+	session.openTime = time.Now()
+	sessionManage.sessions[userId] = session
 	sessionManage.mtx.Unlock()
-	return &session
 }
 
 func (sessionManage *SessionManager) CloseSession(userId string) {
@@ -56,7 +46,6 @@ func (sessionManage *SessionManager) CloseSession(userId string) {
 		delete(sessionManage.sessions, userId)
 		sessionManage.mtx.Unlock()
 	}
-	return
 }
 
 func (sessionManage *SessionManager) GetSession(userId string) *Session {

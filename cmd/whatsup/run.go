@@ -8,7 +8,7 @@ import (
 	pagucmd "github.com/pagu-project/pagu/cmd"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
-	"github.com/pagu-project/pagu/internal/platforms/whatsapp"
+	whatsapp "github.com/pagu-project/pagu/internal/platforms/whatsup"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )

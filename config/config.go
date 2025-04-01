@@ -25,7 +25,7 @@ type Config struct {
 	Phoenix      *phoenix.Config     `yaml:"phoenix"`
 	Discord      *DiscordBot         `yaml:"discord"`
 	Telegram     *Telegram           `yaml:"telegram"`
-	WhatsUp      *WhatsUp            `yaml:"whatsapp"`
+	WhatsUp      *WhatsUp            `yaml:"whatsup"`
 	Notification *Notification       `yaml:"notification"`
 	NowPayments  *nowpayments.Config `yaml:"now_payments"`
 }

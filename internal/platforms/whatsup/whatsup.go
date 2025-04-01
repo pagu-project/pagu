@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"slices"
@@ -32,14 +31,8 @@ type Bot struct {
 	cmds        []*command.Command
 	cfg         *config.Config
 
-	target string
-
-	storage    map[string]InteractiveMessage // storage better name :
-	command    []string
-	subComnad  map[string][]string
-	argCommand map[string][]string
-
-	sessionManager SessionManager
+	target         string
+	sessionManager *SessionManager
 }
 
 func (bot *Bot) renderPage(cmdName, to string) InteractiveMessage {
@@ -106,79 +99,46 @@ func renderResult(result, to string) map[string]any {
 	}
 }
 
-func (bot *Bot) existSession(id string) bool {
-	_, exist := bot.session[id]
-	return exist
-}
-
-func (bot *Bot) addSession(session Session, id string) {
-	bot.mtx.Lock()
-	session.lastUpdate = time.Now()
-	bot.session[id] = session
-	bot.mtx.Unlock()
-}
-
-func (bot *Bot) editSession(arg, id string) {
-	bot.mtx.Lock()
-	session, exist := bot.session[id]
-	if exist {
-		session.lastUpdate = time.Now()
-		session.args = append(session.args, arg)
-		bot.session[id] = session
-	}
-	bot.mtx.Unlock()
-}
-
-func (bot *Bot) deleteSession(id string) error {
-	_, exist := bot.session[id]
-	if exist {
-		bot.mtx.Lock()
-		delete(bot.session, id)
-		bot.mtx.Unlock()
-		return nil
-	}
-	return errors.New("session not found")
-}
-
-func (bot *Bot) cleanSession(ttl time.Duration) {
-	for {
-		bot.mtx.RLock()
-		now := time.Now()
-		expiredSessions := []string{}
-
-		for id, session := range bot.session {
-			if now.Sub(session.lastUpdate) > ttl {
-				expiredSessions = append(expiredSessions, id)
-			}
-		}
-		bot.mtx.RUnlock() // Release read lock
-
-		// Now delete sessions with a write lock
-		bot.mtx.Lock()
-		for _, id := range expiredSessions {
-			delete(bot.session, id)
-		}
-		bot.mtx.Unlock()
-
-		time.Sleep(time.Second)
-	}
-}
-
 func (bot *Bot) checkCommand(command string) string {
-	isCommand := slices.Contains(bot.command, command)
-	if isCommand {
-		return COMMAND
-	}
-	return SUBCOMMAND
-}
-
-func (bot *Bot) findCommand(subCommand string) string {
-	for cmd, subCmd := range bot.subComnad {
-		if slices.Contains(subCmd, subCommand) {
-			return cmd
+	for _, cmd := range bot.cmds {
+		if cmd.Name == command {
+			return COMMAND
+		}
+		if cmd.HasSubCommand() {
+			for _, subCmd := range cmd.SubCommands {
+				if subCmd.Name == command {
+					return SUBCOMMAND
+				}
+			}
 		}
 	}
 	return ""
+}
+
+func (bot *Bot) findCommand(subCommand string) string {
+	for _, cmd := range bot.cmds {
+		for _, subCmd := range cmd.SubCommands {
+			if subCmd.Name == subCommand {
+				return cmd.Name
+			}
+		}
+	}
+	return ""
+}
+
+func (bot *Bot) findArgs(subCommand string) []string {
+	for _, cmd := range bot.cmds {
+		for _, subCmd := range cmd.SubCommands {
+			if subCmd.Name == subCommand {
+				args := []string{}
+				for _, arg := range subCmd.Args {
+					args = append(args, arg.Name)
+				}
+				return args
+			}
+		}
+	}
+	return nil
 }
 
 var (
@@ -257,27 +217,37 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 					phoneNumberID := change.Value.Metadata.PhoneNumberID
 					if message.Type == "interactive" {
 						msg := message.Interactive.ListReply.Title
-						session := Session{}
 						fmt.Println("----msg : ", msg)
 						switch bot.checkCommand(msg) {
 						case COMMAND:
-							session.command = msg
-							bot.addSession(session, phoneNumberID)
+							bot.sessionManager.OpenSession(phoneNumberID, Session{
+								commands: []string{msg},
+								args:     nil,
+							})
 						case SUBCOMMAND:
-							session.command = bot.findCommand(msg)
-							session.subCommand = msg
-							bot.addSession(session, phoneNumberID)
+							mainCommand := bot.findCommand(msg)
+							bot.sessionManager.OpenSession(phoneNumberID, Session{
+								commands: []string{mainCommand, msg},
+								args:     nil,
+							})
 						default:
 							fmt.Println("error in add session")
 						}
 						bot.sendCommand(phoneNumberID, message.From)
 					} else {
 						if strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start" {
-							bot.sendCommand(phoneNumberID, message.From)
+							bot.sessionManager.OpenSession(phoneNumberID, Session{
+								commands: []string{"help"},
+								args:     nil,
+							})
+							bot.sendHelpCommand(phoneNumberID, message.From)
 						} else {
-							// args
-							fmt.Println("PING")
-							bot.editSession(message.Text.Body, phoneNumberID)
+							msg := message.Text.Body
+							session := bot.sessionManager.GetSession(phoneNumberID)
+							args := session.args
+							args = append(args, msg)
+							session.args = args
+							bot.sessionManager.OpenSession(phoneNumberID, *session)
 							bot.sendCommand(phoneNumberID, message.From)
 						}
 					}
@@ -382,38 +352,27 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 	var (
 		jsonData   []byte
 		err        error
-		commands   []string
 		commandRes []byte
-		session    = bot.session[phoneNumberID]
+		session    = bot.sessionManager.GetSession(phoneNumberID)
 	)
 
-	cmd, _ := bot.storage[session.command]
-	cmd.To = to
-	bot.storage[session.command] = cmd
-
-	if session.subCommand == "" {
-		if session.command == "help" || session.command == "about" {
-			commands = append(commands, []string{session.command}...)
-			commandRes := bot.handleCommand(commands)
-			cmd := renderResult(string(commandRes), to)
-			jsonData, err = json.Marshal(cmd)
-		} else {
-			cmd := bot.renderPage(session.command, to)
-			jsonData, err = json.Marshal(cmd)
-		}
-	} else {
-		command := bot.findCommand(session.subCommand)
-		commands = append(commands, []string{command, session.subCommand}...)
-		args := bot.argCommand[session.subCommand]
-		if len(args) < 1 {
-			commandRes = bot.handleCommand(commands)
-		} else if len(session.args) == len(args) {
-			for indx, arg := range session.args {
-				commands = append(commands, fmt.Sprintf("--%s=%s", args[indx], arg))
+	if len(session.commands) == 1 {
+		// commandRes = bot.handleCommand(session.commands)
+		cmd := bot.renderPage(session.commands[0], to)
+		jsonData, err = json.Marshal(cmd)
+	} else if len(session.commands) == 2 {
+		args := bot.findArgs(session.commands[1])
+		if len(args) > 0 {
+			if len(session.args) != len(args) {
+				commandRes = []byte(fmt.Sprintf("Enter your %s : ", args[len(session.args)]))
+			} else {
+				for indx, arg := range session.args {
+					session.commands = append(session.commands, fmt.Sprintf("--%s=%s", args[indx], arg))
+				}
+				commandRes = bot.handleCommand(session.commands)
 			}
-			commandRes = bot.handleCommand(commands)
 		} else {
-			commandRes = []byte(fmt.Sprintf("Enter your %s : ", args[len(session.args)]))
+			commandRes = bot.handleCommand(session.commands)
 		}
 		cmd := renderResult(string(commandRes), to)
 		jsonData, err = json.Marshal(cmd)
@@ -464,23 +423,22 @@ func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error
 
 	cmds := botEngine.Commands()
 
+	sessionManager := NewSessionManager()
+	sessionManager.checkInterval = 600 * time.Second
+	sessionManager.sessionTtl = 300 * time.Second
+
 	bot := &Bot{
-		cmds:        cmds,
-		engine:      botEngine,
-		cfg:         cfg,
-		botInstance: app,
-		ctx:         ctx,
-		cancel:      cancel,
-		target:      cfg.BotName,
-
-		storage: make(map[string]InteractiveMessage),
-
-		command:    []string{},
-		subComnad:  make(map[string][]string),
-		argCommand: make(map[string][]string),
+		cmds:           cmds,
+		engine:         botEngine,
+		cfg:            cfg,
+		botInstance:    app,
+		ctx:            ctx,
+		cancel:         cancel,
+		target:         cfg.BotName,
+		sessionManager: sessionManager,
 	}
 
-	go bot.cleanSession(60 * time.Second)
+	go bot.sessionManager.removeExpiredSession()
 
 	// Webhook handlers
 	app.Post("/webhook", bot.webhookHandler)
