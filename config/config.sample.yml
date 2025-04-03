@@ -67,7 +67,7 @@ telegram:
   # Telegram bot token for authentication.
   bot_token:
 
-whatsapp:
+whats_app:
   web_hook_token:
   graph_token:
   port:

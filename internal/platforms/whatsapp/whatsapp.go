@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
 	"time"
 
@@ -35,21 +34,21 @@ type Bot struct {
 	sessionManager *SessionManager
 }
 
-func (bot *Bot) renderPage(cmdName, to string) InteractiveMessage {
-	var (
-		rowsSubCmd []any
-		command    *command.Command
-	)
+func (bot *Bot) renderPage(cmdName, destination string) InteractiveMessage {
+	var command *command.Command
+	rowsSubCmd := []any{}
 
 	for _, cmd := range bot.cmds {
 		if cmd.Name == cmdName {
 			command = cmd
+
 			break
 		}
 		if cmd.HasSubCommand() {
 			for _, subCmd := range cmd.SubCommands {
 				if subCmd.Name == cmdName {
 					command = cmd
+
 					break
 				}
 			}
@@ -66,8 +65,8 @@ func (bot *Bot) renderPage(cmdName, to string) InteractiveMessage {
 
 	return InteractiveMessage{
 		MessagingProduct: "whatsapp",
-		RecipientType:    "individual",
-		To:               to,
+		RecipientType:    "indivIDual",
+		To:               destination,
 		Type:             "interactive",
 		Interactive: map[string]any{
 			"type": "list",
@@ -87,11 +86,11 @@ func (bot *Bot) renderPage(cmdName, to string) InteractiveMessage {
 	}
 }
 
-func renderResult(result, to string) map[string]any {
+func renderResult(result, destination string) map[string]any {
 	return map[string]any{
 		"messaging_product": "whatsapp",
-		"recipient_type":    "individual",
-		"to":                to,
+		"recipient_type":    "indivIDual",
+		"to":                destination,
 		"type":              "text",
 		"text": map[string]any{
 			"body": result,
@@ -112,6 +111,7 @@ func (bot *Bot) checkCommand(command string) string {
 			}
 		}
 	}
+
 	return ""
 }
 
@@ -123,6 +123,7 @@ func (bot *Bot) findCommand(subCommand string) string {
 			}
 		}
 	}
+
 	return ""
 }
 
@@ -134,17 +135,19 @@ func (bot *Bot) findArgs(subCommand string) []string {
 				for _, arg := range subCmd.Args {
 					args = append(args, arg.Name)
 				}
+
 				return args
 			}
 		}
 	}
+
 	return nil
 }
 
 var (
-	WEBHOOK_VERIFY_TOKEN string
-	GRAPH_API_TOKEN      string
-	PORT                 int
+	WebhookVerifyToken string
+	GraphAPIToken      string
+	Port               int
 )
 
 type InteractiveMessage struct {
@@ -156,55 +159,73 @@ type InteractiveMessage struct {
 }
 
 type WebhookRequest struct {
-	Object string `json:"object"`
-	Entry  []struct {
-		ID      string `json:"id"`
-		Changes []struct {
-			Value struct {
-				MessagingProduct string `json:"messaging_product"`
-				Metadata         struct {
-					DisplayPhoneNumber string `json:"display_phone_number"`
-					PhoneNumberID      string `json:"phone_number_id"`
-				} `json:"metadata"`
-				Contacts []struct {
-					Profile struct {
-						Name string `json:"name"`
-					} `json:"profile"`
-					WaID string `json:"wa_id"`
-				} `json:"contacts"`
-				Messages []struct {
-					From      string `json:"from"`
-					ID        string `json:"id"`
-					Timestamp string `json:"timestamp"`
-					Text      struct {
-						Body string `json:"body"`
-					} `json:"text"`
-					Type        string `json:"type"`
-					Interactive struct {
-						Type      string `json:"type"`
-						ListReply struct {
-							Id          string `json:"id"`
-							Title       string `json:"title"`
-							Description string `json:"description"`
-						} `json:"list_reply"`
-					} `json:"interactive"`
-				} `json:"messages"`
-				Field string `json:"field"`
-			} `json:"value"`
-		} `json:"changes"`
-	} `json:"entry"`
+	Object string  `json:"object"`
+	Entry  []Entry `json:"entry"`
 }
 
-func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
+type Entry struct {
+	ID      string   `json:"id"`
+	Changes []Change `json:"changes"`
+}
+
+type Change struct {
+	Value Value `json:"value"`
+}
+
+type Value struct {
+	MessagingProduct string    `json:"messaging_product"`
+	Metadata         Metadata  `json:"metadata"`
+	Contacts         []Contact `json:"contacts"`
+	Messages         []Message `json:"messages"`
+	Field            string    `json:"field"`
+}
+
+type Metadata struct {
+	DisplayPhoneNumber string `json:"display_phone_number"`
+	PhoneNumberID      string `json:"phone_number_id"`
+}
+
+type Contact struct {
+	Profile Profile `json:"profile"`
+	WaID    string  `json:"wa_id"`
+}
+
+type Profile struct {
+	Name string `json:"name"`
+}
+
+type Message struct {
+	From        string      `json:"from"`
+	ID          string      `json:"id"`
+	Timestamp   string      `json:"timestamp"`
+	Text        Text        `json:"text"`
+	Type        string      `json:"type"`
+	Interactive Interactive `json:"interactive"`
+}
+
+type Text struct {
+	Body string `json:"body"`
+}
+
+type Interactive struct {
+	Type      string    `json:"type"`
+	ListReply ListReply `json:"list_reply"`
+}
+
+type ListReply struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (bot *Bot) webhookHandler(ctx *fiber.Ctx) error {
 	var resBody WebhookRequest
 
-	// log.Println("Incoming webhook message: ", string(c.Body()))
-	if err := json.Unmarshal(c.Body(), &resBody); err != nil {
+	if err := json.Unmarshal(ctx.Body(), &resBody); err != nil {
 		log.Printf("Error unmarshalling response body: %v", err)
-		return c.Status(fiber.StatusBadRequest).SendString("Unable to parse request body")
-	}
 
-	// Log incoming message for debugging
+		return ctx.Status(fiber.StatusBadRequest).SendString("Unable to parse request body")
+	}
 
 	// Check if there are entries and changes in the webhook
 	if len(resBody.Entry) > 0 {
@@ -213,11 +234,9 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 				// Ensure there are messages in the change
 				if len(change.Value.Messages) > 0 {
 					message := change.Value.Messages[0]
-					fmt.Printf("----message : %+v\n", message)
 					phoneNumberID := change.Value.Metadata.PhoneNumberID
 					if message.Type == "interactive" {
 						msg := message.Interactive.ListReply.Title
-						fmt.Println("----msg : ", msg)
 						switch bot.checkCommand(msg) {
 						case COMMAND:
 							bot.sessionManager.OpenSession(phoneNumberID, Session{
@@ -231,16 +250,15 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 								args:     nil,
 							})
 						default:
-							fmt.Println("error in add session")
 						}
 						bot.sendCommand(phoneNumberID, message.From)
 					} else {
-						if strings.ToLower(message.Text.Body) == "help" || strings.ToLower(message.Text.Body) == "start" {
+						if strings.EqualFold(message.Text.Body, "help") || strings.EqualFold(message.Text.Body, "start") {
 							bot.sessionManager.OpenSession(phoneNumberID, Session{
 								commands: []string{"help"},
 								args:     nil,
 							})
-							bot.sendHelpCommand(phoneNumberID, message.From)
+							sendHelpCommand(phoneNumberID, message.From)
 						} else {
 							msg := message.Text.Body
 							session := bot.sessionManager.GetSession(phoneNumberID)
@@ -256,27 +274,27 @@ func (bot *Bot) webhookHandler(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.SendStatus(fiber.StatusOK)
+	return ctx.SendStatus(fiber.StatusOK)
 }
 
-func (bot *Bot) verificationHandler(c *fiber.Ctx) error {
-	mode := c.Query("hub.mode")
-	token := c.Query("hub.verify_token")
-	challenge := c.Query("hub.challenge")
+func verificationHandler(ctx *fiber.Ctx) error {
+	mode := ctx.Query("hub.mode")
+	token := ctx.Query("hub.verify_token")
+	challenge := ctx.Query("hub.challenge")
 
-	if mode == "subscribe" && token == WEBHOOK_VERIFY_TOKEN {
-		return c.Status(fiber.StatusOK).SendString(challenge)
+	if mode == "subscribe" && token == WebhookVerifyToken {
+		return ctx.Status(fiber.StatusOK).SendString(challenge)
 	}
 
-	return c.Status(fiber.StatusForbidden).SendString("Forbidden")
+	return ctx.Status(fiber.StatusForbidden).SendString("ForbIDden")
 }
 
-func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
+func sendHelpCommand(phoneNumberID, destinatoin string) {
 	message := map[string]any{
 		"command":           "help",
 		"messaging_product": "whatsapp",
 		"recipient_type":    "individual",
-		"to":                to,
+		"to":                destinatoin,
 		"type":              "interactive",
 		"interactive": map[string]any{
 			"type": "list",
@@ -289,14 +307,46 @@ func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
 					map[string]any{
 						"title": "Menu",
 						"rows": []any{
-							map[string]any{"id": "1", "title": "crowdfund", "description": "🤝 Commands for managing crowdfunding campaigns"},
-							map[string]any{"id": "2", "title": "calculator", "description": "🧮 Perform calculations such as reward and fee estimations"},
-							map[string]any{"id": "3", "title": "network", "description": "🌐 Commands for network metrics and information"},
-							map[string]any{"id": "4", "title": "voucher", "description": "🎁 Commands for managing vouchers"},
-							map[string]any{"id": "5", "title": "market", "description": "📈 Commands for managing market"},
-							map[string]any{"id": "6", "title": "phoenix", "description": "🐦 Commands for working with Phoenix Testnet"},
-							map[string]any{"id": "7", "title": "about", "description": "📝 About Pagu"},
-							map[string]any{"id": "8", "title": "help", "description": "❓ Help for pagu command"},
+							map[string]any{
+								"id":          "1",
+								"title":       "crowdfund",
+								"description": "🤝 Commands for managing crowdfunding campaigns",
+							},
+							map[string]any{
+								"id":          "2",
+								"title":       "calculator",
+								"description": "🧮 Perform calculations such as reward and fee estimations",
+							},
+							map[string]any{
+								"id":          "3",
+								"title":       "network",
+								"description": "🌐 Commands for network metrics and information",
+							},
+							map[string]any{
+								"id":          "4",
+								"title":       "voucher",
+								"description": "🎁 Commands for managing vouchers",
+							},
+							map[string]any{
+								"id":          "5",
+								"title":       "market",
+								"description": "📈 Commands for managing market",
+							},
+							map[string]any{
+								"id":          "6",
+								"title":       "phoenix",
+								"description": "🐦 Commands for working with Phoenix Testnet",
+							},
+							map[string]any{
+								"id":          "7",
+								"title":       "about",
+								"description": "📝 About Pagu",
+							},
+							map[string]any{
+								"id":          "8",
+								"title":       "help",
+								"description": "❓ Help for pagu command",
+							},
 						},
 					},
 				},
@@ -305,24 +355,24 @@ func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
 	}
 
 	jsonData, err := json.Marshal(message)
-	// result := pretty.Pretty(jsonData)
-	// fmt.Printf("### 1\n", string(result)
 	if err != nil {
 		log.Printf("Error marshalling list message: %s", err)
+
 		return
 	}
 
 	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
 
 	// Send the request using net/http (not fiber.Client)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Printf("Error creating request: %s", err)
+
 		return
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+GRAPH_API_TOKEN)
+	req.Header.Set("Authorization", "Bearer "+GraphAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Send the request using the default HTTP client
@@ -330,6 +380,7 @@ func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error sending list message: %s", err)
+
 		return
 	}
 	defer resp.Body.Close()
@@ -339,16 +390,7 @@ func (bot *Bot) sendHelpCommand(phoneNumberID, to string) {
 	}
 }
 
-func findArg(argsMap map[string][]string, arg string) string {
-	for command, args := range argsMap {
-		if slices.Contains(args, arg) {
-			return command
-		}
-	}
-	return ""
-}
-
-func (bot *Bot) sendCommand(phoneNumberID, to string) {
+func (bot *Bot) sendCommand(phoneNumberID, destination string) {
 	var (
 		jsonData   []byte
 		err        error
@@ -357,8 +399,7 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 	)
 
 	if len(session.commands) == 1 {
-		// commandRes = bot.handleCommand(session.commands)
-		cmd := bot.renderPage(session.commands[0], to)
+		cmd := bot.renderPage(session.commands[0], destination)
 		jsonData, err = json.Marshal(cmd)
 	} else if len(session.commands) == 2 {
 		args := bot.findArgs(session.commands[1])
@@ -374,29 +415,28 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 		} else {
 			commandRes = bot.handleCommand(session.commands)
 		}
-		cmd := renderResult(string(commandRes), to)
+		cmd := renderResult(string(commandRes), destination)
 		jsonData, err = json.Marshal(cmd)
 	}
 
-	// result := pretty.Pretty(jsonData)
-	// fmt.Printf("### 2\n", string(result))
-
 	if err != nil {
 		log.Printf("Error marshalling list message: %s", err)
+
 		return
 	}
 
 	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
 
 	// Send the request using net/http (not fiber.Client)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Printf("Error creating request: %s", err)
+
 		return
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+GRAPH_API_TOKEN)
+	req.Header.Set("Authorization", "Bearer "+GraphAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Send the request using the default HTTP client
@@ -404,6 +444,7 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error sending list message: %s", err)
+
 		return
 	}
 	defer resp.Body.Close()
@@ -414,9 +455,9 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 }
 
 func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error) {
-	WEBHOOK_VERIFY_TOKEN = cfg.WhatsApp.WebHookToken
-	GRAPH_API_TOKEN = cfg.WhatsApp.GraphToken
-	PORT = cfg.WhatsApp.Port
+	WebhookVerifyToken = cfg.WhatsApp.WebHookToken
+	GraphAPIToken = cfg.WhatsApp.GraphToken
+	Port = cfg.WhatsApp.Port
 
 	app := fiber.New()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -425,7 +466,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 
 	sessionManager := NewSessionManager()
 	sessionManager.checkInterval = 600 * time.Second
-	sessionManager.sessionTtl = 300 * time.Second
+	sessionManager.sessionTTL = 300 * time.Second
 
 	bot := &Bot{
 		cmds:           cmds,
@@ -442,7 +483,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 
 	// Webhook handlers
 	app.Post("/webhook", bot.webhookHandler)
-	app.Get("/webhook", bot.verificationHandler)
+	app.Get("/webhook", verificationHandler)
 
 	// Default route
 	app.Get("/", func(c *fiber.Ctx) error {
@@ -453,13 +494,9 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 }
 
 func (bot *Bot) Start() error {
-	bot.deleteAllCommands()
-	if err := bot.registerCommands(""); err != nil {
-		return err
-	}
 	go func() {
-		log.Printf("Server is listening on port: %s", PORT)
-		if err := bot.botInstance.Listen(fmt.Sprintf(":%v", PORT)); err != nil {
+		log.Printf("Server is listening on port: %v", Port)
+		if err := bot.botInstance.Listen(fmt.Sprintf(":%v", Port)); err != nil {
 			log.Fatalf("Error starting server: %s", err)
 		}
 	}()
@@ -473,41 +510,14 @@ func (bot *Bot) Stop() {
 	bot.cancel()
 }
 
-func (bot *Bot) deleteAllCommands() {
-}
-
-//nolint:gocognit // Complexity cannot be reduced
-func (bot *Bot) registerCommands(to string) error {
-	return nil
-}
-
-func (bot *Bot) parsTextMessage() error {
-	return nil
-}
-
-func (bot *Bot) handleArgCommand(commands []string, args map[string]string) []byte {
-	// choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n", args[0])
-	for key, val := range args {
-		commands = append(commands, fmt.Sprintf("--%s=%s", key, val))
-	}
-	return bot.handleCommand(commands)
-}
-
 // handleCommand executes a command with its arguments for the user.
 // It combines the commands and arguments into a single string, calls the engine's Run method,
 // clears the user's context, and sends the result back to the user.
 func (bot *Bot) handleCommand(commands []string) []byte {
-
-	// Retrieve the arguments for the sender
-	// fmt.Println("+++++commands : ", commands)
-	// Combine the commands into a single string
 	fullCommand := strings.Join(commands, " ")
 
 	// Call the engine's Run method with the full command string
 	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, "", fullCommand)
-	// _ = bot.botInstance.Delete(ctx.Message())
-
-	// Clear the stored command context and arguments for the sender
 
 	return []byte(res.Message)
 }

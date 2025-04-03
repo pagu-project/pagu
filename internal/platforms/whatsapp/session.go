@@ -14,8 +14,8 @@ type Session struct {
 type SessionManager struct {
 	mtx           sync.RWMutex
 	sessions      map[string]Session
-	sessionTtl    time.Duration
-	checkInterval time.Duration //or check ticker
+	sessionTTL    time.Duration
+	checkInterval time.Duration
 }
 
 func NewSessionManager() *SessionManager {
@@ -25,33 +25,35 @@ func NewSessionManager() *SessionManager {
 	}
 }
 
-func (sessionManage *SessionManager) ExistSession(userId string) bool {
+func (sessionManage *SessionManager) ExistSession(userID string) bool {
 	sessionManage.mtx.RLock()
-	_, exist := sessionManage.sessions[userId]
+	_, exist := sessionManage.sessions[userID]
 	sessionManage.mtx.RUnlock()
+
 	return exist
 }
 
-func (sessionManage *SessionManager) OpenSession(userId string, session Session) {
+func (sessionManage *SessionManager) OpenSession(userID string, session Session) {
 	sessionManage.mtx.Lock()
 	session.openTime = time.Now()
-	sessionManage.sessions[userId] = session
+	sessionManage.sessions[userID] = session
 	sessionManage.mtx.Unlock()
 }
 
-func (sessionManage *SessionManager) CloseSession(userId string) {
-	_, exist := sessionManage.sessions[userId]
+func (sessionManage *SessionManager) CloseSession(userID string) {
+	_, exist := sessionManage.sessions[userID]
 	if exist {
 		sessionManage.mtx.Lock()
-		delete(sessionManage.sessions, userId)
+		delete(sessionManage.sessions, userID)
 		sessionManage.mtx.Unlock()
 	}
 }
 
-func (sessionManage *SessionManager) GetSession(userId string) *Session {
+func (sessionManage *SessionManager) GetSession(userID string) *Session {
 	sessionManage.mtx.Lock()
-	session := sessionManage.sessions[userId]
+	session := sessionManage.sessions[userID]
 	sessionManage.mtx.Unlock()
+
 	return &session
 }
 
@@ -62,7 +64,7 @@ func (sessionManage *SessionManager) removeExpiredSession() {
 		expiredSessions := []string{}
 
 		for id, session := range sessionManage.sessions {
-			if now.Sub(session.openTime) > sessionManage.sessionTtl {
+			if now.Sub(session.openTime) > sessionManage.sessionTTL {
 				expiredSessions = append(expiredSessions, id)
 			}
 		}
