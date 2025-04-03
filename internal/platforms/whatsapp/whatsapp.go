@@ -413,10 +413,10 @@ func (bot *Bot) sendCommand(phoneNumberID, to string) {
 	}
 }
 
-func NewWhatsUpBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error) {
-	WEBHOOK_VERIFY_TOKEN = cfg.WhatsUp.WebHookToken
-	GRAPH_API_TOKEN = cfg.WhatsUp.GraphToken
-	PORT = cfg.WhatsUp.Port
+func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error) {
+	WEBHOOK_VERIFY_TOKEN = cfg.WhatsApp.WebHookToken
+	GRAPH_API_TOKEN = cfg.WhatsApp.GraphToken
+	PORT = cfg.WhatsApp.Port
 
 	app := fiber.New()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -463,13 +463,13 @@ func (bot *Bot) Start() error {
 			log.Fatalf("Error starting server: %s", err)
 		}
 	}()
-	log.Info("Starting WhatsUp Bot...")
+	log.Info("Starting WhatsApp Bot...")
 
 	return nil
 }
 
 func (bot *Bot) Stop() {
-	log.Info("Shutting down WhatsUp Bot")
+	log.Info("Shutting down WhatsApp Bot")
 	bot.cancel()
 }
 

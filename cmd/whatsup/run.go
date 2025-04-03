@@ -8,7 +8,7 @@ import (
 	pagucmd "github.com/pagu-project/pagu/cmd"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
-	whatsapp "github.com/pagu-project/pagu/internal/platforms/whatsup"
+	"github.com/pagu-project/pagu/internal/platforms/whatsapp"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/spf13/cobra"
 )
@@ -34,7 +34,7 @@ func runCommand(parentCmd *cobra.Command) {
 
 		eng.Start()
 
-		bot, err := whatsapp.NewWhatsUpBot(eng, configs)
+		bot, err := whatsapp.NewWhatsAppBot(eng, configs)
 		pagucmd.ExitOnError(cmd, err)
 
 		err = bot.Start()
