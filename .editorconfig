@@ -9,5 +9,17 @@ trim_trailing_whitespace = true
 indent_size = 4
 indent_style = tab
 
+[*.md]
+indent_style = space
+indent_size = 2
+# Wraps text at the max_line_length automatically.
+max_line_length = 80
+prose_wrap = always
+
 [Makefile]
 indent_style = tab
+indent_size = 4
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
