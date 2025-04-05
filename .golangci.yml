@@ -1,13 +1,17 @@
-version: "2"
 linters:
-  default: none
+  disable-all: true
+
   enable:
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
     - asasalint
     - asciicheck
     - bidichk
     - bodyclose
     - contextcheck
-    - copyloopvar
     - decorder
     - dogsled
     - dupword
@@ -16,22 +20,25 @@ linters:
     - errname
     - errorlint
     - exhaustive
+    - copyloopvar
     - forbidigo
+    - gci
     - gocheckcompilerdirectives
     - gocognit
     - gocritic
     - gocyclo
     - godot
+    - gofmt
+    - gofumpt
     - goheader
+    - goimports
     - gomoddirectives
     - gomodguard
     - goprintffuncname
     - gosec
     - gosmopolitan
-    - govet
     - grouper
     - importas
-    - ineffassign
     - lll
     - loggercheck
     - maintidx
@@ -53,7 +60,7 @@ linters:
     - revive
     - rowserrcheck
     - sqlclosecheck
-    - staticcheck
+    - stylecheck
     - tagalign
     - tagliatelle
     - testableexamples
@@ -61,142 +68,159 @@ linters:
     - tparallel
     - unconvert
     - unparam
-    - unused
     - usestdlibvars
-    - usetesting
-    - varnamelen
     - wastedassign
     - whitespace
+    # - wrapcheck
     - zerologlint
-  settings:
-    gocritic:
-      disabled-checks:
-        - ifElseChain
-        - unnamedResult
-        - importShadow
-      enabled-tags:
-        - diagnostic
-        - style
-        - performance
-    gosec:
-      excludes:
-        - G304
-        - G204
-        - G115
-    govet:
-      disable:
-        - fieldalignment
-      enable-all: true
-      settings:
-        shadow:
-          strict: true
-    predeclared:
-      ignore:
-        - len
-        - ' min'
-        - ' max'
-      qualified-name: true
-    revive:
-      enable-all-rules: true
-      rules:
-        - name: exported
-          disabled: true
-        - name: package-comments
-          disabled: true
-        - name: add-constant
-          disabled: true
-        - name: line-length-limit
-          disabled: true
-        - name: cognitive-complexity
-          disabled: true
-        - name: function-length
-          disabled: true
-        - name: cyclomatic
-          disabled: true
-        - name: unchecked-type-assertion
-          disabled: true
-        - name: max-public-structs
-          disabled: true
-        - name: flag-parameter
-          disabled: true
-        - name: deep-exit
-          disabled: true
-        - name: get-return
-          disabled: true
-        - name: confusing-naming
-          disabled: true
-        - name: function-result-limit
-          disabled: true
-        - name: import-shadowing
-          disabled: true
-        - name: redefines-builtin-id
-          disabled: true
-        - name: unhandled-error
-          arguments:
-            - fmt.Printf
-            - fmt.Println
-            - fmt.Fprintf
-            - strings.Builder.WriteString
-            - strings.Builder.WriteRune
-            - strings.Builder.WriteByte
-            - bytes.Buffer.Write
-            - bytes.Buffer.WriteString
-            - io.Closer.Close
-    staticcheck:
-      checks:
-        - -SA1019
-        - -ST1000
-        - all
-    tagliatelle:
-      case:
-        rules:
-          json: snake
-          yaml: snake
-        use-field-name: true
-    varnamelen:
-      ignore-names:
-        - ok
-        - ip
-        - "no"
-        - td
-        - ts
-        - db
-        - tt
-        - i
-        - s
-        - r
-        - w
-        - wg
-        - tx
-  exclusions:
-    generated: lax
+    - varnamelen
+    - usetesting
+
+linters-settings:
+  staticcheck:
+    checks: ["all", "-SA1019"] # TODO: enable SA1019
+
+  gosimple:
+    checks: ["all"]
+
+  revive:
+    enable-all-rules: true
     rules:
-      - linters:
-          - forbidigo
-          - gocognit
-          - maintidx
-        path: _test.go
-      - path: (.+)\.go$
-        text: 'shadow: declaration of "err" shadows'
-      - path: (.+)\.go$
-        text: 'builtinShadow: shadowing of predeclared identifier: min'
-      - path: (.+)\.go$
-        text: 'builtinShadow: shadowing of predeclared identifier: max'
-      - path: (.+)\.go$
-        text: 'builtinShadow: shadowing of predeclared identifier: len'
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-formatters:
-  enable:
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
+      - name: "exported"
+        # TODO: Enable me
+        # all exported function should have comment.
+        disabled: true
+
+      # TODO: Enable me
+      - name: package-comments
+        disabled: true
+
+      - name: "add-constant"
+        disabled: true
+
+      - name: "line-length-limit"
+        disabled: true
+
+      - name: "cognitive-complexity"
+        disabled: true
+
+      - name: "function-length"
+        disabled: true
+
+      - name: "cyclomatic"
+        disabled: true
+
+      - name: "unchecked-type-assertion"
+        disabled: true
+
+      - name: max-public-structs
+        disabled: true
+
+      - name: "flag-parameter"
+        disabled: true
+
+      - name: "deep-exit"
+        disabled: true
+
+      - name: "get-return"
+        disabled: true
+
+      - name: "confusing-naming"
+        disabled: true
+
+      - name: "function-result-limit"
+        disabled: true
+
+      - name: "import-shadowing"
+        disabled: true
+
+      - name: redefines-builtin-id
+        disabled: true
+
+      - name: unhandled-error
+        arguments:
+          - "fmt.Printf"
+          - "fmt.Println"
+          - "fmt.Fprintf"
+          - "strings.Builder.WriteString"
+          - "strings.Builder.WriteRune"
+          - "strings.Builder.WriteByte"
+          - "bytes.Buffer.Write"
+          - "bytes.Buffer.WriteString"
+          - "io.Closer.Close"
+
+  gosec:
+    excludes:
+      - G304
+      - G204
+      - G115
+
+  stylecheck:
+    # TODO: enable ST1000 (at least one file in a package should have a package comment)
+    checks: ["all", "-ST1000"]
+
+  govet:
+    enable-all: true
+    disable: ["fieldalignment"]
+
+    settings:
+      shadow:
+        strict: true
+
+  predeclared:
+    # Comma-separated list of predeclared identifiers to not report on.
+    # Default: ""
+    ignore: "len, min, max"
+    # Include method names and field names (i.e., qualified names) in checks.
+    # Default: false
+    q: true
+
+  tagliatelle:
+    # Check the struct tag name case.
+    case:
+      use-field-name: true
+      rules:
+        json: snake
+        yaml: snake
+
+  gocritic:
+    disabled-checks:
+      - ifElseChain
+      - unnamedResult
+      - importShadow
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+
+  varnamelen:
+    ignore-names:
+      - ok
+      - ip
+      - no
+      - td # test_data
+      - ts # test_suite
+      - db
+      - tt # table tests
+      - i # i *discordgo.InteractionCreate
+      - s # s *discordgo.Session
+      - r # reader
+      - w # writer
+      - wg
+      - tx # Database Tx
+
+issues:
+  exclude-use-default: false
+  exclude-generated: lax
+  exclude-rules:
+    - path: _test.go
+      linters:
+        - maintidx
+        - gocognit
+        - forbidigo
+
+  exclude:
+    - 'shadow: declaration of "err" shadows'
+    - "builtinShadow: shadowing of predeclared identifier: min"
+    - "builtinShadow: shadowing of predeclared identifier: max"
+    - "builtinShadow: shadowing of predeclared identifier: len"
