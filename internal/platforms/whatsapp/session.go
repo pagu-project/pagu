@@ -25,38 +25,38 @@ func NewSessionManager() *SessionManager {
 	}
 }
 
-func (sessionManage *SessionManager) ExistSession(userID string) bool {
-	sessionManage.mtx.RLock()
-	defer sessionManage.mtx.RUnlock()
+func (mgr *SessionManager) ExistSession(userID string) bool {
+	mgr.mtx.RLock()
+	defer mgr.mtx.RUnlock()
 
-	_, exist := sessionManage.sessions[userID]
+	_, exist := mgr.sessions[userID]
 
 	return exist
 }
 
-func (sessionManage *SessionManager) OpenSession(userID string, session Session) {
-	sessionManage.mtx.Lock()
-	defer sessionManage.mtx.Unlock()
+func (mgr *SessionManager) OpenSession(userID string, session Session) {
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
 
 	session.openTime = time.Now()
-	sessionManage.sessions[userID] = session
+	mgr.sessions[userID] = session
 }
 
-func (sessionManage *SessionManager) CloseSession(userID string) {
-	sessionManage.mtx.Lock()
-	defer sessionManage.mtx.Unlock()
+func (mgr *SessionManager) CloseSession(userID string) {
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
 
-	_, exist := sessionManage.sessions[userID]
+	_, exist := mgr.sessions[userID]
 	if exist {
-		delete(sessionManage.sessions, userID)
+		delete(mgr.sessions, userID)
 	}
 }
 
-func (sessionManage *SessionManager) GetSession(userID string) *Session {
-	sessionManage.mtx.RLock()
-	defer sessionManage.mtx.RUnlock()
+func (mgr *SessionManager) GetSession(userID string) *Session {
+	mgr.mtx.RLock()
+	defer mgr.mtx.RUnlock()
 
-	session := sessionManage.sessions[userID]
+	session := mgr.sessions[userID]
 
 	return &session
 }
