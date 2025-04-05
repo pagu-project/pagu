@@ -405,7 +405,7 @@ func (bot *Bot) sendCommand(phoneNumberID, destination string) {
 		args := bot.findArgs(session.commands[1])
 		if len(args) > 0 {
 			if len(session.args) != len(args) {
-				commandRes = []byte(fmt.Sprintf("Enter your %s : ", args[len(session.args)]))
+				commandRes = []byte(fmt.Sprintf("Enter %s: ", args[len(session.args)]))
 			} else {
 				for indx, arg := range session.args {
 					session.commands = append(session.commands, fmt.Sprintf("--%s=%s", args[indx], arg))

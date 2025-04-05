@@ -34,7 +34,6 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_Moderator,
 			entity.BotID_CLI,
-			entity.BotID_WhatsApp,
 		},
 		Args: []*command.Args{
 			{
@@ -65,7 +64,6 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_Moderator,
 			entity.BotID_CLI,
-			entity.BotID_WhatsApp,
 		},
 		Args: []*command.Args{
 			{

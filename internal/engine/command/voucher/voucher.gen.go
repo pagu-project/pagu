@@ -94,7 +94,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
-			entity.BotID_WhatsApp,
 		},
 		Args: []*command.Args{
 			{
