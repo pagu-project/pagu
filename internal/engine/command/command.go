@@ -1,3 +1,4 @@
+// Package command provides structures for handling commands.
 package command
 
 import (

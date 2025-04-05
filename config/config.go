@@ -25,6 +25,7 @@ type Config struct {
 	Phoenix      *phoenix.Config     `yaml:"phoenix"`
 	Discord      *DiscordBot         `yaml:"discord"`
 	Telegram     *Telegram           `yaml:"telegram"`
+	WhatsApp     *WhatsApp           `yaml:"whats_app"`
 	Notification *Notification       `yaml:"notification"`
 	NowPayments  *nowpayments.Config `yaml:"now_payments"`
 }
@@ -48,6 +49,12 @@ type HTTP struct {
 
 type Telegram struct {
 	BotToken string `yaml:"bot_token"`
+}
+
+type WhatsApp struct {
+	WebHookToken string `yaml:"web_hook_token"`
+	GraphToken   string `yaml:"graph_token"`
+	Port         int    `yaml:"port"`
 }
 
 type Notification struct {

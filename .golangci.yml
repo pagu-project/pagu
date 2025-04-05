@@ -78,7 +78,7 @@ linters:
 
 linters-settings:
   staticcheck:
-    checks: [ "all", "-SA1019"] # TODO: enable SA1019
+    checks: ["all", "-SA1019"] # TODO: enable SA1019
 
   gosimple:
     checks: ["all"]
@@ -220,7 +220,7 @@ issues:
         - forbidigo
 
   exclude:
-    - "shadow: declaration of \"err\" shadows"
+    - 'shadow: declaration of "err" shadows'
     - "builtinShadow: shadowing of predeclared identifier: min"
     - "builtinShadow: shadowing of predeclared identifier: max"
     - "builtinShadow: shadowing of predeclared identifier: len"

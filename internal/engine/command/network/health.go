@@ -18,10 +18,7 @@ func (n *NetworkCmd) healthHandler(
 	currentTime := time.Now()
 	timeDiff := currentTime.Unix() - int64(lastBlockTime)
 
-	healthStatus := true
-	if timeDiff > 15 {
-		healthStatus = false
-	}
+	healthStatus := timeDiff <= 15
 
 	var status string
 	if healthStatus {

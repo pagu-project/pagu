@@ -10,8 +10,8 @@ const argNameNodeInfoValidator_address = "validator_address"
 
 type networkSubCmds struct {
 	subCmdNodeInfo *command.Command
-	subCmdHealth   *command.Command
-	subCmdStatus   *command.Command
+	subCmdHealth *command.Command
+	subCmdStatus *command.Command
 }
 
 func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
@@ -20,7 +20,7 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		Help:           "View information about a specific node",
 		Handler:        c.nodeInfoHandler,
 		ResultTemplate: "PeerID: {{.PeerID}}\nIP Address: {{.IPAddress}}\nAgent: {{.Agent}}\nMoniker: {{.Moniker}}\nCountry: {{.Country}}\nCity: {{.City}}\nRegion Name: {{.RegionName}}\nTimeZone: {{.TimeZone}}\nISP: {{.ISP}}\n\nValidator Info🔍\nNumber: {{.Number}}\nPIP-19 Score: {{.AvailabilityScore}}\nStake: {{.Stake}} PAC's\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		TargetBotIDs: entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "validator_address",
@@ -35,29 +35,29 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		Help:           "Check the network health status",
 		Handler:        c.healthHandler,
 		ResultTemplate: "Network is {{.Status}}\nCurrent Time: {{.CurrentTime}}\nLast Block Time: {{.LastBlockTime}}\nTime Difference: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
 		Help:           "View network statistics",
 		Handler:        c.statusHandler,
 		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidator Count: {{.ValidatorsCount}}\nAccount Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} PAC\nTotal Committee Power: {{.TotalCommitteePower}} PAC\nCirculating Supply: {{.CirculatingSupply}} PAC\n\n> Note📝: This info is from one random network node. Some data may not be consistent.\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		TargetBotIDs: entity.AllBotIDs(),
 	}
 
 	return &networkSubCmds{
 		subCmdNodeInfo: subCmdNodeInfo,
-		subCmdHealth:   subCmdHealth,
-		subCmdStatus:   subCmdStatus,
+		subCmdHealth: subCmdHealth,
+		subCmdStatus: subCmdStatus,
 	}
 }
 
 func (c *NetworkCmd) buildNetworkCommand() *command.Command {
 	networkCmd := &command.Command{
-		Emoji:        "🌐",
-		Name:         "network",
-		Help:         "Commands for network metrics and information",
-		SubCommands:  make([]*command.Command, 0),
+		Emoji:          "🌐",
+		Name:        "network",
+		Help:        "Commands for network metrics and information",
+		SubCommands: make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),
 	}
 

@@ -4,7 +4,6 @@ emoji: 🎁
 help: Commands for managing vouchers
 sub_commands:
   - name: claim
-    target_bot_ids: [Discord, CLI]
     help: Claim voucher coins and bond them to a validator
     result_template: |
       Voucher claimed successfully!
