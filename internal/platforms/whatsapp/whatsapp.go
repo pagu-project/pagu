@@ -479,7 +479,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		sessionManager: sessionManager,
 	}
 
-	go bot.sessionManager.removeExpiredSession()
+	go bot.sessionManager.removeExpiredSessions()
 
 	// Webhook handlers
 	app.Post("/webhook", bot.webhookHandler)

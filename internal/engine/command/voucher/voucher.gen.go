@@ -29,11 +29,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Help:           "Claim voucher coins and bond them to a validator",
 		Handler:        c.claimHandler,
 		ResultTemplate: "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/{{.txHash}}\n",
-		TargetBotIDs: []entity.BotID{
-			entity.BotID_Discord,
-			entity.BotID_CLI,
-			entity.BotID_WhatsApp,
-		},
+		TargetBotIDs: entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -57,7 +53,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
-			entity.BotID_WhatsApp,
 		},
 		Args: []*command.Args{
 			{
@@ -118,7 +113,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
-			entity.BotID_WhatsApp,
 		},
 		Args: []*command.Args{
 			{

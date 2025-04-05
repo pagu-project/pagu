@@ -27,56 +27,59 @@ func NewSessionManager() *SessionManager {
 
 func (sessionManage *SessionManager) ExistSession(userID string) bool {
 	sessionManage.mtx.RLock()
+	defer sessionManage.mtx.RUnlock()
+
 	_, exist := sessionManage.sessions[userID]
-	sessionManage.mtx.RUnlock()
 
 	return exist
 }
 
 func (sessionManage *SessionManager) OpenSession(userID string, session Session) {
 	sessionManage.mtx.Lock()
+	defer sessionManage.mtx.Unlock()
+
 	session.openTime = time.Now()
 	sessionManage.sessions[userID] = session
-	sessionManage.mtx.Unlock()
 }
 
 func (sessionManage *SessionManager) CloseSession(userID string) {
+	sessionManage.mtx.Lock()
+	defer sessionManage.mtx.Unlock()
+
 	_, exist := sessionManage.sessions[userID]
 	if exist {
-		sessionManage.mtx.Lock()
 		delete(sessionManage.sessions, userID)
-		sessionManage.mtx.Unlock()
 	}
 }
 
 func (sessionManage *SessionManager) GetSession(userID string) *Session {
-	sessionManage.mtx.Lock()
+	sessionManage.mtx.RLock()
+	defer sessionManage.mtx.RUnlock()
+
 	session := sessionManage.sessions[userID]
-	sessionManage.mtx.Unlock()
 
 	return &session
 }
 
-func (sessionManage *SessionManager) removeExpiredSession() {
+func (mgr *SessionManager) removeExpiredSessions() {
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
+
 	for {
-		sessionManage.mtx.RLock()
 		now := time.Now()
 		expiredSessions := []string{}
 
-		for id, session := range sessionManage.sessions {
-			if now.Sub(session.openTime) > sessionManage.sessionTTL {
+		for id, session := range mgr.sessions {
+			if now.Sub(session.openTime) > mgr.sessionTTL {
 				expiredSessions = append(expiredSessions, id)
 			}
 		}
-		sessionManage.mtx.RUnlock() // Release read lock
 
 		// Now delete sessions with a write lock
-		sessionManage.mtx.Lock()
 		for _, id := range expiredSessions {
-			delete(sessionManage.sessions, id)
+			delete(mgr.sessions, id)
 		}
-		sessionManage.mtx.Unlock()
 
-		time.Sleep(sessionManage.checkInterval)
+		time.Sleep(mgr.checkInterval)
 	}
 }

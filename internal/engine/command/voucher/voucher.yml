@@ -4,7 +4,6 @@ emoji: 🎁
 help: Commands for managing vouchers
 sub_commands:
   - name: claim
-    target_bot_ids: [Discord, CLI, WhatsApp]
     help: Claim voucher coins and bond them to a validator
     result_template: |
       Voucher claimed successfully!
@@ -20,7 +19,7 @@ sub_commands:
         input_box: Text
         optional: false
   - name: create
-    target_bot_ids: [CLI, Moderator, WhatsApp]
+    target_bot_ids: [CLI, Moderator]
     help: Generate a single voucher code
     result_template: |
       Voucher created successfully!
@@ -57,7 +56,7 @@ sub_commands:
         input_box: Toggle
         optional: false
   - name: status
-    target_bot_ids: [CLI, Moderator, WhatsApp]
+    target_bot_ids: [CLI, Moderator]
     help: View the status of vouchers or a specific voucher
     result_template: |
       Code: {{.voucher.Code}}
