@@ -61,25 +61,29 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 	return &session
 }
 
-func (mgr *SessionManager) removeExpiredSessions() {
+func (mgr *SessionManager) removeExpiredSessions(stop chan struct{}) {
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
 	for {
 		now := time.Now()
 		expiredSessions := []string{}
-
-		for id, session := range mgr.sessions {
-			if now.Sub(session.openTime) > mgr.sessionTTL {
-				expiredSessions = append(expiredSessions, id)
+		select {
+		case <-stop:
+			return
+		default:
+			for id, session := range mgr.sessions {
+				if now.Sub(session.openTime) > mgr.sessionTTL {
+					expiredSessions = append(expiredSessions, id)
+				}
 			}
-		}
 
-		// Now delete sessions with a write lock
-		for _, id := range expiredSessions {
-			delete(mgr.sessions, id)
-		}
+			// Now delete sessions with a write lock
+			for _, id := range expiredSessions {
+				delete(mgr.sessions, id)
+			}
 
-		time.Sleep(mgr.checkInterval)
+			time.Sleep(mgr.checkInterval)
+		}
 	}
 }
