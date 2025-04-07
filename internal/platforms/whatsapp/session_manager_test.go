@@ -1,6 +1,7 @@
 package whatsapp
 
 import (
+	"context"
 	"testing"
 	"time"
 )
@@ -85,23 +86,30 @@ func TestGetSession(t *testing.T) {
 }
 
 func TestRemoveExpiredSessions(t *testing.T) {
-	manager := &SessionManager{
+	mgr := &SessionManager{
 		sessions:      make(map[string]Session),
-		sessionTTL:    7 * time.Second,
-		checkInterval: 3 * time.Second,
+		sessionTTL:    1 * time.Second,        // 1 second TTL for testing
+		checkInterval: 100 * time.Millisecond, // short check interval
 	}
 
-	userID := "user_expire"
-	session := Session{}
-	manager.OpenSession(userID, session)
+	mgr.sessions["session1"] = Session{openTime: time.Now().Add(-2 * time.Second)}        // expired
+	mgr.sessions["session2"] = Session{openTime: time.Now().Add(-500 * time.Millisecond)} // not expired
 
-	done := make(chan struct{})
-	go manager.removeExpiredSessions(done)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
-	time.Sleep(10 * time.Second)
-	done <- struct{}{}
+	go mgr.removeExpiredSessions(ctx)
 
-	if manager.ExistSession(userID) {
-		t.Errorf("Expected session for user %s to expire", userID)
+	time.Sleep(2 * time.Second)
+
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
+
+	if _, exists := mgr.sessions["session1"]; exists {
+		t.Errorf("Expected session 'session1' to be removed, but it still exists")
+	}
+
+	if _, exists := mgr.sessions["session2"]; exists {
+		t.Errorf("Expected session 'session2' to still exist, but it was removed")
 	}
 }

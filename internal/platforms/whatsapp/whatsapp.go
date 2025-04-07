@@ -478,9 +478,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		target:         cfg.BotName,
 		sessionManager: sessionManager,
 	}
-
-	done := make(chan struct{})
-	go bot.sessionManager.removeExpiredSessions(done)
+	go bot.sessionManager.removeExpiredSessions(ctx)
 
 	// Webhook handlers
 	app.Post("/webhook", bot.webhookHandler)

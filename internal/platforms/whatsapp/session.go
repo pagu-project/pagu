@@ -1,6 +1,7 @@
 package whatsapp
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -61,7 +62,7 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 	return &session
 }
 
-func (mgr *SessionManager) removeExpiredSessions(done chan struct{}) {
+func (mgr *SessionManager) removeExpiredSessions(ctx context.Context) {
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
@@ -69,7 +70,7 @@ func (mgr *SessionManager) removeExpiredSessions(done chan struct{}) {
 		now := time.Now()
 		expiredSessions := []string{}
 		select {
-		case <-done:
+		case <-ctx.Done():
 			return
 		default:
 			for id, session := range mgr.sessions {
