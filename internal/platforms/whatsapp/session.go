@@ -61,7 +61,7 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 	return &session
 }
 
-func (mgr *SessionManager) removeExpiredSessions(stop chan struct{}) {
+func (mgr *SessionManager) removeExpiredSessions(done chan struct{}) {
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
@@ -69,7 +69,7 @@ func (mgr *SessionManager) removeExpiredSessions(stop chan struct{}) {
 		now := time.Now()
 		expiredSessions := []string{}
 		select {
-		case <-stop:
+		case <-done:
 			return
 		default:
 			for id, session := range mgr.sessions {

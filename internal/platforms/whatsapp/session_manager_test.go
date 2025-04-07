@@ -95,11 +95,11 @@ func TestRemoveExpiredSessions(t *testing.T) {
 	session := Session{}
 	manager.OpenSession(userID, session)
 
-	stop := make(chan struct{})
-	go manager.removeExpiredSessions(stop)
+	done := make(chan struct{})
+	go manager.removeExpiredSessions(done)
 
 	time.Sleep(10 * time.Second)
-	stop <- struct{}{}
+	done <- struct{}{}
 
 	if manager.ExistSession(userID) {
 		t.Errorf("Expected session for user %s to expire", userID)
