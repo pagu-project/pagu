@@ -108,7 +108,6 @@ func TestRemoveExpiredSessions(t *testing.T) {
 	if _, exists := mgr.sessions["session1"]; exists {
 		t.Errorf("Expected session 'session1' to be removed, but it still exists")
 	}
-
 	if _, exists := mgr.sessions["session2"]; exists {
 		t.Errorf("Expected session 'session2' to still exist, but it was removed")
 	}
