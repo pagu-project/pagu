@@ -17,12 +17,18 @@ type SessionManager struct {
 	sessions      map[string]Session
 	sessionTTL    time.Duration
 	checkInterval time.Duration
+	ctx           context.Context
+	cancle        context.CancelFunc
 }
 
 func NewSessionManager() *SessionManager {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	return &SessionManager{
 		mtx:      sync.RWMutex{},
 		sessions: make(map[string]Session),
+		ctx:      ctx,
+		cancle:   cancel,
 	}
 }
 
@@ -62,7 +68,7 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 	return &session
 }
 
-func (mgr *SessionManager) removeExpiredSessions(ctx context.Context) {
+func (mgr *SessionManager) removeExpiredSessions() {
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
@@ -70,7 +76,7 @@ func (mgr *SessionManager) removeExpiredSessions(ctx context.Context) {
 		now := time.Now()
 		expiredSessions := []string{}
 		select {
-		case <-ctx.Done():
+		case <-mgr.ctx.Done():
 			return
 		default:
 			for id, session := range mgr.sessions {

@@ -86,19 +86,21 @@ func TestGetSession(t *testing.T) {
 }
 
 func TestRemoveExpiredSessions(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
 	mgr := &SessionManager{
 		sessions:      make(map[string]Session),
 		sessionTTL:    1 * time.Second,        // 1 second TTL for testing
 		checkInterval: 100 * time.Millisecond, // short check interval
+		ctx:           ctx,
+		cancle:        cancel,
 	}
 
 	mgr.sessions["session1"] = Session{openTime: time.Now().Add(-2 * time.Second)}        // expired
 	mgr.sessions["session2"] = Session{openTime: time.Now().Add(-500 * time.Millisecond)} // not expired
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	go mgr.removeExpiredSessions(ctx)
+	go mgr.removeExpiredSessions()
 
 	time.Sleep(2 * time.Second)
 
