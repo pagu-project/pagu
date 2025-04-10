@@ -296,7 +296,10 @@ func verificationHandler(w http.ResponseWriter, r *http.Request) {
 
 	if mode == "subscribe" && token == WebhookVerifyToken {
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, challenge)
+		_, err := fmt.Fprint(w, challenge)
+		if err != nil {
+			log.Print(err)
+		}
 
 		return
 	}
@@ -507,7 +510,10 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	})
 
 	server.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		fmt.Fprint(w, "<pre>Nothing to see here. Checkout README.md to start.</pre>")
+		_, err := fmt.Fprint(w, "<pre>Nothing to see here. Checkout README.md to start.</pre>")
+		if err != nil {
+			log.Print(err)
+		}
 	})
 
 	return bot, nil
