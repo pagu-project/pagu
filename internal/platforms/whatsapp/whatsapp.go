@@ -251,25 +251,16 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 						msg := message.Interactive.ListReply.Title
 						switch bot.checkCommand(msg) {
 						case COMMAND:
-							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
-								Commands: []string{msg},
-								Args:     nil,
-							})
+							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{msg}))
 						case SUBCOMMAND:
 							mainCommand := bot.findCommand(msg)
-							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
-								Commands: []string{mainCommand, msg},
-								Args:     nil,
-							})
+							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{mainCommand, msg}))
 						default:
 						}
 						bot.sendCommand(r.Context(), phoneNumberID, message.From)
 					} else {
 						if strings.EqualFold(message.Text.Body, "help") || strings.EqualFold(message.Text.Body, "start") {
-							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
-								Commands: []string{"help"},
-								Args:     nil,
-							})
+							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{"help"}))
 							sendHelpCommand(r.Context(), phoneNumberID, message.From)
 						} else {
 							msg := message.Text.Body
@@ -483,8 +474,10 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	cmds := botEngine.Commands()
 
 	sessionManager := session.NewSessionManager(ctx)
-	sessionManager.CheckInterval = time.Duration(cfg.Session.CheckInterval * int(time.Second))
-	sessionManager.SessionTTL = time.Duration(cfg.Session.SessionTTL * int(time.Second))
+	sessionManager.SetConfig(
+		time.Duration(cfg.Session.SessionTTL*int(time.Second)),
+		time.Duration(cfg.Session.CheckInterval*int(time.Second)),
+	)
 
 	bot := &Bot{
 		cmds:           cmds,

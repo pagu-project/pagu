@@ -90,26 +90,26 @@ func TestRemoveExpiredSessions(t *testing.T) {
 	defer cancel()
 
 	mgr := &SessionManager{
-		Sessions:      make(map[string]Session),
-		SessionTTL:    1 * time.Second,        // 1 second TTL for testing
-		CheckInterval: 100 * time.Millisecond, // short check interval
-		Ctx:           ctx,
+		sessions:      make(map[string]Session),
+		sessionTTL:    1 * time.Second,        // 1 second TTL for testing
+		checkInterval: 100 * time.Millisecond, // short check interval
+		ctx:           ctx,
 	}
 
-	mgr.Sessions["session1"] = Session{OpenTime: time.Now().Add(-2 * time.Second)}        // expired
-	mgr.Sessions["session2"] = Session{OpenTime: time.Now().Add(-500 * time.Millisecond)} // not expired
+	mgr.sessions["session1"] = Session{OpenTime: time.Now().Add(-2 * time.Second)}        // expired
+	mgr.sessions["session2"] = Session{OpenTime: time.Now().Add(-500 * time.Millisecond)} // not expired
 
 	go mgr.RemoveExpiredSessions()
 
 	time.Sleep(2 * time.Second)
 
-	mgr.Mtx.Lock()
-	defer mgr.Mtx.Unlock()
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
 
-	if _, exists := mgr.Sessions["session1"]; exists {
+	if _, exists := mgr.sessions["session1"]; exists {
 		t.Errorf("Expected session 'session1' to be removed, but it still exists")
 	}
-	if _, exists := mgr.Sessions["session2"]; exists {
+	if _, exists := mgr.sessions["session2"]; exists {
 		t.Errorf("Expected session 'session2' to still exist, but it was removed")
 	}
 }
