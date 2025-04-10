@@ -5,11 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/labstack/gommon/log"
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
@@ -24,12 +24,12 @@ const (
 )
 
 type Bot struct {
-	ctx         context.Context
-	cancel      context.CancelFunc
-	botInstance *fiber.App
-	engine      *engine.BotEngine
-	cmds        []*command.Command
-	cfg         *config.Config
+	ctx    context.Context
+	cancel context.CancelFunc
+	server *http.ServeMux
+	engine *engine.BotEngine
+	cmds   []*command.Command
+	cfg    *config.Config
 
 	target         string
 	sessionManager *session.SessionManager
@@ -219,13 +219,24 @@ type ListReply struct {
 	Description string `json:"description"`
 }
 
-func (bot *Bot) webhookHandler(ctx *fiber.Ctx) error {
+//nolint:gocognit // Complexity cannot be reduced
+func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 	var resBody WebhookRequest
 
-	if err := json.Unmarshal(ctx.Body(), &resBody); err != nil {
-		log.Printf("Error unmarshalling response body: %v", err)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading body: %v", err)
+		http.Error(w, "Unable to read body", http.StatusBadRequest)
 
-		return ctx.Status(fiber.StatusBadRequest).SendString("Unable to parse request body")
+		return
+	}
+	defer r.Body.Close()
+
+	if err := json.Unmarshal(body, &resBody); err != nil {
+		log.Printf("Error unmarshalling response body: %v", err)
+		http.Error(w, "Unable to parse request body", http.StatusBadRequest)
+
+		return
 	}
 
 	// Check if there are entries and changes in the webhook
@@ -252,14 +263,14 @@ func (bot *Bot) webhookHandler(ctx *fiber.Ctx) error {
 							})
 						default:
 						}
-						bot.sendCommand(phoneNumberID, message.From)
+						bot.sendCommand(r.Context(), phoneNumberID, message.From)
 					} else {
 						if strings.EqualFold(message.Text.Body, "help") || strings.EqualFold(message.Text.Body, "start") {
 							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
 								Commands: []string{"help"},
 								Args:     nil,
 							})
-							sendHelpCommand(phoneNumberID, message.From)
+							sendHelpCommand(r.Context(), phoneNumberID, message.From)
 						} else {
 							msg := message.Text.Body
 							session := bot.sessionManager.GetSession(phoneNumberID)
@@ -267,7 +278,7 @@ func (bot *Bot) webhookHandler(ctx *fiber.Ctx) error {
 							args = append(args, msg)
 							session.Args = args
 							bot.sessionManager.OpenSession(phoneNumberID, *session)
-							bot.sendCommand(phoneNumberID, message.From)
+							bot.sendCommand(r.Context(), phoneNumberID, message.From)
 						}
 					}
 				}
@@ -275,22 +286,28 @@ func (bot *Bot) webhookHandler(ctx *fiber.Ctx) error {
 		}
 	}
 
-	return ctx.SendStatus(fiber.StatusOK)
+	w.WriteHeader(http.StatusOK)
 }
 
-func verificationHandler(ctx *fiber.Ctx) error {
-	mode := ctx.Query("hub.mode")
-	token := ctx.Query("hub.verify_token")
-	challenge := ctx.Query("hub.challenge")
+func verificationHandler(w http.ResponseWriter, r *http.Request) {
+	mode := r.URL.Query().Get("hub.mode")
+	token := r.URL.Query().Get("hub.verify_token")
+	challenge := r.URL.Query().Get("hub.challenge")
 
 	if mode == "subscribe" && token == WebhookVerifyToken {
-		return ctx.Status(fiber.StatusOK).SendString(challenge)
+		w.WriteHeader(http.StatusOK)
+		_, err := fmt.Fprint(w, challenge)
+		if err != nil {
+			log.Print(err)
+		}
+
+		return
 	}
 
-	return ctx.Status(fiber.StatusForbidden).SendString("ForbIDden")
+	http.Error(w, "Forbidden", http.StatusForbidden)
 }
 
-func sendHelpCommand(phoneNumberID, destinatoin string) {
+func sendHelpCommand(ctx context.Context, phoneNumberID, destinatoin string) {
 	message := map[string]any{
 		"command":           "help",
 		"messaging_product": "whatsapp",
@@ -365,7 +382,7 @@ func sendHelpCommand(phoneNumberID, destinatoin string) {
 	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
 
 	// Send the request using net/http (not fiber.Client)
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Printf("Error creating request: %s", err)
 
@@ -391,7 +408,7 @@ func sendHelpCommand(phoneNumberID, destinatoin string) {
 	}
 }
 
-func (bot *Bot) sendCommand(phoneNumberID, destination string) {
+func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination string) {
 	var (
 		jsonData   []byte
 		err        error
@@ -429,7 +446,7 @@ func (bot *Bot) sendCommand(phoneNumberID, destination string) {
 	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
 
 	// Send the request using net/http (not fiber.Client)
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		log.Printf("Error creating request: %s", err)
 
@@ -460,7 +477,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	GraphAPIToken = cfg.WhatsApp.GraphToken
 	Port = cfg.WhatsApp.Port
 
-	app := fiber.New()
+	server := http.NewServeMux()
 	ctx, cancel := context.WithCancel(context.Background())
 
 	cmds := botEngine.Commands()
@@ -473,7 +490,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		cmds:           cmds,
 		engine:         botEngine,
 		cfg:            cfg,
-		botInstance:    app,
+		server:         server,
 		ctx:            ctx,
 		cancel:         cancel,
 		target:         cfg.BotName,
@@ -482,24 +499,42 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	go bot.sessionManager.RemoveExpiredSessions()
 
 	// Webhook handlers
-	app.Post("/webhook", bot.webhookHandler)
-	app.Get("/webhook", verificationHandler)
+	server.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			verificationHandler(w, r)
+		} else if r.Method == http.MethodPost {
+			bot.webhookHandler(w, r)
+		} else {
+			http.NotFound(w, r)
+		}
+	})
 
-	// Default route
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("<pre>Nothing to see here. Checkout README.md to start.</pre>")
+	server.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
+		_, err := fmt.Fprint(w, "<pre>Nothing to see here. Checkout README.md to start.</pre>")
+		if err != nil {
+			log.Print(err)
+		}
 	})
 
 	return bot, nil
 }
 
 func (bot *Bot) Start() error {
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%v", Port),
+		Handler:      bot.server,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
 	go func() {
 		log.Printf("Server is listening on port: %v", Port)
-		if err := bot.botInstance.Listen(fmt.Sprintf(":%v", Port)); err != nil {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %s", err)
 		}
 	}()
+
 	log.Info("Starting WhatsApp Bot...")
 
 	return nil
