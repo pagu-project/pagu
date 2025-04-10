@@ -24,12 +24,12 @@ const (
 )
 
 type Bot struct {
-	ctx         context.Context
-	cancel      context.CancelFunc
-	botInstance *http.ServeMux
-	engine      *engine.BotEngine
-	cmds        []*command.Command
-	cfg         *config.Config
+	ctx    context.Context
+	cancel context.CancelFunc
+	server *http.ServeMux
+	engine *engine.BotEngine
+	cmds   []*command.Command
+	cfg    *config.Config
 
 	target         string
 	sessionManager *session.SessionManager
@@ -490,7 +490,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		cmds:           cmds,
 		engine:         botEngine,
 		cfg:            cfg,
-		botInstance:    server,
+		server:         server,
 		ctx:            ctx,
 		cancel:         cancel,
 		target:         cfg.BotName,
@@ -522,7 +522,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 func (bot *Bot) Start() error {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%v", Port),
-		Handler:      bot.botInstance,
+		Handler:      bot.server,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
