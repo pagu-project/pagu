@@ -28,6 +28,13 @@ func NewSessionManager(ctx context.Context) *SessionManager {
 	}
 }
 
+func NewSession(command, args []string) *Session {
+	return &Session{
+		Commands: command,
+		Args:     args,
+	}
+}
+
 func (mgr *SessionManager) ExistSession(userID string) bool {
 	mgr.Mtx.RLock()
 	defer mgr.Mtx.RUnlock()

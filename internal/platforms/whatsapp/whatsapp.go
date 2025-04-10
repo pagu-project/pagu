@@ -251,25 +251,16 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 						msg := message.Interactive.ListReply.Title
 						switch bot.checkCommand(msg) {
 						case COMMAND:
-							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
-								Commands: []string{msg},
-								Args:     nil,
-							})
+							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{msg}, nil))
 						case SUBCOMMAND:
 							mainCommand := bot.findCommand(msg)
-							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
-								Commands: []string{mainCommand, msg},
-								Args:     nil,
-							})
+							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{mainCommand, msg}, nil))
 						default:
 						}
 						bot.sendCommand(r.Context(), phoneNumberID, message.From)
 					} else {
 						if strings.EqualFold(message.Text.Body, "help") || strings.EqualFold(message.Text.Body, "start") {
-							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
-								Commands: []string{"help"},
-								Args:     nil,
-							})
+							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{"help"}, nil))
 							sendHelpCommand(r.Context(), phoneNumberID, message.From)
 						} else {
 							msg := message.Text.Body
