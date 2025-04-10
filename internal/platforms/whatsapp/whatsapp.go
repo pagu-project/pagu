@@ -474,8 +474,10 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	cmds := botEngine.Commands()
 
 	sessionManager := session.NewSessionManager(ctx)
-	sessionManager.CheckInterval = time.Duration(cfg.Session.CheckInterval * int(time.Second))
-	sessionManager.SessionTTL = time.Duration(cfg.Session.SessionTTL * int(time.Second))
+	sessionManager.SetConfig(
+		time.Duration(cfg.Session.SessionTTL*int(time.Second)),
+		time.Duration(cfg.Session.CheckInterval*int(time.Second)),
+	)
 
 	bot := &Bot{
 		cmds:           cmds,
