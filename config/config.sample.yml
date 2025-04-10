@@ -72,6 +72,10 @@ whats_app:
   graph_token:
   port:
 
+session:
+  session_ttl: 600
+  check_interval: 30
+
 # NowPayments configuration.
 now_payments:
   webhook:
