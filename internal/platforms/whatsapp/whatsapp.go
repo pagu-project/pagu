@@ -15,6 +15,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/session"
 )
 
 const (
@@ -31,7 +32,7 @@ type Bot struct {
 	cfg         *config.Config
 
 	target         string
-	sessionManager *SessionManager
+	sessionManager *session.SessionManager
 }
 
 func (bot *Bot) renderPage(cmdName, destination string) InteractiveMessage {
@@ -239,32 +240,32 @@ func (bot *Bot) webhookHandler(ctx *fiber.Ctx) error {
 						msg := message.Interactive.ListReply.Title
 						switch bot.checkCommand(msg) {
 						case COMMAND:
-							bot.sessionManager.OpenSession(phoneNumberID, Session{
-								commands: []string{msg},
-								args:     nil,
+							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
+								Commands: []string{msg},
+								Args:     nil,
 							})
 						case SUBCOMMAND:
 							mainCommand := bot.findCommand(msg)
-							bot.sessionManager.OpenSession(phoneNumberID, Session{
-								commands: []string{mainCommand, msg},
-								args:     nil,
+							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
+								Commands: []string{mainCommand, msg},
+								Args:     nil,
 							})
 						default:
 						}
 						bot.sendCommand(phoneNumberID, message.From)
 					} else {
 						if strings.EqualFold(message.Text.Body, "help") || strings.EqualFold(message.Text.Body, "start") {
-							bot.sessionManager.OpenSession(phoneNumberID, Session{
-								commands: []string{"help"},
-								args:     nil,
+							bot.sessionManager.OpenSession(phoneNumberID, session.Session{
+								Commands: []string{"help"},
+								Args:     nil,
 							})
 							sendHelpCommand(phoneNumberID, message.From)
 						} else {
 							msg := message.Text.Body
 							session := bot.sessionManager.GetSession(phoneNumberID)
-							args := session.args
+							args := session.Args
 							args = append(args, msg)
-							session.args = args
+							session.Args = args
 							bot.sessionManager.OpenSession(phoneNumberID, *session)
 							bot.sendCommand(phoneNumberID, message.From)
 						}
@@ -398,22 +399,22 @@ func (bot *Bot) sendCommand(phoneNumberID, destination string) {
 		session    = bot.sessionManager.GetSession(phoneNumberID)
 	)
 
-	if len(session.commands) == 1 {
-		cmd := bot.renderPage(session.commands[0], destination)
+	if len(session.Commands) == 1 {
+		cmd := bot.renderPage(session.Commands[0], destination)
 		jsonData, err = json.Marshal(cmd)
-	} else if len(session.commands) == 2 {
-		args := bot.findArgs(session.commands[1])
+	} else if len(session.Commands) == 2 {
+		args := bot.findArgs(session.Commands[1])
 		if len(args) > 0 {
-			if len(session.args) != len(args) {
-				commandRes = []byte(fmt.Sprintf("Enter %s: ", args[len(session.args)]))
+			if len(session.Args) != len(args) {
+				commandRes = []byte(fmt.Sprintf("Enter %s: ", args[len(session.Args)]))
 			} else {
-				for indx, arg := range session.args {
-					session.commands = append(session.commands, fmt.Sprintf("--%s=%s", args[indx], arg))
+				for indx, arg := range session.Args {
+					session.Commands = append(session.Commands, fmt.Sprintf("--%s=%s", args[indx], arg))
 				}
-				commandRes = bot.handleCommand(session.commands)
+				commandRes = bot.handleCommand(session.Commands)
 			}
 		} else {
-			commandRes = bot.handleCommand(session.commands)
+			commandRes = bot.handleCommand(session.Commands)
 		}
 		cmd := renderResult(string(commandRes), destination)
 		jsonData, err = json.Marshal(cmd)
@@ -464,9 +465,9 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 
 	cmds := botEngine.Commands()
 
-	sessionManager := NewSessionManager()
-	sessionManager.checkInterval = 600 * time.Second
-	sessionManager.sessionTTL = 300 * time.Second
+	sessionManager := session.NewSessionManager(ctx)
+	sessionManager.CheckInterval = time.Duration(cfg.Session.CheckInterval * int(time.Second))
+	sessionManager.SessionTTL = time.Duration(cfg.Session.SessionTTL * int(time.Second))
 
 	bot := &Bot{
 		cmds:           cmds,
@@ -478,7 +479,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		target:         cfg.BotName,
 		sessionManager: sessionManager,
 	}
-	go bot.sessionManager.removeExpiredSessions()
+	go bot.sessionManager.RemoveExpiredSessions()
 
 	// Webhook handlers
 	app.Post("/webhook", bot.webhookHandler)

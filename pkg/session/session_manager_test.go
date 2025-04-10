@@ -1,4 +1,4 @@
-package whatsapp
+package session
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 )
 
 func TestOpenAndExistSession(t *testing.T) {
-	manager := NewSessionManager()
+	manager := NewSessionManager(context.Background())
 	userID := "user1"
 	session := Session{
-		commands: []string{"start"},
-		args:     []string{"arg1"},
+		Commands: []string{"start"},
+		Args:     []string{"arg1"},
 	}
 
 	// Check that session does not exist
@@ -33,7 +33,7 @@ func TestOpenAndExistSession(t *testing.T) {
 }
 
 func TestCloseSession(t *testing.T) {
-	manager := NewSessionManager()
+	manager := NewSessionManager(context.Background())
 	userID := "user2"
 	session := Session{}
 
@@ -54,11 +54,11 @@ func TestCloseSession(t *testing.T) {
 }
 
 func TestGetSession(t *testing.T) {
-	manager := NewSessionManager()
+	manager := NewSessionManager(context.Background())
 	userID := "user3"
 	session := Session{
-		commands: []string{"cmd"},
-		args:     []string{"arg"},
+		Commands: []string{"cmd"},
+		Args:     []string{"arg"},
 	}
 
 	// Open session and retrieve it
@@ -69,7 +69,7 @@ func TestGetSession(t *testing.T) {
 		t.Fatal("Expected to retrieve a session, got nil")
 	}
 
-	if gotSession.commands[0] != "cmd" || gotSession.args[0] != "arg" {
+	if gotSession.Commands[0] != "cmd" || gotSession.Args[0] != "arg" {
 		t.Errorf("Session data mismatch: got %+v", gotSession)
 	}
 
@@ -80,7 +80,7 @@ func TestGetSession(t *testing.T) {
 		t.Fatal("Expected GetSession to return a pointer (even if empty)")
 	}
 
-	if len(ghostSession.commands) != 0 || len(ghostSession.args) != 0 {
+	if len(ghostSession.Commands) != 0 || len(ghostSession.Args) != 0 {
 		t.Errorf("Expected empty session data, got %+v", ghostSession)
 	}
 }
@@ -90,27 +90,26 @@ func TestRemoveExpiredSessions(t *testing.T) {
 	defer cancel()
 
 	mgr := &SessionManager{
-		sessions:      make(map[string]Session),
-		sessionTTL:    1 * time.Second,        // 1 second TTL for testing
-		checkInterval: 100 * time.Millisecond, // short check interval
-		ctx:           ctx,
-		cancle:        cancel,
+		Sessions:      make(map[string]Session),
+		SessionTTL:    1 * time.Second,        // 1 second TTL for testing
+		CheckInterval: 100 * time.Millisecond, // short check interval
+		Ctx:           ctx,
 	}
 
-	mgr.sessions["session1"] = Session{openTime: time.Now().Add(-2 * time.Second)}        // expired
-	mgr.sessions["session2"] = Session{openTime: time.Now().Add(-500 * time.Millisecond)} // not expired
+	mgr.Sessions["session1"] = Session{OpenTime: time.Now().Add(-2 * time.Second)}        // expired
+	mgr.Sessions["session2"] = Session{OpenTime: time.Now().Add(-500 * time.Millisecond)} // not expired
 
-	go mgr.removeExpiredSessions()
+	go mgr.RemoveExpiredSessions()
 
 	time.Sleep(2 * time.Second)
 
-	mgr.mtx.Lock()
-	defer mgr.mtx.Unlock()
+	mgr.Mtx.Lock()
+	defer mgr.Mtx.Unlock()
 
-	if _, exists := mgr.sessions["session1"]; exists {
+	if _, exists := mgr.Sessions["session1"]; exists {
 		t.Errorf("Expected session 'session1' to be removed, but it still exists")
 	}
-	if _, exists := mgr.sessions["session2"]; exists {
+	if _, exists := mgr.Sessions["session2"]; exists {
 		t.Errorf("Expected session 'session2' to still exist, but it was removed")
 	}
 }
