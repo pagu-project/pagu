@@ -28,6 +28,7 @@ type Config struct {
 	WhatsApp     *WhatsApp           `yaml:"whats_app"`
 	Notification *Notification       `yaml:"notification"`
 	NowPayments  *nowpayments.Config `yaml:"now_payments"`
+	Session      *Session            `yaml:"session"`
 }
 
 type Database struct {
@@ -71,6 +72,11 @@ type ZapToMail struct {
 	Username  string            `yaml:"username"`
 	Password  string            `yaml:"password"`
 	Templates map[string]string `yaml:"templates"`
+}
+
+type Session struct {
+	SessionTTL    int `yaml:"session_ttl"`
+	CheckInterval int `yaml:"check_interval"`
 }
 
 func Load(path string) (*Config, error) {
