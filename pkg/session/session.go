@@ -64,7 +64,6 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 }
 
 func (mgr *SessionManager) RemoveExpiredSessions() {
-
 	for {
 		now := time.Now()
 		expiredSessions := []string{}
