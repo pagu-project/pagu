@@ -28,7 +28,7 @@ func NewSessionManager(ctx context.Context) *SessionManager {
 	}
 }
 
-func NewSession(command []string) *Session {
+func NewSession(command ...string) *Session {
 	return &Session{
 		Commands: command,
 	}
