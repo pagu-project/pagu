@@ -268,7 +268,6 @@ func (bot *Bot) findArgs(subCommand string) []string {
 	return nil
 }
 
-//nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 	var resBody WebhookRequest
 
