@@ -40,7 +40,6 @@ func (mgr *SessionManager) ExistSession(userID string) bool {
 func (mgr *SessionManager) OpenSession(userID string, session Session) {
 	mgr.Mtx.Lock()
 	defer mgr.Mtx.Unlock()
-
 	session.OpenTime = time.Now()
 	mgr.Sessions[userID] = session
 }
@@ -65,8 +64,6 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 }
 
 func (mgr *SessionManager) RemoveExpiredSessions() {
-	mgr.Mtx.Lock()
-	defer mgr.Mtx.Unlock()
 
 	for {
 		now := time.Now()
@@ -75,16 +72,20 @@ func (mgr *SessionManager) RemoveExpiredSessions() {
 		case <-mgr.Ctx.Done():
 			return
 		default:
+			mgr.Mtx.RLock()
 			for id, session := range mgr.Sessions {
 				if now.Sub(session.OpenTime) > mgr.SessionTTL {
 					expiredSessions = append(expiredSessions, id)
 				}
 			}
+			mgr.Mtx.RUnlock()
 
 			// Now delete sessions with a write lock
+			mgr.Mtx.Lock()
 			for _, id := range expiredSessions {
 				delete(mgr.Sessions, id)
 			}
+			mgr.Mtx.Unlock()
 
 			time.Sleep(mgr.CheckInterval)
 		}

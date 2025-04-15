@@ -246,6 +246,7 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 				// Ensure there are messages in the change
 				if len(change.Value.Messages) > 0 {
 					message := change.Value.Messages[0]
+					log.Printf("message from webhook: %+v\n", message)
 					phoneNumberID := change.Value.Metadata.PhoneNumberID
 					if message.Type == "interactive" {
 						msg := message.Interactive.ListReply.Title
@@ -378,7 +379,6 @@ func sendHelpCommand(ctx context.Context, phoneNumberID, destinatoin string) {
 
 		return
 	}
-
 	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
 
 	// Send the request using net/http (not fiber.Client)
@@ -388,7 +388,6 @@ func sendHelpCommand(ctx context.Context, phoneNumberID, destinatoin string) {
 
 		return
 	}
-
 	// Set headers
 	req.Header.Set("Authorization", "Bearer "+GraphAPIToken)
 	req.Header.Set("Content-Type", "application/json")
@@ -402,7 +401,6 @@ func sendHelpCommand(ctx context.Context, phoneNumberID, destinatoin string) {
 		return
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Failed to send list message: %s", resp.Status)
 	}
