@@ -13,52 +13,64 @@ type Session struct {
 }
 
 type SessionManager struct {
-	Mtx           sync.RWMutex
-	Sessions      map[string]Session
-	SessionTTL    time.Duration
-	CheckInterval time.Duration
-	Ctx           context.Context
+	mtx           sync.RWMutex
+	sessions      map[string]Session
+	sessionTTL    time.Duration
+	checkInterval time.Duration
+	ctx           context.Context
 }
 
 func NewSessionManager(ctx context.Context) *SessionManager {
 	return &SessionManager{
-		Mtx:      sync.RWMutex{},
-		Sessions: make(map[string]Session),
-		Ctx:      ctx,
+		mtx:      sync.RWMutex{},
+		sessions: make(map[string]Session),
+		ctx:      ctx,
 	}
 }
 
-func (mgr *SessionManager) ExistSession(userID string) bool {
-	mgr.Mtx.RLock()
-	defer mgr.Mtx.RUnlock()
+func NewSession(command []string) *Session {
+	return &Session{
+		Commands: command,
+	}
+}
 
-	_, exist := mgr.Sessions[userID]
+func (mgr *SessionManager) SetConfig(sessionTTL, checkInterval time.Duration) {
+	mgr.checkInterval = checkInterval
+	mgr.sessionTTL = sessionTTL
+}
+
+func (mgr *SessionManager) ExistSession(userID string) bool {
+	mgr.mtx.RLock()
+	defer mgr.mtx.RUnlock()
+
+	_, exist := mgr.sessions[userID]
 
 	return exist
 }
 
 func (mgr *SessionManager) OpenSession(userID string, session Session) {
-	mgr.Mtx.Lock()
-	defer mgr.Mtx.Unlock()
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
+
 	session.OpenTime = time.Now()
-	mgr.Sessions[userID] = session
+	mgr.sessions[userID] = session
 }
 
 func (mgr *SessionManager) CloseSession(userID string) {
-	mgr.Mtx.Lock()
-	defer mgr.Mtx.Unlock()
+	mgr.mtx.Lock()
+	defer mgr.mtx.Unlock()
 
-	_, exist := mgr.Sessions[userID]
+	_, exist := mgr.sessions[userID]
 	if exist {
-		delete(mgr.Sessions, userID)
+		delete(mgr.sessions, userID)
 	}
 }
 
 func (mgr *SessionManager) GetSession(userID string) *Session {
-	mgr.Mtx.RLock()
-	defer mgr.Mtx.RUnlock()
+	mgr.mtx.RLock()
+	defer mgr.mtx.RUnlock()
 
-	session := mgr.Sessions[userID]
+	session := mgr.sessions[userID]
 
 	return &session
 }
@@ -68,25 +80,25 @@ func (mgr *SessionManager) RemoveExpiredSessions() {
 		now := time.Now()
 		expiredSessions := []string{}
 		select {
-		case <-mgr.Ctx.Done():
+		case <-mgr.ctx.Done():
 			return
 		default:
-			mgr.Mtx.RLock()
-			for id, session := range mgr.Sessions {
-				if now.Sub(session.OpenTime) > mgr.SessionTTL {
+			mgr.mtx.RLock()
+			for id, session := range mgr.sessions {
+				if now.Sub(session.OpenTime) > mgr.sessionTTL {
 					expiredSessions = append(expiredSessions, id)
 				}
 			}
-			mgr.Mtx.RUnlock()
+			mgr.mtx.RUnlock()
 
 			// Now delete sessions with a write lock
-			mgr.Mtx.Lock()
+			mgr.mtx.Lock()
 			for _, id := range expiredSessions {
-				delete(mgr.Sessions, id)
+				delete(mgr.sessions, id)
 			}
-			mgr.Mtx.Unlock()
+			mgr.mtx.Unlock()
 
-			time.Sleep(mgr.CheckInterval)
+			time.Sleep(mgr.checkInterval)
 		}
 	}
 }
