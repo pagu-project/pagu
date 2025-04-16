@@ -55,6 +55,7 @@ type Telegram struct {
 type WhatsApp struct {
 	WebHookToken string `yaml:"web_hook_token"`
 	GraphToken   string `yaml:"graph_token"`
+	Host         string `yaml:"host"`
 	Port         int    `yaml:"port"`
 }
 

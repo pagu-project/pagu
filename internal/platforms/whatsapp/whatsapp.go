@@ -19,12 +19,6 @@ import (
 	"github.com/pagu-project/pagu/pkg/session"
 )
 
-var (
-	WebhookVerifyToken string
-	GraphAPIToken      string
-	Port               int
-)
-
 type Bot struct {
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -32,9 +26,17 @@ type Bot struct {
 	engine *engine.BotEngine
 	cmds   []*command.Command
 	cfg    *config.Config
+	wh     Webhook
 
 	target         string
 	sessionManager *session.SessionManager
+}
+
+type Webhook struct {
+	verifyToken   string
+	graphAPIToken string
+	host          string
+	post          int
 }
 
 type InteractiveMessage struct {
@@ -320,12 +322,12 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func verificationHandler(w http.ResponseWriter, r *http.Request) {
+func (bot *Bot) verificationHandler(w http.ResponseWriter, r *http.Request) {
 	mode := r.URL.Query().Get("hub.mode")
 	token := r.URL.Query().Get("hub.verify_token")
 	challenge := r.URL.Query().Get("hub.challenge")
 
-	if mode == "subscribe" && token == WebhookVerifyToken {
+	if mode == "subscribe" && token == bot.wh.verifyToken {
 		w.WriteHeader(http.StatusOK)
 		_, err := fmt.Fprint(w, challenge)
 		if err != nil {
@@ -401,7 +403,7 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+GraphAPIToken)
+	req.Header.Set("Authorization", "Bearer "+bot.wh.graphAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Send the request using the default HTTP client
@@ -420,10 +422,6 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 }
 
 func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error) {
-	WebhookVerifyToken = cfg.WhatsApp.WebHookToken
-	GraphAPIToken = cfg.WhatsApp.GraphToken
-	Port = cfg.WhatsApp.Port
-
 	server := http.NewServeMux()
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -435,6 +433,13 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		time.Duration(cfg.Session.CheckInterval*int(time.Second)),
 	)
 
+	webHook := Webhook{
+		verifyToken:   cfg.WhatsApp.WebHookToken,
+		graphAPIToken: cfg.WhatsApp.GraphToken,
+		host:          cfg.WhatsApp.Host,
+		post:          cfg.WhatsApp.Port,
+	}
+
 	bot := &Bot{
 		cmds:           cmds,
 		engine:         botEngine,
@@ -444,13 +449,14 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		cancel:         cancel,
 		target:         cfg.BotName,
 		sessionManager: sessionManager,
+		wh:             webHook,
 	}
 	go bot.sessionManager.RemoveExpiredSessions()
 
 	// Webhook handlers
 	server.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			verificationHandler(w, r)
+			bot.verificationHandler(w, r)
 		} else if r.Method == http.MethodPost {
 			bot.webhookHandler(w, r)
 		} else {
@@ -470,7 +476,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 
 func (bot *Bot) Start() error {
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", Port),
+		Addr:         fmt.Sprintf("%s:%v", bot.wh.host, bot.wh.post),
 		Handler:      bot.server,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -478,7 +484,7 @@ func (bot *Bot) Start() error {
 	}
 
 	go func() {
-		log.Printf("Server is listening on port: %v", Port)
+		log.Printf("Server is listening on port: %v and address: %s", bot.wh.post, bot.wh.host)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %s", err)
 		}

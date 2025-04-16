@@ -70,6 +70,7 @@ telegram:
 whats_app:
   web_hook_token:
   graph_token:
+  host:
   port:
 
 session:
