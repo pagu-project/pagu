@@ -26,17 +26,16 @@ type Bot struct {
 	engine *engine.BotEngine
 	cmds   []*command.Command
 	cfg    *config.Config
-	wh     Webhook
+	hook   Webhook
 
 	target         string
 	sessionManager *session.SessionManager
 }
 
 type Webhook struct {
-	verifyToken   string
-	graphAPIToken string
-	host          string
-	post          int
+	verifyToken    string
+	graphAPIToken  string
+	webHookAddredd string
 }
 
 type InteractiveMessage struct {
@@ -327,7 +326,7 @@ func (bot *Bot) verificationHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("hub.verify_token")
 	challenge := r.URL.Query().Get("hub.challenge")
 
-	if mode == "subscribe" && token == bot.wh.verifyToken {
+	if mode == "subscribe" && token == bot.hook.verifyToken {
 		w.WriteHeader(http.StatusOK)
 		_, err := fmt.Fprint(w, challenge)
 		if err != nil {
@@ -403,7 +402,7 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+bot.wh.graphAPIToken)
+	req.Header.Set("Authorization", "Bearer "+bot.hook.graphAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Send the request using the default HTTP client
@@ -434,10 +433,9 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	)
 
 	webHook := Webhook{
-		verifyToken:   cfg.WhatsApp.WebHookToken,
-		graphAPIToken: cfg.WhatsApp.GraphToken,
-		host:          cfg.WhatsApp.Host,
-		post:          cfg.WhatsApp.Port,
+		verifyToken:    cfg.WhatsApp.WebHookToken,
+		graphAPIToken:  cfg.WhatsApp.GraphToken,
+		webHookAddredd: cfg.WhatsApp.WebHookAddress,
 	}
 
 	bot := &Bot{
@@ -449,7 +447,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		cancel:         cancel,
 		target:         cfg.BotName,
 		sessionManager: sessionManager,
-		wh:             webHook,
+		hook:           webHook,
 	}
 	go bot.sessionManager.RemoveExpiredSessions()
 
@@ -476,7 +474,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 
 func (bot *Bot) Start() error {
 	server := &http.Server{
-		Addr:         fmt.Sprintf("%s:%v", bot.wh.host, bot.wh.post),
+		Addr:         bot.hook.webHookAddredd,
 		Handler:      bot.server,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -484,7 +482,7 @@ func (bot *Bot) Start() error {
 	}
 
 	go func() {
-		log.Printf("Server is listening on port: %v and address: %s", bot.wh.post, bot.wh.host)
+		log.Printf("Server is listening on address: %s", bot.hook.webHookAddredd)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %s", err)
 		}
