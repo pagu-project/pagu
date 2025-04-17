@@ -122,8 +122,8 @@ func (bot *Bot) renderPage(cmdName, destination string) (InteractiveMessage, err
 		return InteractiveMessage{}, errors.New("render page for subcommand is not possible")
 	}
 
-	if command.Name == "help" || command.Name == "about" {
-		return InteractiveMessage{}, errors.New("render page for connamd without subcommand is not possible")
+	if !command.HasSubCommand() {
+		return InteractiveMessage{}, errors.New("render page for command without subcommand is not possible")
 	}
 
 	for indx, subCmd := range command.SubCommands {
@@ -306,7 +306,7 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 					session.Commands = bot.listCommand(msg)
 				} else {
 					msg = message.Text.Body
-					if !strings.EqualFold(msg, "help") && !strings.EqualFold(msg, "about") {
+					if !strings.EqualFold(msg, "help") && !strings.EqualFold(msg, "start") {
 						session = bot.sessionManager.GetSession(phoneNumberID)
 						session.Args = append(session.Args, msg)
 					}

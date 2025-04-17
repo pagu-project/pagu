@@ -67,10 +67,10 @@ telegram:
   # Telegram bot token for authentication.
   bot_token:
 
-whats_app:
-  web_hook_token:
+whatsapp:
+  webhook_token:
   graph_token:
-  web_hook_address:
+  webhook_address:
 
 session:
   session_ttl: 600
