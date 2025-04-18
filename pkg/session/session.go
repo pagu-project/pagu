@@ -28,7 +28,7 @@ func NewSessionManager(ctx context.Context) *SessionManager {
 	}
 }
 
-func NewSession(command []string) *Session {
+func NewSession(command ...string) *Session {
 	return &Session{
 		Commands: command,
 	}
@@ -76,9 +76,6 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 }
 
 func (mgr *SessionManager) RemoveExpiredSessions() {
-	mgr.mtx.Lock()
-	defer mgr.mtx.Unlock()
-
 	for {
 		now := time.Now()
 		expiredSessions := []string{}
@@ -86,16 +83,20 @@ func (mgr *SessionManager) RemoveExpiredSessions() {
 		case <-mgr.ctx.Done():
 			return
 		default:
+			mgr.mtx.RLock()
 			for id, session := range mgr.sessions {
 				if now.Sub(session.OpenTime) > mgr.sessionTTL {
 					expiredSessions = append(expiredSessions, id)
 				}
 			}
+			mgr.mtx.RUnlock()
 
 			// Now delete sessions with a write lock
+			mgr.mtx.Lock()
 			for _, id := range expiredSessions {
 				delete(mgr.sessions, id)
 			}
+			mgr.mtx.Unlock()
 
 			time.Sleep(mgr.checkInterval)
 		}

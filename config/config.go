@@ -25,7 +25,7 @@ type Config struct {
 	Phoenix      *phoenix.Config     `yaml:"phoenix"`
 	Discord      *DiscordBot         `yaml:"discord"`
 	Telegram     *Telegram           `yaml:"telegram"`
-	WhatsApp     *WhatsApp           `yaml:"whats_app"`
+	WhatsApp     *WhatsApp           `yaml:"whatsapp"` //nolint:tagliatelle // whats_app is wronge
 	Notification *Notification       `yaml:"notification"`
 	NowPayments  *nowpayments.Config `yaml:"now_payments"`
 	Session      *Session            `yaml:"session"`
@@ -53,9 +53,9 @@ type Telegram struct {
 }
 
 type WhatsApp struct {
-	WebHookToken string `yaml:"web_hook_token"`
-	GraphToken   string `yaml:"graph_token"`
-	Port         int    `yaml:"port"`
+	WebHookToken   string `yaml:"webhook_token"` //nolint:tagliatelle // web_hook_token is wronge
+	GraphToken     string `yaml:"graph_token"`
+	WebHookAddress string `yaml:"webhook_address"` //nolint:tagliatelle // web_hook_address is wronge
 }
 
 type Notification struct {

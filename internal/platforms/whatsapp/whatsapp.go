@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,11 +19,6 @@ import (
 	"github.com/pagu-project/pagu/pkg/session"
 )
 
-const (
-	COMMAND    = "command"
-	SUBCOMMAND = "subCommand"
-)
-
 type Bot struct {
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -30,126 +26,17 @@ type Bot struct {
 	engine *engine.BotEngine
 	cmds   []*command.Command
 	cfg    *config.Config
+	hook   Webhook
 
 	target         string
 	sessionManager *session.SessionManager
 }
 
-func (bot *Bot) renderPage(cmdName, destination string) InteractiveMessage {
-	var command *command.Command
-	rowsSubCmd := []any{}
-
-	for _, cmd := range bot.cmds {
-		if cmd.Name == cmdName {
-			command = cmd
-
-			break
-		}
-		if cmd.HasSubCommand() {
-			for _, subCmd := range cmd.SubCommands {
-				if subCmd.Name == cmdName {
-					command = cmd
-
-					break
-				}
-			}
-		}
-	}
-
-	for indx, subCmd := range command.SubCommands {
-		rowsSubCmd = append(rowsSubCmd, map[string]any{
-			"id":          fmt.Sprintf("%v", indx),
-			"title":       subCmd.Name,
-			"description": subCmd.Help,
-		})
-	}
-
-	return InteractiveMessage{
-		MessagingProduct: "whatsapp",
-		RecipientType:    "indivIDual",
-		To:               destination,
-		Type:             "interactive",
-		Interactive: map[string]any{
-			"type": "list",
-			"body": map[string]any{
-				"text": command.Help,
-			},
-			"action": map[string]any{
-				"button": "View Options",
-				"sections": []any{
-					map[string]any{
-						"title": "Menu",
-						"rows":  rowsSubCmd,
-					},
-				},
-			},
-		},
-	}
+type Webhook struct {
+	verifyToken    string
+	graphAPIToken  string
+	webHookAddredd string
 }
-
-func renderResult(result, destination string) map[string]any {
-	return map[string]any{
-		"messaging_product": "whatsapp",
-		"recipient_type":    "indivIDual",
-		"to":                destination,
-		"type":              "text",
-		"text": map[string]any{
-			"body": result,
-		},
-	}
-}
-
-func (bot *Bot) checkCommand(command string) string {
-	for _, cmd := range bot.cmds {
-		if cmd.Name == command {
-			return COMMAND
-		}
-		if cmd.HasSubCommand() {
-			for _, subCmd := range cmd.SubCommands {
-				if subCmd.Name == command {
-					return SUBCOMMAND
-				}
-			}
-		}
-	}
-
-	return ""
-}
-
-func (bot *Bot) findCommand(subCommand string) string {
-	for _, cmd := range bot.cmds {
-		for _, subCmd := range cmd.SubCommands {
-			if subCmd.Name == subCommand {
-				return cmd.Name
-			}
-		}
-	}
-
-	return ""
-}
-
-func (bot *Bot) findArgs(subCommand string) []string {
-	for _, cmd := range bot.cmds {
-		for _, subCmd := range cmd.SubCommands {
-			if subCmd.Name == subCommand {
-				args := []string{}
-				for _, arg := range subCmd.Args {
-					args = append(args, arg.Name)
-				}
-
-				return args
-			}
-		}
-	}
-
-	return nil
-}
-
-var (
-	WebhookVerifyToken string
-	GraphAPIToken      string
-	Port               int
-)
 
 type InteractiveMessage struct {
 	MessagingProduct string `json:"messaging_product"`
@@ -219,87 +106,71 @@ type ListReply struct {
 	Description string `json:"description"`
 }
 
-//nolint:gocognit // Complexity cannot be reduced
-func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
-	var resBody WebhookRequest
+func (bot *Bot) renderPage(cmdName, destination string) (InteractiveMessage, error) {
+	var command *command.Command
+	rowsSubCmd := []any{}
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("Error reading body: %v", err)
-		http.Error(w, "Unable to read body", http.StatusBadRequest)
+	for _, cmd := range bot.cmds {
+		if cmd.Name == cmdName {
+			command = cmd
 
-		return
-	}
-	defer r.Body.Close()
-
-	if err := json.Unmarshal(body, &resBody); err != nil {
-		log.Printf("Error unmarshalling response body: %v", err)
-		http.Error(w, "Unable to parse request body", http.StatusBadRequest)
-
-		return
-	}
-
-	// Check if there are entries and changes in the webhook
-	if len(resBody.Entry) > 0 {
-		for _, entry := range resBody.Entry {
-			for _, change := range entry.Changes {
-				// Ensure there are messages in the change
-				if len(change.Value.Messages) > 0 {
-					message := change.Value.Messages[0]
-					phoneNumberID := change.Value.Metadata.PhoneNumberID
-					if message.Type == "interactive" {
-						msg := message.Interactive.ListReply.Title
-						switch bot.checkCommand(msg) {
-						case COMMAND:
-							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{msg}))
-						case SUBCOMMAND:
-							mainCommand := bot.findCommand(msg)
-							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{mainCommand, msg}))
-						default:
-						}
-						bot.sendCommand(r.Context(), phoneNumberID, message.From)
-					} else {
-						if strings.EqualFold(message.Text.Body, "help") || strings.EqualFold(message.Text.Body, "start") {
-							bot.sessionManager.OpenSession(phoneNumberID, *session.NewSession([]string{"help"}))
-							sendHelpCommand(r.Context(), phoneNumberID, message.From)
-						} else {
-							msg := message.Text.Body
-							session := bot.sessionManager.GetSession(phoneNumberID)
-							args := session.Args
-							args = append(args, msg)
-							session.Args = args
-							bot.sessionManager.OpenSession(phoneNumberID, *session)
-							bot.sendCommand(r.Context(), phoneNumberID, message.From)
-						}
-					}
-				}
-			}
+			break
 		}
 	}
 
-	w.WriteHeader(http.StatusOK)
-}
-
-func verificationHandler(w http.ResponseWriter, r *http.Request) {
-	mode := r.URL.Query().Get("hub.mode")
-	token := r.URL.Query().Get("hub.verify_token")
-	challenge := r.URL.Query().Get("hub.challenge")
-
-	if mode == "subscribe" && token == WebhookVerifyToken {
-		w.WriteHeader(http.StatusOK)
-		_, err := fmt.Fprint(w, challenge)
-		if err != nil {
-			log.Print(err)
-		}
-
-		return
+	if command == nil {
+		return InteractiveMessage{}, errors.New("render page for subcommand is not possible")
 	}
 
-	http.Error(w, "Forbidden", http.StatusForbidden)
+	if !command.HasSubCommand() {
+		return InteractiveMessage{}, errors.New("render page for command without subcommand is not possible")
+	}
+
+	for indx, subCmd := range command.SubCommands {
+		rowsSubCmd = append(rowsSubCmd, map[string]any{
+			"id":          fmt.Sprintf("%v", indx),
+			"title":       subCmd.Name,
+			"description": subCmd.Help,
+		})
+	}
+
+	return InteractiveMessage{
+		MessagingProduct: "whatsapp",
+		RecipientType:    "indivIDual",
+		To:               destination,
+		Type:             "interactive",
+		Interactive: map[string]any{
+			"type": "list",
+			"body": map[string]any{
+				"text": command.Help,
+			},
+			"action": map[string]any{
+				"button": "View Options",
+				"sections": []any{
+					map[string]any{
+						"title": "Menu",
+						"rows":  rowsSubCmd,
+					},
+				},
+			},
+		},
+	}, nil
 }
 
-func sendHelpCommand(ctx context.Context, phoneNumberID, destinatoin string) {
-	message := map[string]any{
+func renderResult(result, destination string) map[string]any {
+	return map[string]any{
+		"messaging_product": "whatsapp",
+		"recipient_type":    "indivIDual",
+		"to":                destination,
+		"type":              "text",
+		"text": map[string]any{
+			"body": result,
+		},
+	}
+}
+
+func renderRootCommand(destinatoin string) map[string]any {
+	return map[string]any{
 		"command":           "help",
 		"messaging_product": "whatsapp",
 		"recipient_type":    "individual",
@@ -362,41 +233,110 @@ func sendHelpCommand(ctx context.Context, phoneNumberID, destinatoin string) {
 			},
 		},
 	}
+}
 
-	jsonData, err := json.Marshal(message)
+func (bot *Bot) listCommand(command string) []string {
+	for _, cmd := range bot.cmds {
+		if cmd.Name == command {
+			return []string{cmd.Name}
+		}
+		if cmd.HasSubCommand() {
+			for _, subCmd := range cmd.SubCommands {
+				if subCmd.Name == command {
+					return []string{cmd.Name, subCmd.Name}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (bot *Bot) findArgs(subCommand string) []string {
+	for _, cmd := range bot.cmds {
+		for _, subCmd := range cmd.SubCommands {
+			if subCmd.Name == subCommand {
+				args := []string{}
+				for _, arg := range subCmd.Args {
+					args = append(args, arg.Name)
+				}
+
+				return args
+			}
+		}
+	}
+
+	return nil
+}
+
+func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
+	var resBody WebhookRequest
+
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("Error marshalling list message: %s", err)
+		log.Printf("Error reading body: %v", err)
+		http.Error(w, "Unable to read body", http.StatusBadRequest)
+
+		return
+	}
+	defer r.Body.Close()
+
+	if err := json.Unmarshal(body, &resBody); err != nil {
+		log.Printf("Error unmarshalling response body: %v", err)
+		http.Error(w, "Unable to parse request body", http.StatusBadRequest)
 
 		return
 	}
 
-	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
+	if len(resBody.Entry) > 0 {
+		for _, entry := range resBody.Entry {
+			for _, change := range entry.Changes {
+				if len(change.Value.Messages) == 0 {
+					continue
+				}
+				message := change.Value.Messages[0]
+				log.Printf("message from webhook: %+v\n", message)
 
-	// Send the request using net/http (not fiber.Client)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(jsonData))
-	if err != nil {
-		log.Printf("Error creating request: %s", err)
+				phoneNumberID := change.Value.Metadata.PhoneNumberID
+				session := session.NewSession()
+
+				var msg string
+				if message.Type == "interactive" {
+					msg = message.Interactive.ListReply.Title
+					session.Commands = bot.listCommand(msg)
+				} else {
+					msg = message.Text.Body
+					if !strings.EqualFold(msg, "help") && !strings.EqualFold(msg, "start") {
+						session = bot.sessionManager.GetSession(phoneNumberID)
+						session.Args = append(session.Args, msg)
+					}
+				}
+
+				bot.sessionManager.OpenSession(phoneNumberID, *session)
+				bot.sendCommand(r.Context(), phoneNumberID, message.From)
+			}
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (bot *Bot) verificationHandler(w http.ResponseWriter, r *http.Request) {
+	mode := r.URL.Query().Get("hub.mode")
+	token := r.URL.Query().Get("hub.verify_token")
+	challenge := r.URL.Query().Get("hub.challenge")
+
+	if mode == "subscribe" && token == bot.hook.verifyToken {
+		w.WriteHeader(http.StatusOK)
+		_, err := fmt.Fprint(w, challenge)
+		if err != nil {
+			log.Print(err)
+		}
 
 		return
 	}
 
-	// Set headers
-	req.Header.Set("Authorization", "Bearer "+GraphAPIToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	// Send the request using the default HTTP client
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Printf("Error sending list message: %s", err)
-
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		log.Printf("Failed to send list message: %s", resp.Status)
-	}
+	http.Error(w, "Forbidden", http.StatusForbidden)
 }
 
 func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination string) {
@@ -407,31 +347,48 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 		session    = bot.sessionManager.GetSession(phoneNumberID)
 	)
 
-	if len(session.Commands) == 1 {
-		cmd := bot.renderPage(session.Commands[0], destination)
-		jsonData, err = json.Marshal(cmd)
-	} else if len(session.Commands) == 2 {
-		args := bot.findArgs(session.Commands[1])
-		if len(args) > 0 {
-			if len(session.Args) != len(args) {
-				commandRes = []byte(fmt.Sprintf("Enter %s: ", args[len(session.Args)]))
-			} else {
-				for indx, arg := range session.Args {
-					session.Commands = append(session.Commands, fmt.Sprintf("--%s=%s", args[indx], arg))
-				}
-				commandRes = bot.handleCommand(session.Commands)
+	if len(session.Commands) > 0 {
+		cmd, err := bot.renderPage(session.Commands[len(session.Commands)-1], destination)
+		if err == nil {
+			jsonData, err = json.Marshal(cmd)
+			if err != nil {
+				log.Printf("Error marshalling list message: %s", err)
+
+				return
 			}
 		} else {
-			commandRes = bot.handleCommand(session.Commands)
+			args := bot.findArgs(session.Commands[len(session.Commands)-1])
+			if len(args) > 0 {
+				if len(session.Args) < len(args) {
+					commandRes = []byte(fmt.Sprintf("Enter %s: ", args[len(session.Args)]))
+				} else {
+					for indx, arg := range session.Args {
+						if indx < len(args) {
+							session.Commands = append(session.Commands, fmt.Sprintf("--%s=%s", args[indx], arg))
+						}
+					}
+					commandRes = bot.handleCommand(session.Commands)
+				}
+			} else {
+				commandRes = bot.handleCommand(session.Commands)
+			}
+
+			cmd := renderResult(string(commandRes), destination)
+			jsonData, err = json.Marshal(cmd)
+			if err != nil {
+				log.Printf("Error marshalling list message: %s", err)
+
+				return
+			}
 		}
-		cmd := renderResult(string(commandRes), destination)
+	} else {
+		cmd := renderRootCommand(destination)
 		jsonData, err = json.Marshal(cmd)
-	}
+		if err != nil {
+			log.Printf("Error marshalling list message: %s", err)
 
-	if err != nil {
-		log.Printf("Error marshalling list message: %s", err)
-
-		return
+			return
+		}
 	}
 
 	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
@@ -445,7 +402,7 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 	}
 
 	// Set headers
-	req.Header.Set("Authorization", "Bearer "+GraphAPIToken)
+	req.Header.Set("Authorization", "Bearer "+bot.hook.graphAPIToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	// Send the request using the default HTTP client
@@ -464,10 +421,6 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 }
 
 func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error) {
-	WebhookVerifyToken = cfg.WhatsApp.WebHookToken
-	GraphAPIToken = cfg.WhatsApp.GraphToken
-	Port = cfg.WhatsApp.Port
-
 	server := http.NewServeMux()
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -479,6 +432,12 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		time.Duration(cfg.Session.CheckInterval*int(time.Second)),
 	)
 
+	webHook := Webhook{
+		verifyToken:    cfg.WhatsApp.WebHookToken,
+		graphAPIToken:  cfg.WhatsApp.GraphToken,
+		webHookAddredd: cfg.WhatsApp.WebHookAddress,
+	}
+
 	bot := &Bot{
 		cmds:           cmds,
 		engine:         botEngine,
@@ -488,13 +447,14 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		cancel:         cancel,
 		target:         cfg.BotName,
 		sessionManager: sessionManager,
+		hook:           webHook,
 	}
 	go bot.sessionManager.RemoveExpiredSessions()
 
 	// Webhook handlers
 	server.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
-			verificationHandler(w, r)
+			bot.verificationHandler(w, r)
 		} else if r.Method == http.MethodPost {
 			bot.webhookHandler(w, r)
 		} else {
@@ -514,7 +474,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 
 func (bot *Bot) Start() error {
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", Port),
+		Addr:         bot.hook.webHookAddredd,
 		Handler:      bot.server,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -522,7 +482,7 @@ func (bot *Bot) Start() error {
 	}
 
 	go func() {
-		log.Printf("Server is listening on port: %v", Port)
+		log.Printf("Server is listening on address: %s", bot.hook.webHookAddredd)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Error starting server: %s", err)
 		}
