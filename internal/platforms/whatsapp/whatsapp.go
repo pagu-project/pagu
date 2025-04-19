@@ -387,7 +387,6 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 
 			cmd := renderResult(result, destination)
 			jsonData, err = json.Marshal(cmd)
-
 			if err != nil {
 				log.Printf("Error marshalling list message: %s", err)
 

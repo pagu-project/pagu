@@ -20,7 +20,6 @@ func NewMarkdown() MarkdownInterface {
 		// glamour.WithAutoStyle(),
 		glamour.WithPreservedNewLines(),
 	)
-
 	if err != nil {
 		log.Printf("err in ininitial mark down renderer: %s", err)
 	}
