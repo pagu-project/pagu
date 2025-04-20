@@ -16,17 +16,19 @@ import (
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/markdown"
 	"github.com/pagu-project/pagu/pkg/session"
 )
 
 type Bot struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-	server *http.ServeMux
-	engine *engine.BotEngine
-	cmds   []*command.Command
-	cfg    *config.Config
-	hook   Webhook
+	ctx      context.Context
+	cancel   context.CancelFunc
+	server   *http.ServeMux
+	engine   *engine.BotEngine
+	cmds     []*command.Command
+	cfg      *config.Config
+	hook     Webhook
+	markdown markdown.MarkdownInterface
 
 	target         string
 	sessionManager *session.SessionManager
@@ -240,6 +242,9 @@ func (bot *Bot) listCommand(command string) []string {
 		if cmd.Name == command {
 			return []string{cmd.Name}
 		}
+	}
+
+	for _, cmd := range bot.cmds {
 		if cmd.HasSubCommand() {
 			for _, subCmd := range cmd.SubCommands {
 				if subCmd.Name == command {
@@ -373,7 +378,14 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 				commandRes = bot.handleCommand(session.Commands)
 			}
 
-			cmd := renderResult(string(commandRes), destination)
+			result, err := bot.markdown.Render(string(commandRes))
+			if err != nil {
+				log.Printf("Error in render markdown: %s", err)
+
+				return
+			}
+
+			cmd := renderResult(result, destination)
 			jsonData, err = json.Marshal(cmd)
 			if err != nil {
 				log.Printf("Error marshalling list message: %s", err)
@@ -438,6 +450,8 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		webHookAddredd: cfg.WhatsApp.WebHookAddress,
 	}
 
+	markdown := markdown.NewMarkdown()
+
 	bot := &Bot{
 		cmds:           cmds,
 		engine:         botEngine,
@@ -448,6 +462,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		target:         cfg.BotName,
 		sessionManager: sessionManager,
 		hook:           webHook,
+		markdown:       markdown,
 	}
 	go bot.sessionManager.RemoveExpiredSessions()
 
