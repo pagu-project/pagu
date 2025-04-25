@@ -31,6 +31,11 @@ test:
 	go test ./... -covermode=atomic
 
 ### building
+release:
+	go build -ldflags "-s -w" -trimpath -o build/pagu-cli      ./cmd/cli
+	go build -ldflags "-s -w" -trimpath -o build/pagu-discord  ./cmd/discord
+	go build -ldflags "-s -w" -trimpath -o build/pagu-telegram ./cmd/telegram
+
 build: build-cli build-discord build-grpc build-telegram build-http
 
 build-cli:
@@ -61,4 +66,4 @@ gen:
 	find . -name "*.gen.go" -exec gofumpt -l -w {} +
 
 ###
-.PHONY: devtools mock proto fmt check test build build-cli build-discord build-grpc build-telegram build-http gen
+.PHONY: devtools mock proto fmt check test release build build-cli build-discord build-grpc build-telegram build-http gen
