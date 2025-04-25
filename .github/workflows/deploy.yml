@@ -1,25 +1,25 @@
 name: Deploying
+permissions:
+  contents: read
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - 'v*'
+    branches: [main]
+    tags: ["v*"]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: SSH into server and deploy Pagu
-      uses: appleboy/ssh-action@v1.2.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        port: ${{ secrets.SSH_PORT }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd source
-          git pull
-          bash ./deployment/deploy.sh
+      - name: SSH into server and deploy Pagu
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd source
+            git pull
+            bash ./deployment/deploy.sh
