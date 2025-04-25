@@ -69,10 +69,10 @@ Now, you can interact with Pagu:
 calculate reward --stake=1000 --days=1
 ```
 
-Check the verson of Pagu:
+Check the version of Pagu:
 
 ```bash
-about 
+about
 ```
 
 ## Contributing
