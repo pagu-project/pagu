@@ -7,6 +7,11 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     container_name: pagu_mysql
+
+    # Read more here: https://stackoverflow.com/questions/55559386/how-to-fix-mbind-operation-not-permitted-in-mysql-error-log
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+
     volumes:
       - ${HOME}/mysql_data:/var/lib/mysql
     networks:
