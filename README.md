@@ -11,6 +11,7 @@ Pagu empowers users with several essential tools and services to interact with t
 - **PAC Coin Market Prices**: Keep track of the latest market prices for PAC coins.
 - **Phoenix Testnet Integration**: Monitor the health and status of the Phoenix (Pactus testnet) network.
 - **Phoenix Testnet Faucet**: Obtain testnet tokens through the Phoenix faucet for development and testing purposes.
+- And More...
 
 ## Multi-Platform Support
 
