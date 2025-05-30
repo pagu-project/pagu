@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-mail/mail/v2 v2.3.0
+	github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b
 	github.com/h2non/gock v1.2.0
 	github.com/jszwec/csvutil v1.10.0
 	github.com/labstack/echo/v4 v4.13.4

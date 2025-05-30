@@ -12,6 +12,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/log"
+	"github.com/pagu-project/pagu/pkg/markdown"
 	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -25,6 +26,7 @@ type Bot struct {
 	botInstance *tele.Bot
 	cfg         *config.Config
 	target      string
+	markdown    markdown.Renderer
 }
 
 type BotContext struct {
@@ -49,6 +51,8 @@ func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Confi
 		return nil, err
 	}
 
+	markdown := markdown.NewMarkdownToHTML()
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Bot{
@@ -58,6 +62,7 @@ func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Confi
 		ctx:         ctx,
 		cancel:      cancel,
 		target:      cfg.BotName,
+		markdown:    markdown,
 	}, nil
 }
 
@@ -237,7 +242,7 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 		choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 		choiceRows := make([]tele.Row, 0, len(firstArg.Choices))
 		for _, choice := range firstArg.Choices {
-			choiceMsg += fmt.Sprintf("- %s", choice.Desc)
+			choiceMsg += fmt.Sprintf("- %s\n", choice.Desc)
 			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
 			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
 			bot.botInstance.Handle(&choiceBtn, func(tgCtx tele.Context) error {
@@ -308,8 +313,9 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 	return nil
 }
 
-func (*Bot) sendMarkdown(tgCtx tele.Context, what any, opts ...any) error {
-	opts = append(opts, tele.ModeMarkdown)
+func (bot *Bot) sendMarkdown(tgCtx tele.Context, what string, opts ...any) error {
+	html := bot.markdown.Render(what)
+	opts = append(opts, tele.ModeHTML)
 
-	return tgCtx.Send(what, opts...)
+	return tgCtx.Send(html, opts...)
 }

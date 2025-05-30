@@ -95,6 +95,6 @@ After creating the tag, the stable version will be released, and the deployment 
 
 ### Updating the Working Version
 
-Once a stable version is released, immediately update the [version.go](../version.go) file and open a Pull Request.
+Once a stable version is released, immediately update the [version.go](../internal/version/version.go) file and open a Pull Request.
 For reference, you can check this [Pull Request](https://github.com/pagu-project/pagu/pull/215).
 

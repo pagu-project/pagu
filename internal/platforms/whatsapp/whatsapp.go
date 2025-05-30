@@ -28,7 +28,7 @@ type Bot struct {
 	cmds     []*command.Command
 	cfg      *config.Config
 	hook     Webhook
-	markdown markdown.MarkdownInterface
+	markdown markdown.Renderer
 
 	target         string
 	sessionManager *session.SessionManager
@@ -378,13 +378,7 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 				commandRes = bot.handleCommand(session.Commands)
 			}
 
-			result, err := bot.markdown.Render(string(commandRes))
-			if err != nil {
-				log.Printf("Error in render markdown: %s", err)
-
-				return
-			}
-
+			result := bot.markdown.Render(string(commandRes))
 			cmd := renderResult(result, destination)
 			jsonData, err = json.Marshal(cmd)
 			if err != nil {
@@ -450,7 +444,7 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 		webHookAddredd: cfg.WhatsApp.WebHookAddress,
 	}
 
-	markdown := markdown.NewMarkdown()
+	markdown := markdown.NewMarkdownToHTML()
 
 	bot := &Bot{
 		cmds:           cmds,
