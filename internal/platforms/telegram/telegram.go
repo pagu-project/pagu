@@ -240,7 +240,7 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 			choiceMsg += fmt.Sprintf("- %s", choice.Desc)
 			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
 			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
-			bot.botInstance.Handle(&choiceBtn, func(tCtx tele.Context) error {
+			bot.botInstance.Handle(&choiceBtn, func(tgCtx tele.Context) error {
 				commands = append(commands, fmt.Sprintf("--%s=%v", firstArg.Name, choice.Value))
 
 				return bot.handleCommand(tgCtx, commands)
@@ -308,8 +308,8 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 	return nil
 }
 
-func (bot *Bot) sendMarkdown(tgCtx tele.Context, what interface{}, opts ...interface{}) error {
+func (*Bot) sendMarkdown(tgCtx tele.Context, what any, opts ...any) error {
 	opts = append(opts, tele.ModeMarkdown)
 
-	return tgCtx.Send(what, opts)
+	return tgCtx.Send(what, opts...)
 }
