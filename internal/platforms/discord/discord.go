@@ -292,6 +292,7 @@ func (*Bot) respondEmbed(embed *discordgo.MessageEmbed, s *discordgo.Session, i 
 }
 
 func (bot *Bot) UpdateStatusInfo() {
+	// TODO: fix me!
 	log.Info("info status started")
 	for {
 		status, err := bot.engine.NetworkStatus()
