@@ -262,13 +262,13 @@ func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session
 	var resEmbed *discordgo.MessageEmbed
 	if res.Successful {
 		resEmbed = &discordgo.MessageEmbed{
-			Title:       "Successful",
+			Title:       res.Title,
 			Description: res.Message,
 			Color:       color.Green.ToInt(),
 		}
 	} else {
 		resEmbed = &discordgo.MessageEmbed{
-			Title:       "Failed",
+			Title:       res.Title,
 			Description: res.Message,
 			Color:       color.Yellow.ToInt(),
 		}
