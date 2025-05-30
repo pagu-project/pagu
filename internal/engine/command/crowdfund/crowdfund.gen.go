@@ -105,7 +105,7 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Name:           "info",
 		Help:           "Get detailed information about a crowdfunding campaign",
 		Handler:        c.infoHandler,
-		ResultTemplate: "**{{.campaign.Title}}**\n{{.campaign.Desc}}\n\nPackages:\n{{range .campaign.Packages}}\n- {{.Name}}: {{.USDAmount}} USDT to {{.PACAmount }}\n{{- end}}\n",
+		ResultTemplate: "**{{.campaign.Title}}**\n{{.campaign.Desc}}\n\nPackages:\n{{range .campaign.Packages}}\n- **{{.Name}}**: {{.USDAmount}} USDT to {{.PACAmount }}\n{{- end}}\n",
 		TargetBotIDs:   entity.AllBotIDs(),
 	}
 	subCmdPurchase := &command.Command{
