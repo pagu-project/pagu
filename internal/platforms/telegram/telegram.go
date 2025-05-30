@@ -309,7 +309,7 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 }
 
 func (bot *Bot) sendMarkdown(tgCtx tele.Context, what interface{}, opts ...interface{}) error {
-	opts = append(opts, tele.ModeMarkdownV2)
+	opts = append(opts, tele.ModeMarkdown)
 
 	return tgCtx.Send(what, opts)
 }
