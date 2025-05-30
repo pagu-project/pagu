@@ -120,7 +120,8 @@ func (s *NowPayments) WebhookFunc(w http.ResponseWriter, r *http.Request) {
 
 func (s *NowPayments) CreateInvoice(priceUSD int, orderID string) (string, error) {
 	url := fmt.Sprintf("%s/v1/invoice", s.apiURL)
-	jsonStr := fmt.Sprintf(`{"price_amount":%d,"price_currency":"usd","order_id":%q,"is_fee_paid_by_user":%v, "is_fixed_rate":%v}`,
+	jsonStr := fmt.Sprintf(
+		`{"price_amount":%d,"price_currency":"usd","order_id":%q,"is_fee_paid_by_user":%v,"is_fixed_rate":%v}`,
 		priceUSD, orderID, s.FeePaidByUser, s.FixedRate)
 
 	req, err := http.NewRequestWithContext(s.ctx, http.MethodPost, url, bytes.NewBufferString(jsonStr))
