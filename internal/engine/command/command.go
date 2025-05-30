@@ -14,12 +14,12 @@ import (
 )
 
 const failedTemplate = `
-**Operation failed**
+**Operation failed:**
 {{.reason}}
 `
 
 const errorTemplate = `
-**An error occurred**
+**An error occurred:**
 {{.err}}
 `
 
@@ -74,6 +74,7 @@ func (ib *InputBox) UnmarshalYAML(unmarshal func(any) error) error {
 
 type Choice struct {
 	Name  string `yaml:"name"`
+	Desc  string `yaml:"desc"`
 	Value string `yaml:"value"`
 }
 
