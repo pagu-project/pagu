@@ -131,12 +131,13 @@ func (mr *MockIClientMockRecorder) GetFee(arg0, arg1 any) *gomock.Call {
 }
 
 // GetLastBlockTime mocks base method.
-func (m *MockIClient) GetLastBlockTime(arg0 context.Context) (uint32, uint32) {
+func (m *MockIClient) GetLastBlockTime(arg0 context.Context) (uint32, uint32, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLastBlockTime", arg0)
 	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(uint32)
-	return ret0, ret1
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetLastBlockTime indicates an expected call of GetLastBlockTime.
@@ -345,12 +346,13 @@ func (mr *MockIManagerMockRecorder) GetFee(amt any) *gomock.Call {
 }
 
 // GetLastBlockTime mocks base method.
-func (m *MockIManager) GetLastBlockTime() (uint32, uint32) {
+func (m *MockIManager) GetLastBlockTime() (uint32, uint32, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLastBlockTime")
 	ret0, _ := ret[0].(uint32)
 	ret1, _ := ret[1].(uint32)
-	return ret0, ret1
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // GetLastBlockTime indicates an expected call of GetLastBlockTime.

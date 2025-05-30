@@ -10,7 +10,7 @@ type IClient interface {
 	Target() string
 	GetBlockchainInfo(context.Context) (*pactus.GetBlockchainInfoResponse, error)
 	GetBlockchainHeight(context.Context) (uint32, error)
-	GetLastBlockTime(context.Context) (uint32, uint32)
+	GetLastBlockTime(context.Context) (uint32, uint32, error)
 	GetNetworkInfo(context.Context) (*pactus.GetNetworkInfoResponse, error)
 	GetValidatorInfo(context.Context, string) (*pactus.GetValidatorResponse, error)
 	GetValidatorInfoByNumber(context.Context, int32) (*pactus.GetValidatorResponse, error)
@@ -29,7 +29,7 @@ type IManager interface {
 	GetRandomClient() IClient
 	GetBlockchainInfo() (*pactus.GetBlockchainInfoResponse, error)
 	GetBlockchainHeight() (uint32, error)
-	GetLastBlockTime() (uint32, uint32)
+	GetLastBlockTime() (uint32, uint32, error)
 	GetNetworkInfo() (*pactus.GetNetworkInfoResponse, error)
 	GetPeerInfo(address string) (*pactus.PeerInfo, error)
 	GetValidatorInfo(address string) (*pactus.GetValidatorResponse, error)
