@@ -1,6 +1,8 @@
 package phoenix
 
 import (
+	"fmt"
+
 	"github.com/pactus-project/pactus/types/tx"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
@@ -36,7 +38,7 @@ func (c *PhoenixCmd) faucetHandler(
 	toAddr := args[argNameFaucetAddress]
 	receiverAddress, err := utils.TestnetAddressFromString(toAddr)
 	if err != nil {
-		return cmd.RenderErrorTemplate(err)
+		return cmd.RenderErrorTemplate(fmt.Errorf("invalid address: %w", err))
 	}
 
 	trx := tx.NewTransferTx(blockchainInfo.LastBlockHeight, c.faucetAddress, receiverAddress,
