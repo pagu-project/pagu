@@ -21,21 +21,21 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 		Help:           "Check the network health status",
 		Handler:        c.healthHandler,
 		ResultTemplate: "Network is {{.Status}}\nCurrent Time: {{.CurrentTime}}\nLast Block Time: {{.LastBlockTime}}\nTime Difference: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
-		TargetBotIDs: entity.AllBotIDs(),
+		TargetBotIDs:   entity.AllBotIDs(),
 	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
 		Help:           "View network statistics",
 		Handler:        c.statusHandler,
 		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidator Count: {{.ValidatorsCount}}\nAccount Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} tPAC\nTotal Committee Power: {{.TotalCommitteePower}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
-		TargetBotIDs: entity.AllBotIDs(),
+		TargetBotIDs:   entity.AllBotIDs(),
 	}
 	subCmdFaucet := &command.Command{
 		Name:           "faucet",
 		Help:           "Get tPAC test coins on Phoenix Testnet for testing your project",
 		Handler:        c.faucetHandler,
 		ResultTemplate: "You received {{.amount}} tPAC on Phoenix Testnet!\n\nhttps://phoenix.pacviewer.com/transaction/{{.txHash}}\n",
-		TargetBotIDs: entity.AllBotIDs(),
+		TargetBotIDs:   entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "address",
@@ -50,7 +50,7 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 		Help:           "Show the faucet wallet balance",
 		Handler:        c.walletHandler,
 		ResultTemplate: "Pagu Phoenix Wallet:\n\nAddress: {{.address}}\nBalance: {{.balance}}\n",
-		TargetBotIDs: entity.AllBotIDs(),
+		TargetBotIDs:   entity.AllBotIDs(),
 	}
 
 	return &phoenixSubCmds{
@@ -63,10 +63,10 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 
 func (c *PhoenixCmd) buildPhoenixCommand() *command.Command {
 	phoenixCmd := &command.Command{
-		Emoji:          "🐦",
-		Name:        "phoenix",
-		Help:        "Commands for working with Phoenix Testnet",
-		SubCommands: make([]*command.Command, 0),
+		Emoji:        "🐦",
+		Name:         "phoenix",
+		Help:         "Commands for working with Phoenix Testnet",
+		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),
 	}
 

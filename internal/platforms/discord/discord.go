@@ -156,7 +156,7 @@ func (bot *Bot) registerCommands() error {
 
 						for i, choice := range arg.Choices {
 							opt.Choices[i] = &discordgo.ApplicationCommandOptionChoice{
-								Name:  choice.Name,
+								Name:  choice.Desc,
 								Value: choice.Value,
 							}
 						}

@@ -162,13 +162,13 @@ func (bot *Bot) registerCommands() error {
 			bot.botInstance.Handle(&btn, func(c tele.Context) error {
 				_ = bot.botInstance.Delete(c.Message())
 
-				return c.Send(cmd.Name, subMenu, tele.ModeMarkdown)
+				return c.Send(cmd.Name, subMenu, tele.ModeMarkdownV2)
 			})
 
 			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
 				_ = bot.botInstance.Delete(ctx.Message())
 
-				return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdown)
+				return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdownV2)
 			})
 		} else {
 			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
@@ -187,7 +187,7 @@ func (bot *Bot) registerCommands() error {
 	bot.botInstance.Handle("/start", func(ctx tele.Context) error {
 		_ = bot.botInstance.Delete(ctx.Message())
 
-		return ctx.Send("Pagu Main Menu", menu, tele.ModeMarkdown)
+		return ctx.Send("Pagu Main Menu", menu, tele.ModeMarkdownV2)
 	})
 
 	bot.botInstance.Handle(tele.OnText, func(ctx tele.Context) error {
@@ -221,7 +221,7 @@ func (bot *Bot) parsTextMessage(ctx tele.Context) error {
 
 	_ = bot.botInstance.Delete(ctx.Message())
 
-	return ctx.Send(fmt.Sprintf("Please Enter %s", cmd.Args[currentArgsIndex+1].Name))
+	return ctx.Send(fmt.Sprintf("Please enter `%s`:", cmd.Args[currentArgsIndex+1].Name))
 }
 
 func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*command.Args) error {
@@ -230,28 +230,30 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 	argsValue[ctx.Sender().ID] = nil
 	_ = bot.botInstance.Delete(ctx.Message())
 
-	choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
-	choiceRows := make([]tele.Row, 0)
-	choiceMeg := fmt.Sprintf("Please Select a %s\nChoose the best option below based on your preference:\n", args[0].Name)
-	for _, arg := range args {
-		if len(arg.Choices) > 0 {
-			for _, choice := range arg.Choices {
-				choices := strings.Split(choice.Name, " ")
-				choiceMeg += fmt.Sprintf("- %s : %s\n", choices[0], strings.Join(choices[1:], " "))
-				choiceBtn := choiceMenu.Data(cases.Title(language.English).String(choices[0]), choices[0])
-				choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
-				bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
-					choices = strings.Split(choices[0], "-")
-					commands = append(commands, fmt.Sprintf("--%s=%v", choices[0], choices[1]))
+	firstArg := args[0]
 
-					return bot.handleCommand(c, commands)
-				})
-			}
+	if len(firstArg.Choices) == 0 {
+		choiceMsg := fmt.Sprintf("Please select a `%s`:\n\n", firstArg.Name)
+		choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
+		choiceRows := make([]tele.Row, 0, len(firstArg.Choices))
+		for _, choice := range firstArg.Choices {
+			choiceMsg += fmt.Sprintf("- %s", choice.Desc)
+			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
+			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
+			bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
+				commands = append(commands, fmt.Sprintf("--%s=%v", firstArg.Name, choice.Value))
+
+				return bot.handleCommand(c, commands)
+			})
 		}
-	}
-	choiceMenu.Inline(choiceRows...)
 
-	return ctx.Send(choiceMeg, choiceMenu)
+		choiceMenu.Inline(choiceRows...)
+
+		return ctx.Send(choiceMsg, choiceMenu)
+	}
+
+	// Commands with no choices
+	return ctx.Send(fmt.Sprintf("Please enter `%s`:", firstArg.Name))
 }
 
 // handleCommand executes a command with its arguments for the user.
@@ -284,7 +286,7 @@ func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
 	argsContext[senderID] = nil
 	argsValue[senderID] = nil
 
-	return ctx.Send(res.Message, tele.NoPreview, tele.ModeMarkdown)
+	return ctx.Send(res.Message, tele.NoPreview, tele.ModeMarkdownV2)
 }
 
 func findCommand(commands []*command.Command, senderID int64) *command.Command {
