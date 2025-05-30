@@ -148,33 +148,33 @@ func (bot *Bot) registerCommands() error {
 
 				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
 
-				bot.botInstance.Handle(&subBtn, func(c tele.Context) error {
+				bot.botInstance.Handle(&subBtn, func(tgCtx tele.Context) error {
 					if len(subCmd.Args) > 0 {
-						return bot.handleArgCommand(c, []string{cmd.Name, subCmd.Name}, subCmd.Args)
+						return bot.handleArgCommand(tgCtx, []string{cmd.Name, subCmd.Name}, subCmd.Args)
 					}
 
-					return bot.handleCommand(c, []string{cmd.Name, subCmd.Name})
+					return bot.handleCommand(tgCtx, []string{cmd.Name, subCmd.Name})
 				})
 				subRows = append(subRows, subMenu.Row(subBtn))
 			}
 
 			subMenu.Inline(subRows...)
-			bot.botInstance.Handle(&btn, func(c tele.Context) error {
-				_ = bot.botInstance.Delete(c.Message())
+			bot.botInstance.Handle(&btn, func(tgCtx tele.Context) error {
+				_ = bot.botInstance.Delete(tgCtx.Message())
 
-				return c.Send(cmd.Name, subMenu, tele.ModeMarkdownV2)
+				return bot.sendMarkdown(tgCtx, cmd.Name, subMenu)
 			})
 
-			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
-				_ = bot.botInstance.Delete(ctx.Message())
+			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
+				_ = bot.botInstance.Delete(tgCtx.Message())
 
-				return ctx.Send(cmd.Name, subMenu, tele.ModeMarkdownV2)
+				return bot.sendMarkdown(tgCtx, cmd.Name, subMenu)
 			})
 		} else {
-			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(ctx tele.Context) error {
-				_ = bot.botInstance.Delete(ctx.Message())
+			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
+				_ = bot.botInstance.Delete(tgCtx.Message())
 
-				err := bot.handleCommand(ctx, []string{cmd.Name})
+				err := bot.handleCommand(tgCtx, []string{cmd.Name})
 
 				return err
 			})
@@ -184,51 +184,51 @@ func (bot *Bot) registerCommands() error {
 	// initiate menu button
 	_ = bot.botInstance.SetCommands(commands)
 	menu.Inline(rows...)
-	bot.botInstance.Handle("/start", func(ctx tele.Context) error {
-		_ = bot.botInstance.Delete(ctx.Message())
+	bot.botInstance.Handle("/start", func(tgCtx tele.Context) error {
+		_ = bot.botInstance.Delete(tgCtx.Message())
 
-		return ctx.Send("Pagu Main Menu", menu, tele.ModeMarkdownV2)
+		return bot.sendMarkdown(tgCtx, "Pagu Main Menu", menu)
 	})
 
-	bot.botInstance.Handle(tele.OnText, func(ctx tele.Context) error {
-		if argsContext[ctx.Message().Sender.ID] == nil {
+	bot.botInstance.Handle(tele.OnText, func(tgCtx tele.Context) error {
+		if argsContext[tgCtx.Message().Sender.ID] == nil {
 			return nil
 		}
 
-		if argsValue[ctx.Message().Sender.ID] == nil {
-			argsValue[ctx.Message().Sender.ID] = make(map[string]string)
+		if argsValue[tgCtx.Message().Sender.ID] == nil {
+			argsValue[tgCtx.Message().Sender.ID] = make(map[string]string)
 		}
 
-		return bot.parsTextMessage(ctx)
+		return bot.parsTextMessage(tgCtx)
 	})
 
 	return nil
 }
 
-func (bot *Bot) parsTextMessage(ctx tele.Context) error {
-	senderID := ctx.Message().Sender.ID
+func (bot *Bot) parsTextMessage(tgCtx tele.Context) error {
+	senderID := tgCtx.Message().Sender.ID
 	cmd := findCommand(bot.engine.Commands(), senderID)
 	if cmd == nil {
-		return ctx.Send("Invalid command")
+		return bot.sendMarkdown(tgCtx, "Invalid command")
 	}
 
 	currentArgsIndex := len(argsValue[senderID])
-	argsValue[senderID][cmd.Args[currentArgsIndex].Name] = ctx.Message().Text
+	argsValue[senderID][cmd.Args[currentArgsIndex].Name] = tgCtx.Message().Text
 
 	if len(argsValue[senderID]) == len(cmd.Args) {
-		return bot.handleCommand(ctx, argsContext[senderID].Commands)
+		return bot.handleCommand(tgCtx, argsContext[senderID].Commands)
 	}
 
-	_ = bot.botInstance.Delete(ctx.Message())
+	_ = bot.botInstance.Delete(tgCtx.Message())
 
-	return ctx.Send(fmt.Sprintf("Please enter `%s`:", cmd.Args[currentArgsIndex+1].Name))
+	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Please enter `%s`:", cmd.Args[currentArgsIndex+1].Name))
 }
 
-func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*command.Args) error {
+func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*command.Args) error {
 	msgCtx := &BotContext{Commands: commands}
-	argsContext[ctx.Sender().ID] = msgCtx
-	argsValue[ctx.Sender().ID] = nil
-	_ = bot.botInstance.Delete(ctx.Message())
+	argsContext[tgCtx.Sender().ID] = msgCtx
+	argsValue[tgCtx.Sender().ID] = nil
+	_ = bot.botInstance.Delete(tgCtx.Message())
 
 	firstArg := args[0]
 
@@ -240,30 +240,30 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 			choiceMsg += fmt.Sprintf("- %s", choice.Desc)
 			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
 			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
-			bot.botInstance.Handle(&choiceBtn, func(c tele.Context) error {
+			bot.botInstance.Handle(&choiceBtn, func(tCtx tele.Context) error {
 				commands = append(commands, fmt.Sprintf("--%s=%v", firstArg.Name, choice.Value))
 
-				return bot.handleCommand(c, commands)
+				return bot.handleCommand(tgCtx, commands)
 			})
 		}
 
 		choiceMenu.Inline(choiceRows...)
 
-		return ctx.Send(choiceMsg, choiceMenu)
+		return bot.sendMarkdown(tgCtx, choiceMsg, choiceMenu)
 	}
 
 	// Commands with no choices
-	return ctx.Send(fmt.Sprintf("Please enter `%s`:", firstArg.Name))
+	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Please enter `%s`:", firstArg.Name))
 }
 
 // handleCommand executes a command with its arguments for the user.
 // It combines the commands and arguments into a single string, calls the engine's Run method,
 // clears the user's context, and sends the result back to the user.
-func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
-	callerID := strconv.Itoa(int(ctx.Sender().ID))
+func (bot *Bot) handleCommand(tgCtx tele.Context, commands []string) error {
+	callerID := strconv.Itoa(int(tgCtx.Sender().ID))
 
 	// Retrieve the arguments for the sender
-	senderID := ctx.Message().Sender.ID
+	senderID := tgCtx.Message().Sender.ID
 	args := argsValue[senderID]
 
 	// Combine the commands into a single string
@@ -280,13 +280,13 @@ func (bot *Bot) handleCommand(ctx tele.Context, commands []string) error {
 
 	// Call the engine's Run method with the full command string
 	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, callerID, fullCommand)
-	_ = bot.botInstance.Delete(ctx.Message())
+	_ = bot.botInstance.Delete(tgCtx.Message())
 
 	// Clear the stored command context and arguments for the sender
 	argsContext[senderID] = nil
 	argsValue[senderID] = nil
 
-	return ctx.Send(res.Message, tele.NoPreview, tele.ModeMarkdownV2)
+	return bot.sendMarkdown(tgCtx, res.Message, tele.NoPreview)
 }
 
 func findCommand(commands []*command.Command, senderID int64) *command.Command {
@@ -306,4 +306,10 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 	}
 
 	return nil
+}
+
+func (bot *Bot) sendMarkdown(tgCtx tele.Context, what interface{}, opts ...interface{}) error {
+	opts = append(opts, tele.ModeMarkdownV2)
+
+	return tgCtx.Send(what, opts)
 }
