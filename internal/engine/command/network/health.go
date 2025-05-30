@@ -13,7 +13,11 @@ func (n *NetworkCmd) healthHandler(
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	lastBlockTime, lastBlockHeight := n.clientMgr.GetLastBlockTime()
+	lastBlockTime, lastBlockHeight, err := n.clientMgr.GetLastBlockTime()
+	if err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
+
 	lastBlockTimeFormatted := time.Unix(int64(lastBlockTime), 0).Format("02/01/2006, 15:04:05")
 	currentTime := time.Now()
 	timeDiff := currentTime.Unix() - int64(lastBlockTime)

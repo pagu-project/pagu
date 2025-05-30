@@ -276,7 +276,9 @@ func (cmd *Command) AddAboutSubCommand() {
 	const aboutTemplate = `
 **About Pagu**
 
-Version : {{.version}}
+🌐 [https://pagu.bot/](https://pagu.bot/)
+
+Version: {{.version}}
 `
 
 	cmd.ResultTemplate = aboutTemplate

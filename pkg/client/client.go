@@ -119,10 +119,10 @@ func (c *Client) GetTransactionData(ctx context.Context, hash string) (*pactus.G
 	return res, nil
 }
 
-func (c *Client) GetLastBlockTime(ctx context.Context) (lastBlockTime, lastBlockHeight uint32) {
+func (c *Client) GetLastBlockTime(ctx context.Context) (lastBlockTime, lastBlockHeight uint32, err error) {
 	info, err := c.blockchainClient.GetBlockchainInfo(ctx, &pactus.GetBlockchainInfoRequest{})
 	if err != nil {
-		return 0, 0
+		return 0, 0, err
 	}
 
 	lastBlock, err := c.blockchainClient.GetBlock(ctx, &pactus.GetBlockRequest{
@@ -130,13 +130,13 @@ func (c *Client) GetLastBlockTime(ctx context.Context) (lastBlockTime, lastBlock
 		Verbosity: pactus.BlockVerbosity_BLOCK_INFO,
 	})
 	if err != nil {
-		return 0, 0
+		return 0, 0, err
 	}
 
 	lastBlockHeight = lastBlock.Height
 	lastBlockTime = lastBlock.BlockTime
 
-	return lastBlockTime, lastBlockHeight
+	return lastBlockTime, lastBlockHeight, nil
 }
 
 func (c *Client) GetNodeInfo(ctx context.Context) (*pactus.GetNodeInfoResponse, error) {

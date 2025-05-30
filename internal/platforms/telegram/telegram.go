@@ -232,7 +232,7 @@ func (bot *Bot) handleArgCommand(ctx tele.Context, commands []string, args []*co
 
 	firstArg := args[0]
 
-	if len(firstArg.Choices) == 0 {
+	if len(firstArg.Choices) > 0 {
 		choiceMsg := fmt.Sprintf("Please select a `%s`:\n\n", firstArg.Name)
 		choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 		choiceRows := make([]tele.Row, 0, len(firstArg.Choices))
