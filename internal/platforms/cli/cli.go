@@ -53,4 +53,4 @@ func (bot *Bot) Start() error {
 	}
 }
 
-func (bot *Bot) Stop() {}
+func (*Bot) Stop() {}

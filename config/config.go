@@ -47,7 +47,6 @@ func Load(path string) (*Config, error) {
 
 // BasicCheck validate presence of required config variables.
 func (cfg *Config) BasicCheck() error {
-
 	if cfg.Engine.Wallet.Address == "" {
 		return errors.New("config: Wallet address dose not set")
 	}

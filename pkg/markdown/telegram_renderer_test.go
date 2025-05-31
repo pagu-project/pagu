@@ -11,10 +11,12 @@ func TestTelegramRender(t *testing.T) {
 	renderer := markdown.NewTelegramRenderer()
 
 	input := `# Hello
-This is a [link](https://example.com) and some **bold** text.
+This is a link https://example.com and some **bold** and __italic__ text.
+”inline fixed-width code”
 `
-	expected := `# Hello
-This is a [link](https://example.com) and some **bold** text.
+	expected := `*Hello*
+This is a link https://example\.com and some *bold* and _italic_ text\.
+”inline fixed\-width code”
 `
 
 	output := renderer.Render(input)

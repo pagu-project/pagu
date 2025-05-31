@@ -223,7 +223,7 @@ func (cmd *Command) RenderHelpTemplate() CommandResult {
 
 **Available Subcommands:**
    {{- range .cmd.SubCommands }}
-   ”{{.Name | fixed 15 }}” {{.Emoji}} {{.Help}}
+   ”{{.Name | fixed 12 }}” {{.Emoji}} {{.Help}}
    {{- end}}
 
 Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a subcommand.
