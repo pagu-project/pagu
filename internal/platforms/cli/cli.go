@@ -15,7 +15,7 @@ import (
 const PROMPT = "\n>> "
 
 func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
-	markdown := markdown.NewMarkdownToCLI()
+	markdown := markdown.NewCLIRenderer()
 	reader := bufio.NewReader(os.Stdin)
 
 	for {

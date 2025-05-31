@@ -13,16 +13,13 @@ const (
 	argNameCreateValidMonths = "valid-months"
 	argNameCreateRecipient   = "recipient"
 	argNameCreateDescription = "description"
-	argNameCreateBulkFile    = "file"
-	argNameCreateBulkNotify  = "notify"
 	argNameStatusCode        = "code"
 )
 
 type voucherSubCmds struct {
-	subCmdClaim      *command.Command
-	subCmdCreate     *command.Command
-	subCmdCreateBulk *command.Command
-	subCmdStatus     *command.Command
+	subCmdClaim  *command.Command
+	subCmdCreate *command.Command
+	subCmdStatus *command.Command
 }
 
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
@@ -83,30 +80,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 			},
 		},
 	}
-	subCmdCreateBulk := &command.Command{
-		Name:           "create-bulk",
-		Help:           "Generate multiple voucher codes by importing a file",
-		Handler:        c.createBulkHandler,
-		ResultTemplate: "Vouchers created successfully!\n",
-		TargetBotIDs: []entity.BotID{
-			entity.BotID_CLI,
-			entity.BotID_Moderator,
-		},
-		Args: []*command.Args{
-			{
-				Name:     "file",
-				Desc:     "File containing a list of voucher recipients",
-				InputBox: command.InputBoxFile,
-				Optional: false,
-			},
-			{
-				Name:     "notify",
-				Desc:     "Send notifications to recipients via email",
-				InputBox: command.InputBoxToggle,
-				Optional: false,
-			},
-		},
-	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
 		Help:           "View the status of vouchers or a specific voucher",
@@ -127,10 +100,9 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	}
 
 	return &voucherSubCmds{
-		subCmdClaim:      subCmdClaim,
-		subCmdCreate:     subCmdCreate,
-		subCmdCreateBulk: subCmdCreateBulk,
-		subCmdStatus:     subCmdStatus,
+		subCmdClaim:  subCmdClaim,
+		subCmdCreate: subCmdCreate,
+		subCmdStatus: subCmdStatus,
 	}
 }
 
@@ -147,7 +119,6 @@ func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 
 	voucherCmd.AddSubCommand(c.subCmdClaim)
 	voucherCmd.AddSubCommand(c.subCmdCreate)
-	voucherCmd.AddSubCommand(c.subCmdCreateBulk)
 	voucherCmd.AddSubCommand(c.subCmdStatus)
 
 	return voucherCmd

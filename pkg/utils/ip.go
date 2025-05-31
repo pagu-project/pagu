@@ -32,15 +32,15 @@ func GetGeoIP(ctx context.Context, ip string) *GeoIP {
 		return geo
 	}
 
-	resp, err := cli.Do(req)
+	res, err := cli.Do(req)
 	if err != nil {
 		return geo
 	}
 	defer func() {
-		_ = resp.Body.Close()
+		_ = res.Body.Close()
 	}()
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return geo
 	}

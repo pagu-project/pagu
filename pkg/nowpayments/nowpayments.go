@@ -33,7 +33,7 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &NowPayments{
+	nowPayments := &NowPayments{
 		ctx:           ctx,
 		apiToken:      cfg.APIToken,
 		ipnSecret:     ipnSecret,
@@ -46,7 +46,7 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 		FixedRate:     cfg.FixedRate,
 	}
 
-	log.Info("NowPayments initialized", "FixedRate", s.FixedRate, "FeePaidByUser", s.FeePaidByUser)
+	log.Info("NowPayments initialized", "FixedRate", nowPayments.FixedRate, "FeePaidByUser", nowPayments.FeePaidByUser)
 
 	// Web hook has issue
 	// http.HandleFunc("/nowpayments", s.WebhookFunc)
@@ -61,7 +61,7 @@ func NewNowPayments(ctx context.Context, cfg *Config) (*NowPayments, error) {
 	// 	}
 	// }()
 
-	return s, nil
+	return nowPayments, nil
 }
 
 func (s *NowPayments) PaymentLink(invoiceID string) string {
@@ -137,7 +137,9 @@ func (s *NowPayments) CreateInvoice(priceUSD int, orderID string) (string, error
 	if err != nil {
 		return "", err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -180,7 +182,9 @@ func (s *NowPayments) IsPaid(invoiceID string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -229,7 +233,9 @@ func (s *NowPayments) getJWTToken() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	data, err := io.ReadAll(res.Body)
 	if err != nil {

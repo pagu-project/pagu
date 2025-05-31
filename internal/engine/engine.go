@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/engine/command/calculator"
 	"github.com/pagu-project/pagu/internal/engine/command/crowdfund"
@@ -21,28 +20,21 @@ import (
 	"github.com/pagu-project/pagu/pkg/cache"
 	"github.com/pagu-project/pagu/pkg/client"
 	"github.com/pagu-project/pagu/pkg/log"
-	"github.com/pagu-project/pagu/pkg/notification"
-	"github.com/pagu-project/pagu/pkg/notification/zoho"
+	"github.com/pagu-project/pagu/pkg/mailer"
 	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
 type BotEngine struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-
+	ctx       context.Context
 	clientMgr client.IManager
 	db        *repository.Database
 	rootCmd   *command.Command
 }
 
-func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-
+func NewBotEngine(ctx context.Context, cfg *Config) (*BotEngine, error) {
 	db, err := repository.NewDB(cfg.Database.URL)
 	if err != nil {
-		cancel()
-
 		return nil, err
 	}
 	log.Info("database loaded successfully")
@@ -51,8 +43,6 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 	if cfg.LocalNode != "" {
 		localClient, err := client.NewClient(cfg.LocalNode)
 		if err != nil {
-			cancel()
-
 			return nil, err
 		}
 
@@ -62,8 +52,6 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 	for _, nn := range cfg.NetworkNodes {
 		client, err := client.NewClient(nn)
 		if err != nil {
-			cancel()
-
 			log.Warn("error on adding new network client", "err", err, "addr", nn)
 		}
 		mgr.AddClient(client)
@@ -71,56 +59,34 @@ func NewBotEngine(cfg *config.Config) (*BotEngine, error) {
 
 	wlt, err := wallet.New(cfg.Wallet)
 	if err != nil {
-		cancel()
-
 		return nil, WalletError{
 			Reason: err.Error(),
 		}
 	}
 	log.Info("wallet opened successfully", "address", wlt.Address())
 
-	if cfg.BotName == config.BotNamePaguModerator {
-		zapToMailConfig := zoho.ZapToMailerConfig{
-			Host:     cfg.Notification.Zoho.Mail.Host,
-			Port:     cfg.Notification.Zoho.Mail.Port,
-			Username: cfg.Notification.Zoho.Mail.Username,
-			Password: cfg.Notification.Zoho.Mail.Password,
-		}
-		mailSender, err := notification.New(notification.NotificationTypeMail, zapToMailConfig)
-		if err != nil {
-			cancel()
-
-			return nil, err
-		}
-
-		// notification job
-		mailSenderJob := job.NewMailSender(db, mailSender, cfg.Notification.Zoho.Mail.Templates)
-		mailSenderSched := job.NewScheduler()
-		mailSenderSched.Submit(mailSenderJob)
-		go mailSenderSched.Run()
-	}
+	mailer := mailer.NewSMTPMailer(cfg.Mailer)
 
 	nowPayments, err := nowpayments.NewNowPayments(ctx, cfg.NowPayments)
 	if err != nil {
-		cancel()
-
 		return nil, err
 	}
 
-	return newBotEngine(ctx, cancel, cfg, db, mgr, wlt, nowPayments), nil
+	return newBotEngine(ctx, cfg, db, mgr, wlt, mailer, nowPayments), nil
 }
 
 func newBotEngine(ctx context.Context,
-	cancel context.CancelFunc,
-	cfg *config.Config,
+	cfg *Config,
 	db *repository.Database,
 	mgr client.IManager,
 	wlt wallet.IWallet,
+	mailer mailer.IMailer,
 	nowPayments nowpayments.INowPayments,
 ) *BotEngine {
+	// TODO: create an object and interface for me
 	// price caching job
 	priceCache := cache.NewBasic[string, entity.Price](10 * time.Second)
-	priceJob := job.NewPrice(priceCache)
+	priceJob := job.NewPrice(ctx, priceCache)
 	priceJobSched := job.NewScheduler()
 	priceJobSched.Submit(priceJob)
 	go priceJobSched.Run()
@@ -129,7 +95,7 @@ func newBotEngine(ctx context.Context,
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
 	phoenixCmd := phoenix.NewPhoenixCmd(ctx, cfg.Phoenix, db)
-	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr)
+	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr, mailer)
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
 
 	rootCmd := &command.Command{
@@ -152,7 +118,6 @@ func newBotEngine(ctx context.Context,
 
 	return &BotEngine{
 		ctx:       ctx,
-		cancel:    cancel,
 		clientMgr: mgr,
 		db:        db,
 		rootCmd:   rootCmd,
@@ -287,14 +252,6 @@ func (be *BotEngine) executeCommand(
 		return cmd.RenderErrorTemplate(fmt.Errorf("user is not defined in %s application", platformID))
 	}
 
-	for _, middlewareFunc := range cmd.Middlewares {
-		if err := middlewareFunc(caller, cmd, args); err != nil {
-			log.Error(err.Error())
-
-			return cmd.RenderErrorTemplate(errors.New("command is not available. please try again later"))
-		}
-	}
-
 	return cmd.Handler(caller, cmd, args)
 }
 
@@ -375,7 +332,6 @@ func (be *BotEngine) GetUser(platformID entity.PlatformID, platformUserID string
 func (be *BotEngine) Stop() {
 	log.Info("Stopping the Bot Engine")
 
-	be.cancel()
 	be.clientMgr.Stop()
 }
 

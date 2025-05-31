@@ -6,6 +6,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// BotID defines the identifier used to initialize a bot instance.
+// It is primarily used to filter out commands not intended for a specific bot.
+// For example, moderator commands are only available to the Moderator bot.
 type BotID int
 
 const (
@@ -16,6 +19,17 @@ const (
 	BotID_WhatsApp  BotID = 5 //nolint // underscores used for BotID
 	BotID_Web       BotID = 6 //nolint // underscores used for BotID
 )
+
+func AllBotIDs() []BotID {
+	return []BotID{
+		BotID_CLI,
+		BotID_Discord,
+		BotID_Moderator,
+		BotID_Telegram,
+		BotID_WhatsApp,
+		BotID_Web,
+	}
+}
 
 var BotNameToID = map[string]BotID{
 	"CLI":       BotID_CLI,
@@ -42,24 +56,25 @@ func (b *BotID) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
+// PlatformID defines the platform from which the user is calling the API.
+// It is stored in the database alongside the user ID to track user activity on specific platforms.
+// The numeric values must be preserved for consistency.
 type PlatformID int
 
 const (
 	PlatformIDCLI      PlatformID = 1
 	PlatformIDDiscord  PlatformID = 2
 	PlatformIDWeb      PlatformID = 3
-	PlatformIDReserved PlatformID = 4
+	PlatformIDWhatsapp PlatformID = 4
 	PlatformIDTelegram PlatformID = 5
-	PlatformIDWhatsapp PlatformID = 6
 )
 
 var platformIDToString = map[PlatformID]string{
 	PlatformIDCLI:      "CLI",
 	PlatformIDDiscord:  "Discord",
 	PlatformIDWeb:      "Web",
-	PlatformIDReserved: "Reserved",
-	PlatformIDTelegram: "Telegram",
 	PlatformIDWhatsapp: "Whatsapp",
+	PlatformIDTelegram: "Telegram",
 }
 
 func (pid PlatformID) String() string {
@@ -69,15 +84,4 @@ func (pid PlatformID) String() string {
 	}
 
 	return fmt.Sprintf("%d", pid)
-}
-
-func AllBotIDs() []BotID {
-	return []BotID{
-		BotID_CLI,
-		BotID_Discord,
-		BotID_Moderator,
-		BotID_Telegram,
-		BotID_WhatsApp,
-		BotID_Web,
-	}
 }
