@@ -7,7 +7,6 @@ require (
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-mail/mail/v2 v2.3.0
-	github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b
 	github.com/h2non/gock v1.2.0
 	github.com/jszwec/csvutil v1.10.0
 	github.com/labstack/echo/v4 v4.13.4
@@ -16,6 +15,7 @@ require (
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
+	github.com/yuin/goldmark v1.7.12
 	go.uber.org/mock v0.5.2
 	golang.org/x/exp v0.0.0-20250530174510-65e920069ea6
 	golang.org/x/text v0.25.0
@@ -76,7 +76,6 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	github.com/yuin/goldmark v1.7.12 // indirect
 	github.com/yuin/goldmark-emoji v1.0.6 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/net v0.40.0 // indirect

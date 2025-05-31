@@ -1,31 +1,28 @@
 package markdown
 
 import (
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
+	"bytes"
+
+	"github.com/yuin/goldmark"
 )
 
 type MarkdownToHTML struct {
-	parser *parser.Parser
+	renderer goldmark.Markdown
 }
 
 func NewMarkdownToHTML() *MarkdownToHTML {
-	extensions := parser.CommonExtensions | parser.NoEmptyLineBeforeBlock
-	parser := parser.NewWithExtensions(extensions)
+	renderer := goldmark.New()
 
 	return &MarkdownToHTML{
-		parser: parser,
+		renderer: renderer,
 	}
 }
 
 func (md *MarkdownToHTML) Render(input string) string {
-	doc := md.parser.Parse([]byte(input))
+	var buf bytes.Buffer
+	if err := md.renderer.Convert([]byte(input), &buf); err != nil {
+		panic(err)
+	}
 
-	htmlFlags := html.CommonFlags | html.HrefTargetBlank
-	opts := html.RendererOptions{Flags: htmlFlags}
-	renderer := html.NewRenderer(opts)
-	html := markdown.Render(doc, renderer)
-
-	return string(html)
+	return buf.String()
 }

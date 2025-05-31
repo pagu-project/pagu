@@ -11,12 +11,10 @@ func TestMarkdownToHTML_Render(t *testing.T) {
 	renderer := markdown.NewMarkdownToHTML()
 
 	input := `# Hello
-
 This is a [link](https://example.com) and some **bold** text.
 `
 	expected := `<h1>Hello</h1>
-
-<p>This is a <a href="https://example.com" target="_blank">link</a> and some <strong>bold</strong> text.</p>
+<p>This is a <a href="https://example.com">link</a> and some <strong>bold</strong> text.</p>
 `
 
 	output := renderer.Render(input)
