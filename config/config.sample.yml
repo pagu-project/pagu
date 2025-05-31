@@ -1,56 +1,70 @@
-bot_name: "Pagu-Development"
+bot_id: "CLI"
 
-# Pactus clients
-local_node: "bootstrap1.pactus.org:50051" # Address of the local Pactus node for direct communication.
+engine:
+  # Pactus clients
+  local_node: "bootstrap1.pactus.org:50051" # Address of the local Pactus node for direct communication.
 
-# List of Pactus nodes Pagu can connect to for information.
-# These nodes must have public gRPC endpoints.
-network_nodes:
-  [
-    "bootstrap1.pactus.org:50051",
-    "bootstrap2.pactus.org:50051",
-    "bootstrap3.pactus.org:50051",
-    "bootstrap4.pactus.org:50051",
-  ]
+  # List of Pactus nodes Pagu can connect to for information.
+  # These nodes must have public gRPC endpoints.
+  network_nodes:
+    [
+      "bootstrap1.pactus.org:50051",
+      # "bootstrap2.pactus.org:50051",
+      # "bootstrap3.pactus.org:50051",
+      # "bootstrap4.pactus.org:50051",
+    ]
 
-# Wallet configuration
-#
-# Use the Pactus Wallet command-line tool to create a wallet.
-# For detailed instructions, visit:
-# https://docs.pactus.org/tutorials/pactus-wallet/
-#
-# The sample wallet here is neutered, which means it is read-only and can't be used to sign any transactions.
-# You can create a full wallet and replace it.
-wallet:
-  # This is the Pagu wallet address to send transactions
-  address: pc1re5uxrtdve6gama8veqt0ttz5vgfne73w9e03w6
+  # Wallet configuration
+  #
+  # Use the Pactus Wallet command-line tool to create a wallet.
+  # For detailed instructions, visit:
+  # https://docs.pactus.org/tutorials/pactus-wallet/
+  #
+  # The sample wallet here is neutered, which means it is read-only and can't be used to sign any transactions.
+  # You can create a full wallet and replace it.
+  wallet:
+    # This is the Pagu wallet address to send transactions
+    address: pc1re5uxrtdve6gama8veqt0ttz5vgfne73w9e03w6
 
-  # Path to the wallet file.
-  path: ./config/wallet.sample.neutered
+    # Path to the wallet file.
+    path: ./config/wallet.sample.neutered
 
-  # Password for the wallet file.
-  password:
+    # Password for the wallet file.
+    password:
 
-  # The fee to be paid for each transaction sent by Pagu.
-  fee: 0.01
+    # The fee to be paid for each transaction sent by Pagu.
+    fee: 0.01
 
-# Phoenix (TestNet) configuration
-phoenix:
-  # A node in Phoenix Tesnet network
-  client: "testnet1.pactus.org:50052"
+  # Phoenix (TestNet) configuration
+  phoenix:
+    # A node in Phoenix Tesnet network
+    client: "testnet1.pactus.org:50052"
 
-  # The private key to sign the faucet message
-  private_key: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z"
+    # The private key to sign the faucet message
+    private_key: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z"
 
-  faucet_amount: 5
-  faucet_fee: 0.01
-  faucet_cooldown: "24h"
+    faucet_amount: 5
+    faucet_fee: 0.01
+    faucet_cooldown: "24h"
 
-# Database configuration
-database:
-  # The database URL specifies the database type and connection string.
-  # Pagu supports MySQL and SQLite.
-  url: "sqlite:db.sqlite"
+  # Database configuration
+  database:
+    # The database URL specifies the database type and connection string.
+    # Pagu supports MySQL and SQLite.
+    url: "sqlite:db.sqlite"
+
+  # NowPayments configuration.
+  now_payments:
+    webhook:
+    listen_port:
+    api_token:
+    ipn_secret:
+    api_url: "https://api.nowpayments.io"
+    payment_url: "https://nowpayments.io"
+    username:
+    password:
+    fee_paid_by_user: false
+    fixed_rate: false
 
 # Discord integration configuration
 # Set appropriate values to integrate Pagu with your Discord server.
@@ -72,22 +86,10 @@ whatsapp:
   graph_token:
   webhook_address:
 
-session:
-  session_ttl: 600
-  check_interval: 30
+  session:
+    session_ttl: 600
+    check_interval: 30
 
-# NowPayments configuration.
-now_payments:
-  webhook:
-  listen_port:
-  api_token:
-  ipn_secret:
-  api_url: "https://api.nowpayments.io"
-  payment_url: "https://nowpayments.io"
-  username:
-  password:
-  fee_paid_by_user: false
-  fixed_rate: false
 
 # Logger configuration
 logger:

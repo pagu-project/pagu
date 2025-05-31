@@ -7,6 +7,7 @@ import (
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/platforms/cli"
 	"github.com/pagu-project/pagu/internal/platforms/discord"
 	"github.com/pagu-project/pagu/internal/platforms/telegram"
 	"github.com/pagu-project/pagu/internal/platforms/whatsapp"
@@ -20,20 +21,25 @@ type BotInstance interface {
 	Stop()
 }
 
+var configPath string
+
 func main() {
 	rootCmd := &cobra.Command{
 		Use:     "pagu-telegram",
 		Version: version.StringVersion(),
 	}
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
-	var configPath string
-	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "./config.yml", "config path ./config.yml")
-	runCommand(rootCmd, configPath)
-	err := rootCmd.Execute()
+	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "path to the config file")
+	err := rootCmd.MarkPersistentFlagRequired("config")
+	ExitOnError(rootCmd, err)
+
+	runCommand(rootCmd)
+	err = rootCmd.Execute()
 	ExitOnError(rootCmd, err)
 }
 
-func runCommand(parentCmd *cobra.Command, configPath string) {
+func runCommand(parentCmd *cobra.Command) {
 	run := &cobra.Command{
 		Use:   "run",
 		Short: "Run an instance of Pagu",
@@ -48,10 +54,10 @@ func runCommand(parentCmd *cobra.Command, configPath string) {
 		ExitOnError(cmd, err)
 
 		// Initialize global logger.
-		log.InitGlobalLogger(cfg.Logger)
+		log.InitGlobalLogger(&cfg.Logger)
 
 		// starting eng.
-		eng, err := engine.NewBotEngine(ctx, cfg.Engine)
+		eng, err := engine.NewBotEngine(ctx, &cfg.Engine)
 		ExitOnError(cmd, err)
 
 		eng.Start()
@@ -59,20 +65,23 @@ func runCommand(parentCmd *cobra.Command, configPath string) {
 		var bot BotInstance
 		switch cfg.BotID {
 		case entity.BotID_CLI:
+			bot, err = cli.NewCLIBot(ctx, cmd, eng)
+			ExitOnError(cmd, err)
+
 		case entity.BotID_Discord:
-			bot, err = discord.NewDiscordBot(ctx, cfg.Discord, cfg.BotID, eng)
+			bot, err = discord.NewDiscordBot(ctx, &cfg.Discord, cfg.BotID, eng)
 			ExitOnError(cmd, err)
 
 		case entity.BotID_Moderator:
-			bot, err = discord.NewDiscordBot(ctx, cfg.Discord, cfg.BotID, eng)
+			bot, err = discord.NewDiscordBot(ctx, &cfg.Discord, cfg.BotID, eng)
 			ExitOnError(cmd, err)
 
 		case entity.BotID_Telegram:
-			bot, err = telegram.NewTelegramBot(ctx, cfg.Telegram, cfg.BotID, eng)
+			bot, err = telegram.NewTelegramBot(ctx, &cfg.Telegram, cfg.BotID, eng)
 			ExitOnError(cmd, err)
 
 		case entity.BotID_WhatsApp:
-			bot, err = whatsapp.NewWhatsAppBot(ctx, cfg.WhatsApp, cfg.BotID, eng)
+			bot, err = whatsapp.NewWhatsAppBot(ctx, &cfg.WhatsApp, cfg.BotID, eng)
 			ExitOnError(cmd, err)
 
 		case entity.BotID_Web:

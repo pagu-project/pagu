@@ -57,7 +57,7 @@ func NewBotEngine(ctx context.Context, cfg *Config) (*BotEngine, error) {
 		mgr.AddClient(client)
 	}
 
-	wlt, err := wallet.New(cfg.Wallet)
+	wlt, err := wallet.New(&cfg.Wallet)
 	if err != nil {
 		return nil, WalletError{
 			Reason: err.Error(),
@@ -65,9 +65,9 @@ func NewBotEngine(ctx context.Context, cfg *Config) (*BotEngine, error) {
 	}
 	log.Info("wallet opened successfully", "address", wlt.Address())
 
-	mailer := mailer.NewSMTPMailer(cfg.Mailer)
+	mailer := mailer.NewSMTPMailer(&cfg.Mailer)
 
-	nowPayments, err := nowpayments.NewNowPayments(ctx, cfg.NowPayments)
+	nowPayments, err := nowpayments.NewNowPayments(ctx, &cfg.NowPayments)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func newBotEngine(ctx context.Context,
 	crowdfundCmd := crowdfund.NewCrowdfundCmd(ctx, db, wlt, nowPayments)
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
-	phoenixCmd := phoenix.NewPhoenixCmd(ctx, cfg.Phoenix, db)
+	phoenixCmd := phoenix.NewPhoenixCmd(ctx, &cfg.Phoenix, db)
 	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr, mailer)
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
 

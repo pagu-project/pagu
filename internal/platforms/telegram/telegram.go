@@ -35,7 +35,7 @@ var (
 	argsValue   = make(map[int64]map[string]string)
 )
 
-func NewTelegramBot(ctx context.Context, cfg *Config, botID entity.BotID, botEngine *engine.BotEngine) (*Bot, error) {
+func NewTelegramBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	pref := tele.Settings{
 		Token:     cfg.BotToken,
 		ParseMode: tele.ModeMarkdownV2,
@@ -52,7 +52,7 @@ func NewTelegramBot(ctx context.Context, cfg *Config, botID entity.BotID, botEng
 	markdown := markdown.NewTelegramRenderer()
 
 	return &Bot{
-		engine:   botEngine,
+		engine:   engine,
 		teleBot:  teleBot,
 		cfg:      cfg,
 		ctx:      ctx,

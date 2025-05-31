@@ -25,7 +25,7 @@ type Bot struct {
 	engine  *engine.BotEngine
 }
 
-func NewDiscordBot(ctx context.Context, cfg *Config, botID entity.BotID, botEngine *engine.BotEngine) (*Bot, error) {
+func NewDiscordBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	session, err := discordgo.New("Bot " + cfg.Token)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func NewDiscordBot(ctx context.Context, cfg *Config, botID entity.BotID, botEngi
 	return &Bot{
 		ctx:     ctx,
 		Session: session,
-		engine:  botEngine,
+		engine:  engine,
 		cfg:     cfg,
 		botID:   botID,
 	}, nil

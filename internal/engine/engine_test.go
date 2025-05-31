@@ -164,7 +164,7 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 	mockMailer := mailer.NewMockIMailer(ctrl)
 	mockNowPayments := nowpayments.NewMockINowPayments(ctrl)
 	cfg := &Config{
-		Phoenix: &phoenix.Config{
+		Phoenix: phoenix.Config{
 			PrivateKey: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z",
 		},
 	}

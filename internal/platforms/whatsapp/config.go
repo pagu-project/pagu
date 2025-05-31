@@ -4,7 +4,7 @@ type Config struct {
 	WebHookToken   string   `yaml:"webhook_token"`
 	GraphToken     string   `yaml:"graph_token"`
 	WebHookAddress string   `yaml:"webhook_address"`
-	Session        *Session `yaml:"session"`
+	Session        Session `yaml:"session"`
 }
 
 type Session struct {

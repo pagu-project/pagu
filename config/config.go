@@ -17,13 +17,13 @@ import (
 )
 
 type Config struct {
-	BotID    entity.BotID     `yaml:"bot_id"`
-	Engine   *engine.Config   `yaml:"engine"`
-	GRPC     *grpc.Config     `yaml:"grpc"`
-	Discord  *discord.Config  `yaml:"discord"`
-	Telegram *telegram.Config `yaml:"telegram"`
-	WhatsApp *whatsapp.Config `yaml:"whatsapp"`
-	Logger   *log.Config      `yaml:"logger"`
+	BotID    entity.BotID    `yaml:"bot_id"`
+	Engine   engine.Config   `yaml:"engine"`
+	GRPC     grpc.Config     `yaml:"grpc"`
+	Discord  discord.Config  `yaml:"discord"`
+	Telegram telegram.Config `yaml:"telegram"`
+	WhatsApp whatsapp.Config `yaml:"whatsapp"`
+	Logger   log.Config      `yaml:"logger"`
 }
 
 func Load(path string) (*Config, error) {
@@ -47,6 +47,7 @@ func Load(path string) (*Config, error) {
 
 // BasicCheck validate presence of required config variables.
 func (cfg *Config) BasicCheck() error {
+
 	if cfg.Engine.Wallet.Address == "" {
 		return errors.New("config: Wallet address dose not set")
 	}

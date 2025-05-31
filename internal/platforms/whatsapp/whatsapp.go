@@ -428,9 +428,9 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 	}
 }
 
-func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, botEngine *engine.BotEngine) (*Bot, error) {
+func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	server := http.NewServeMux()
-	cmds := botEngine.Commands()
+	cmds := engine.Commands()
 
 	sessionManager := session.NewSessionManager(ctx)
 	sessionManager.SetConfig(
@@ -448,7 +448,7 @@ func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, botEng
 
 	bot := &Bot{
 		cmds:           cmds,
-		engine:         botEngine,
+		engine:         engine,
 		cfg:            cfg,
 		server:         server,
 		ctx:            ctx,
