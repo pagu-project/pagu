@@ -16,17 +16,17 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-	tele "gopkg.in/telebot.v3"
+	tele "gopkg.in/telebot.v4"
 )
 
 type Bot struct {
-	ctx         context.Context
-	cancel      context.CancelFunc
-	engine      *engine.BotEngine
-	botInstance *tele.Bot
-	cfg         *config.Config
-	target      string
-	markdown    markdown.Renderer
+	ctx      context.Context
+	cancel   context.CancelFunc
+	engine   *engine.BotEngine
+	teleBot  *tele.Bot
+	cfg      *config.Config
+	target   string
+	markdown markdown.Renderer
 }
 
 type BotContext struct {
@@ -40,11 +40,12 @@ var (
 
 func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Config) (*Bot, error) {
 	pref := tele.Settings{
-		Token:  token,
-		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+		Token:     token,
+		ParseMode: tele.ModeHTML,
+		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
 	}
 
-	tgb, err := tele.NewBot(pref)
+	teleBot, err := tele.NewBot(pref)
 	if err != nil {
 		log.Error("Failed to create Telegram bot:", err)
 
@@ -56,13 +57,13 @@ func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Confi
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Bot{
-		engine:      botEngine,
-		botInstance: tgb,
-		cfg:         cfg,
-		ctx:         ctx,
-		cancel:      cancel,
-		target:      cfg.BotName,
-		markdown:    markdown,
+		engine:   botEngine,
+		teleBot:  teleBot,
+		cfg:      cfg,
+		ctx:      ctx,
+		cancel:   cancel,
+		target:   cfg.BotName,
+		markdown: markdown,
 	}, nil
 }
 
@@ -72,7 +73,7 @@ func (bot *Bot) Start() error {
 		return err
 	}
 
-	go bot.botInstance.Start()
+	go bot.teleBot.Start()
 	log.Info("Starting Telegram Bot...")
 
 	return nil
@@ -81,12 +82,12 @@ func (bot *Bot) Start() error {
 func (bot *Bot) Stop() {
 	log.Info("Shutting down Telegram Bot")
 	bot.cancel()
-	bot.botInstance.Stop()
+	bot.teleBot.Stop()
 }
 
 func (bot *Bot) deleteAllCommands() {
 	for _, cmd := range bot.engine.Commands() {
-		err := bot.botInstance.DeleteCommands(tele.Command{Text: cmd.Name})
+		err := bot.teleBot.DeleteCommands(tele.Command{Text: cmd.Name})
 		if err != nil {
 			log.Error("unable to delete command", "error", err, "cmd", cmd.Name)
 		}
@@ -153,7 +154,7 @@ func (bot *Bot) registerCommands() error {
 
 				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
 
-				bot.botInstance.Handle(&subBtn, func(tgCtx tele.Context) error {
+				bot.teleBot.Handle(&subBtn, func(tgCtx tele.Context) error {
 					if len(subCmd.Args) > 0 {
 						return bot.handleArgCommand(tgCtx, []string{cmd.Name, subCmd.Name}, subCmd.Args)
 					}
@@ -164,20 +165,20 @@ func (bot *Bot) registerCommands() error {
 			}
 
 			subMenu.Inline(subRows...)
-			bot.botInstance.Handle(&btn, func(tgCtx tele.Context) error {
-				_ = bot.botInstance.Delete(tgCtx.Message())
+			bot.teleBot.Handle(&btn, func(tgCtx tele.Context) error {
+				_ = bot.teleBot.Delete(tgCtx.Message())
 
 				return bot.sendMarkdown(tgCtx, cmd.Name, subMenu)
 			})
 
-			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
-				_ = bot.botInstance.Delete(tgCtx.Message())
+			bot.teleBot.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
+				_ = bot.teleBot.Delete(tgCtx.Message())
 
 				return bot.sendMarkdown(tgCtx, cmd.Name, subMenu)
 			})
 		} else {
-			bot.botInstance.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
-				_ = bot.botInstance.Delete(tgCtx.Message())
+			bot.teleBot.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
+				_ = bot.teleBot.Delete(tgCtx.Message())
 
 				err := bot.handleCommand(tgCtx, []string{cmd.Name})
 
@@ -187,15 +188,15 @@ func (bot *Bot) registerCommands() error {
 	}
 
 	// initiate menu button
-	_ = bot.botInstance.SetCommands(commands)
+	_ = bot.teleBot.SetCommands(commands)
 	menu.Inline(rows...)
-	bot.botInstance.Handle("/start", func(tgCtx tele.Context) error {
-		_ = bot.botInstance.Delete(tgCtx.Message())
+	bot.teleBot.Handle("/start", func(tgCtx tele.Context) error {
+		_ = bot.teleBot.Delete(tgCtx.Message())
 
 		return bot.sendMarkdown(tgCtx, "Pagu Main Menu", menu)
 	})
 
-	bot.botInstance.Handle(tele.OnText, func(tgCtx tele.Context) error {
+	bot.teleBot.Handle(tele.OnText, func(tgCtx tele.Context) error {
 		if argsContext[tgCtx.Message().Sender.ID] == nil {
 			return nil
 		}
@@ -224,7 +225,7 @@ func (bot *Bot) parsTextMessage(tgCtx tele.Context) error {
 		return bot.handleCommand(tgCtx, argsContext[senderID].Commands)
 	}
 
-	_ = bot.botInstance.Delete(tgCtx.Message())
+	_ = bot.teleBot.Delete(tgCtx.Message())
 
 	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Please enter `%s`:", cmd.Args[currentArgsIndex+1].Name))
 }
@@ -233,7 +234,7 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 	msgCtx := &BotContext{Commands: commands}
 	argsContext[tgCtx.Sender().ID] = msgCtx
 	argsValue[tgCtx.Sender().ID] = nil
-	_ = bot.botInstance.Delete(tgCtx.Message())
+	_ = bot.teleBot.Delete(tgCtx.Message())
 
 	firstArg := args[0]
 
@@ -245,7 +246,7 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 			choiceMsg += fmt.Sprintf("- %s\n", choice.Desc)
 			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
 			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
-			bot.botInstance.Handle(&choiceBtn, func(tgCtx tele.Context) error {
+			bot.teleBot.Handle(&choiceBtn, func(tgCtx tele.Context) error {
 				commands = append(commands, fmt.Sprintf("--%s=%v", firstArg.Name, choice.Value))
 
 				return bot.handleCommand(tgCtx, commands)
@@ -285,7 +286,7 @@ func (bot *Bot) handleCommand(tgCtx tele.Context, commands []string) error {
 
 	// Call the engine's Run method with the full command string
 	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, callerID, fullCommand)
-	_ = bot.botInstance.Delete(tgCtx.Message())
+	_ = bot.teleBot.Delete(tgCtx.Message())
 
 	// Clear the stored command context and arguments for the sender
 	argsContext[senderID] = nil
@@ -315,7 +316,9 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 
 func (bot *Bot) sendMarkdown(tgCtx tele.Context, what string, opts ...any) error {
 	html := bot.markdown.Render(what)
-	opts = append(opts, tele.ModeHTML)
+	opts = append(opts, &tele.SendOptions{
+		ParseMode: tele.ModeMarkdownV2,
+	})
 
 	return tgCtx.Send(html, opts...)
 }
