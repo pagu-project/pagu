@@ -12,25 +12,22 @@ import (
 	"time"
 
 	"github.com/labstack/gommon/log"
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/platforms/whatsapp/session"
 	"github.com/pagu-project/pagu/pkg/markdown"
-	"github.com/pagu-project/pagu/pkg/session"
 )
 
 type Bot struct {
-	ctx      context.Context
-	cancel   context.CancelFunc
-	server   *http.ServeMux
-	engine   *engine.BotEngine
-	cmds     []*command.Command
-	cfg      *config.Config
-	hook     Webhook
-	markdown markdown.Renderer
-
-	target         string
+	ctx            context.Context
+	botID          entity.BotID
+	server         *http.ServeMux
+	engine         *engine.BotEngine
+	cmds           []*command.Command
+	cfg            *Config
+	hook           Webhook
+	markdown       markdown.Renderer
 	sessionManager *session.SessionManager
 }
 
@@ -284,10 +281,12 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	defer r.Body.Close()
+	defer func() {
+		_ = r.Body.Close()
+	}()
 
 	if err := json.Unmarshal(body, &resBody); err != nil {
-		log.Printf("Error unmarshalling response body: %v", err)
+		log.Printf("Error unmarshalling resonse body: %v", err)
 		http.Error(w, "Unable to parse request body", http.StatusBadRequest)
 
 		return
@@ -352,6 +351,7 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 		session    = bot.sessionManager.GetSession(phoneNumberID)
 	)
 
+	//nolint:nestif // TODO: reduce complexity?
 	if len(session.Commands) > 0 {
 		cmd, err := bot.renderPage(session.Commands[len(session.Commands)-1], destination)
 		if err == nil {
@@ -413,24 +413,24 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 
 	// Send the request using the default HTTP client
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error sending list message: %s", err)
 
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
-	if resp.StatusCode != http.StatusOK {
-		log.Printf("Failed to send list message: %s", resp.Status)
+	if res.StatusCode != http.StatusOK {
+		log.Printf("Failed to send list message: %s", res.Status)
 	}
 }
 
-func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, error) {
+func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	server := http.NewServeMux()
-	ctx, cancel := context.WithCancel(context.Background())
-
-	cmds := botEngine.Commands()
+	cmds := engine.Commands()
 
 	sessionManager := session.NewSessionManager(ctx)
 	sessionManager.SetConfig(
@@ -439,21 +439,20 @@ func NewWhatsAppBot(botEngine *engine.BotEngine, cfg *config.Config) (*Bot, erro
 	)
 
 	webHook := Webhook{
-		verifyToken:    cfg.WhatsApp.WebHookToken,
-		graphAPIToken:  cfg.WhatsApp.GraphToken,
-		webHookAddredd: cfg.WhatsApp.WebHookAddress,
+		verifyToken:    cfg.WebHookToken,
+		graphAPIToken:  cfg.GraphToken,
+		webHookAddredd: cfg.WebHookAddress,
 	}
 
-	markdown := markdown.NewMarkdownToHTML()
+	markdown := markdown.NewWhatsAppRenderer()
 
 	bot := &Bot{
 		cmds:           cmds,
-		engine:         botEngine,
+		engine:         engine,
 		cfg:            cfg,
 		server:         server,
 		ctx:            ctx,
-		cancel:         cancel,
-		target:         cfg.BotName,
+		botID:          botID,
 		sessionManager: sessionManager,
 		hook:           webHook,
 		markdown:       markdown,
@@ -502,9 +501,8 @@ func (bot *Bot) Start() error {
 	return nil
 }
 
-func (bot *Bot) Stop() {
+func (*Bot) Stop() {
 	log.Info("Shutting down WhatsApp Bot")
-	bot.cancel()
 }
 
 // handleCommand executes a command with its arguments for the user.

@@ -3,14 +3,14 @@ package market
 import (
 	"strconv"
 
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/job"
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
 func (m *MarketCmd) priceHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
-	priceData, ok := m.priceCache.Get(config.PriceCacheKey)
+	priceData, ok := m.priceCache.Get(job.PriceCacheKey)
 	if !ok {
 		return cmd.RenderFailedTemplate("failed to get price from markets. please try again later")
 	}

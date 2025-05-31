@@ -60,13 +60,13 @@ Run Pagu using the Command-Line Interface (CLI) without the need for integration
 Use the following command:
 
 ```bash
-go run ./cmd/cli -c ./config/config.sample.yml run
+go run ./cmd -c ./config/config.sample.yml run
 ```
 
 Now, you can interact with Pagu:
 
 ```bash
-calculate reward --stake=1000 --days=1
+calculator reward --stake=1000 --days=1
 ```
 
 Check the version of Pagu:

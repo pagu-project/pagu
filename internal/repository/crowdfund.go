@@ -128,9 +128,9 @@ func (db *Database) GetTotalCrowdfundedAmount() int64 {
 		Select("SUM(usd_amount)").
 		Scan(&totalUSD)
 	if tx.Error != nil {
-		log.Error("failed to get total crowdfunded amount", "error", tx.Error.Error())
+		log.Warn("failed to get total crowdfunded amount", "error", tx.Error.Error())
 
-		return -1
+		return 0
 	}
 
 	return totalUSD

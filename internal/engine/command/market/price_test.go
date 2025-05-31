@@ -1,6 +1,7 @@
 package market
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 
 func setup() *MarketCmd {
 	priceCache := cache.NewBasic[string, entity.Price](1 * time.Second)
-	priceJob := job.NewPrice(priceCache)
+	priceJob := job.NewPrice(context.Background(), priceCache)
 	priceJobScheduler := job.NewScheduler()
 	priceJobScheduler.Submit(priceJob)
 	go priceJobScheduler.Run()

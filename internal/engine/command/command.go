@@ -89,15 +89,14 @@ type Args struct {
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji          string           `yaml:"emoji"`
-	Name           string           `yaml:"name"`
-	Help           string           `yaml:"help"`
-	Args           []*Args          `yaml:"args"`
-	SubCommands    []*Command       `yaml:"sub_commands"`
-	ResultTemplate string           `yaml:"result_template"`
-	Middlewares    []MiddlewareFunc `yaml:"-"`
-	Handler        HandlerFunc      `yaml:"-"`
-	TargetBotIDs   []entity.BotID   `yaml:"target_bot_ids"` //nolint //underscores used for ids
+	Emoji          string         `yaml:"emoji"`
+	Name           string         `yaml:"name"`
+	Help           string         `yaml:"help"`
+	Args           []*Args        `yaml:"args"`
+	SubCommands    []*Command     `yaml:"sub_commands"`
+	ResultTemplate string         `yaml:"result_template"`
+	TargetBotIDs   []entity.BotID `yaml:"target_bot_ids"`
+	Handler        HandlerFunc    `yaml:"-"`
 }
 
 type CommandResult struct {
@@ -224,7 +223,7 @@ func (cmd *Command) RenderHelpTemplate() CommandResult {
 
 **Available Subcommands:**
    {{- range .cmd.SubCommands }}
-   ”{{.Name | fixed 15 }}” {{.Emoji}} {{.Help}}
+   ”{{.Name | fixed 12 }}” {{.Emoji}} {{.Help}}
    {{- end}}
 
 Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a subcommand.
@@ -238,7 +237,7 @@ Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a 
 	}
 }
 
-func (cmd *Command) HasBotID(botID entity.BotID) bool {
+func (cmd *Command) CanBeHandledByBot(botID entity.BotID) bool {
 	return slices.Contains(cmd.TargetBotIDs, botID)
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/client"
+	"github.com/pagu-project/pagu/pkg/mailer"
 	"github.com/pagu-project/pagu/pkg/wallet"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
@@ -32,8 +33,9 @@ func setup(t *testing.T) *testData {
 	testDB := ts.MakeTestDB()
 	mockClientMgr := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
+	mockMailer := mailer.NewMockIMailer(ctrl)
 
-	voucherCmd := NewVoucherCmd(testDB, mockWallet, mockClientMgr)
+	voucherCmd := NewVoucherCmd(testDB, mockWallet, mockClientMgr, mockMailer)
 	voucherCmd.buildVoucherCommand()
 
 	return &testData{

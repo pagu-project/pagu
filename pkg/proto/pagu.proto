@@ -1,0 +1,18 @@
+syntax = 'proto3';
+
+package pagu;
+
+option go_package = "github.com/pagu-project/pagu/pkg/grpc/pagu";
+
+service Pagu {
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+}
+
+message ExecuteRequest {
+    string command = 1;
+    string id = 2;
+}
+
+message ExecuteResponse {
+    string response = 1;
+}

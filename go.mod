@@ -7,10 +7,6 @@ require (
 	github.com/charmbracelet/glamour v0.10.0
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-mail/mail/v2 v2.3.0
-	github.com/gomarkdown/markdown v0.0.0-20250311123330-531bef5e742b
-	github.com/h2non/gock v1.2.0
-	github.com/jszwec/csvutil v1.10.0
-	github.com/labstack/echo/v4 v4.13.4
 	github.com/labstack/gommon v0.4.2
 	github.com/pactus-project/pactus v1.7.4
 	github.com/rs/zerolog v1.34.0
@@ -51,7 +47,6 @@ require (
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.26.3 // indirect
-	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

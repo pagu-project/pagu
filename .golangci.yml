@@ -1,7 +1,6 @@
 linters:
-  disable-all: true
-
   enable:
+    - errcheck
     - gosimple
     - govet
     - ineffassign
@@ -47,6 +46,7 @@ linters:
     - misspell
     - musttag
     - nakedret
+    - nestif
     - nilerr
     - nilnil
     - nlreturn
@@ -63,6 +63,7 @@ linters:
     - stylecheck
     - tagalign
     - tagliatelle
+    - usetesting
     - testableexamples
     - thelper
     - tparallel
@@ -71,15 +72,10 @@ linters:
     - usestdlibvars
     - wastedassign
     - whitespace
-    # - wrapcheck
     - zerologlint
     - varnamelen
-    - usetesting
 
 linters-settings:
-  staticcheck:
-    checks: ["all", "-SA1019"] # TODO: enable SA1019
-
   gosimple:
     checks: ["all"]
 
@@ -87,11 +83,8 @@ linters-settings:
     enable-all-rules: true
     rules:
       - name: "exported"
-        # TODO: Enable me
-        # all exported function should have comment.
         disabled: true
 
-      # TODO: Enable me
       - name: package-comments
         disabled: true
 
@@ -147,7 +140,6 @@ linters-settings:
           - "strings.Builder.WriteByte"
           - "bytes.Buffer.Write"
           - "bytes.Buffer.WriteString"
-          - "io.Closer.Close"
 
   gosec:
     excludes:
@@ -156,8 +148,12 @@ linters-settings:
       - G115
 
   stylecheck:
-    # TODO: enable ST1000 (at least one file in a package should have a package comment)
+    # ST1000: at least one file in a package should have a package comment
     checks: ["all", "-ST1000"]
+
+  staticcheck:
+    # SA1019: xyz is deprecated
+    checks: ["all", "-SA1019"]
 
   govet:
     enable-all: true
@@ -178,7 +174,7 @@ linters-settings:
   tagliatelle:
     # Check the struct tag name case.
     case:
-      use-field-name: true
+      use-field-name: false
       rules:
         json: snake
         yaml: snake
@@ -193,34 +189,46 @@ linters-settings:
       - style
       - performance
 
+  nestif:
+    # Minimal complexity of if statements to report.
+    # Default: 5
+    min-complexity: 6
+
   varnamelen:
     ignore-names:
       - ok
       - ip
       - no
-      - td # test_data
-      - ts # test_suite
-      - db
       - tt # table tests
-      - i # i *discordgo.InteractionCreate
-      - s # s *discordgo.Session
+      - i # for simple loops
+      - j # for simple loops
+      - l
+      - h
+      - il
       - r # reader
       - w # writer
-      - wg
-      - tx # Database Tx
+      - db # database
+      - tx # transaction
+
+    ignore-decls:
+      - wg sync.WaitGroup
+      - ts *testsuite.TestSuite
+      - td *testData
+      - ma multiaddr.Multiaddr
+      - db *leveldb.DB
 
 issues:
   exclude-use-default: false
-  exclude-generated: lax
   exclude-rules:
     - path: _test.go
       linters:
         - maintidx
+        - nestif
         - gocognit
         - forbidigo
 
   exclude:
     - 'shadow: declaration of "err" shadows'
-    - "builtinShadow: shadowing of predeclared identifier: min"
-    - "builtinShadow: shadowing of predeclared identifier: max"
-    - "builtinShadow: shadowing of predeclared identifier: len"
+    - 'builtinShadow: shadowing of predeclared identifier: min'
+    - 'builtinShadow: shadowing of predeclared identifier: max'
+    - 'builtinShadow: shadowing of predeclared identifier: len'

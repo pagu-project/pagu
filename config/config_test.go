@@ -3,7 +3,9 @@ package config
 import (
 	"testing"
 
+	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
+	"github.com/pagu-project/pagu/internal/platforms/discord"
 	"github.com/pagu-project/pagu/pkg/wallet"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,30 +24,35 @@ func TestBasicCheck(t *testing.T) {
 		{
 			name: "Valid config",
 			cfg: Config{
-				Wallet: &wallet.Config{
-					Address:  "test_wallet_address",
-					Path:     tempWalletPath, // Use the temporary directory
-					Password: "test_password",
+				Engine: engine.Config{
+					Wallet: wallet.Config{
+						Address:  "test_wallet_address",
+						Path:     tempWalletPath, // Use the temporary directory
+						Password: "test_password",
+					},
+					NetworkNodes: []string{"http://127.0.0.1:8545"},
+
+					Phoenix: phoenix.Config{},
 				},
-				NetworkNodes: []string{"http://127.0.0.1:8545"},
-				Discord: &DiscordBot{
+				Discord: discord.Config{
 					Token:   "MTEabc123",
 					GuildID: "123456789",
 				},
-				Phoenix: &phoenix.Config{},
 			},
 			wantErr: false,
 		},
 		{
-			name: "Invalid RPCNodes",
+			name: "No RPCNodes",
 			cfg: Config{
-				Wallet: &wallet.Config{
-					Address:  "test_wallet_address",
-					Path:     "/valid/path",
-					Password: "test_password",
+				Engine: engine.Config{
+					Wallet: wallet.Config{
+						Address:  "test_wallet_address",
+						Path:     "/valid/path",
+						Password: "test_password",
+					},
+					NetworkNodes: []string{},
 				},
-				NetworkNodes: []string{},
-				Discord: &DiscordBot{
+				Discord: discord.Config{
 					Token:   "MTEabc123",
 					GuildID: "123456789",
 				},

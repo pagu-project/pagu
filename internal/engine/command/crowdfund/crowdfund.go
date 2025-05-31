@@ -42,11 +42,7 @@ func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
 }
 
 func (c *CrowdfundCmd) GetCommand() *command.Command {
-	middlewareHandler := command.NewMiddlewareHandler(c.db, c.wallet)
 	cmd := c.buildCrowdfundCommand()
-
-	c.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
-	c.subCmdEdit.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {

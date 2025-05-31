@@ -5,78 +5,25 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
+	"github.com/pagu-project/pagu/internal/engine"
+	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/internal/platforms/discord"
+	"github.com/pagu-project/pagu/internal/platforms/grpc"
+	"github.com/pagu-project/pagu/internal/platforms/telegram"
+	"github.com/pagu-project/pagu/internal/platforms/whatsapp"
 	"github.com/pagu-project/pagu/pkg/log"
-	"github.com/pagu-project/pagu/pkg/nowpayments"
 	"github.com/pagu-project/pagu/pkg/utils"
-	"github.com/pagu-project/pagu/pkg/wallet"
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	BotName      string              `yaml:"bot_name"`
-	NetworkNodes []string            `yaml:"network_nodes"`
-	LocalNode    string              `yaml:"local_node"`
-	Database     Database            `yaml:"database"`
-	GRPC         *GRPC               `yaml:"grpc"` // ! TODO: config for modules should moved to the module.
-	Wallet       *wallet.Config      `yaml:"wallet"`
-	Logger       *log.Config         `yaml:"logger"`
-	HTTP         *HTTP               `yaml:"http"`
-	Phoenix      *phoenix.Config     `yaml:"phoenix"`
-	Discord      *DiscordBot         `yaml:"discord"`
-	Telegram     *Telegram           `yaml:"telegram"`
-	WhatsApp     *WhatsApp           `yaml:"whatsapp"` //nolint:tagliatelle // whats_app is wronge
-	Notification *Notification       `yaml:"notification"`
-	NowPayments  *nowpayments.Config `yaml:"now_payments"`
-	Session      *Session            `yaml:"session"`
-}
-
-type Database struct {
-	URL string `yaml:"url"`
-}
-
-type DiscordBot struct {
-	Token   string `yaml:"token"`
-	GuildID string `yaml:"guild_id"`
-}
-
-type GRPC struct {
-	Listen string `yaml:"listen"`
-}
-
-type HTTP struct {
-	Listen string `yaml:"listen"`
-}
-
-type Telegram struct {
-	BotToken string `yaml:"bot_token"`
-}
-
-type WhatsApp struct {
-	WebHookToken   string `yaml:"webhook_token"` //nolint:tagliatelle // web_hook_token is wronge
-	GraphToken     string `yaml:"graph_token"`
-	WebHookAddress string `yaml:"webhook_address"` //nolint:tagliatelle // web_hook_address is wronge
-}
-
-type Notification struct {
-	Zoho *Zoho `yaml:"zoho"`
-}
-
-type Zoho struct {
-	Mail ZapToMail `yaml:"mail"`
-}
-
-type ZapToMail struct {
-	Host      string            `yaml:"host"`
-	Port      int               `yaml:"port"`
-	Username  string            `yaml:"username"`
-	Password  string            `yaml:"password"`
-	Templates map[string]string `yaml:"templates"`
-}
-
-type Session struct {
-	SessionTTL    int `yaml:"session_ttl"`
-	CheckInterval int `yaml:"check_interval"`
+	BotID    entity.BotID    `yaml:"bot_id"`
+	Engine   engine.Config   `yaml:"engine"`
+	GRPC     grpc.Config     `yaml:"grpc"`
+	Discord  discord.Config  `yaml:"discord"`
+	Telegram telegram.Config `yaml:"telegram"`
+	WhatsApp whatsapp.Config `yaml:"whatsapp"`
+	Logger   log.Config      `yaml:"logger"`
 }
 
 func Load(path string) (*Config, error) {
@@ -100,16 +47,16 @@ func Load(path string) (*Config, error) {
 
 // BasicCheck validate presence of required config variables.
 func (cfg *Config) BasicCheck() error {
-	if cfg.Wallet.Address == "" {
+	if cfg.Engine.Wallet.Address == "" {
 		return errors.New("config: Wallet address dose not set")
 	}
 
 	// Check if the WalletPath exists.
-	if !utils.PathExists(cfg.Wallet.Path) {
-		return fmt.Errorf("config: Wallet does not exist: %s", cfg.Wallet.Path)
+	if !utils.PathExists(cfg.Engine.Wallet.Path) {
+		return fmt.Errorf("config: Wallet does not exist: %s", cfg.Engine.Wallet.Path)
 	}
 
-	if len(cfg.NetworkNodes) == 0 {
+	if len(cfg.Engine.NetworkNodes) == 0 {
 		return errors.New("config: network nodes is empty")
 	}
 
