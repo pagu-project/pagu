@@ -12,8 +12,6 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/markdown"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	tele "gopkg.in/telebot.v4"
 )
 
@@ -100,10 +98,11 @@ func (bot *Bot) registerCommands() error {
 
 		log.Info("registering new command", "name", cmd.Name)
 
-		btn := menu.Data(cases.Title(language.English).String(cmd.Name), cmd.Name)
-		commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
-		rows = append(rows, menu.Row(btn))
 		if cmd.HasSubCommand() {
+			btn := menu.Data(cmd.Name, cmd.Name)
+			commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
+			rows = append(rows, menu.Row(btn))
+
 			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 			subRows := make([]tele.Row, 0)
 			for _, subCmd := range cmd.SubCommands {
@@ -113,7 +112,8 @@ func (bot *Bot) registerCommands() error {
 
 				log.Info("adding command sub-command", "command", cmd.Name, "sub-command", subCmd.Name)
 
-				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
+				subBtn := subMenu.Data(subCmd.Name, cmd.Name+subCmd.Name)
+				subRows = append(subRows, subMenu.Row(subBtn))
 
 				bot.teleBot.Handle(&subBtn, func(tgCtx tele.Context) error {
 					if len(subCmd.Args) > 0 {
@@ -122,7 +122,6 @@ func (bot *Bot) registerCommands() error {
 
 					return bot.handleCommand(tgCtx, []string{cmd.Name, subCmd.Name})
 				})
-				subRows = append(subRows, subMenu.Row(subBtn))
 			}
 
 			subMenu.Inline(subRows...)
@@ -135,7 +134,7 @@ func (bot *Bot) registerCommands() error {
 			bot.teleBot.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
 				_ = bot.teleBot.Delete(tgCtx.Message())
 
-				return bot.sendMarkdown(tgCtx, cmd.Name, subMenu)
+				return bot.sendMarkdown(tgCtx, cmd.Help, subMenu)
 			})
 		} else {
 			bot.teleBot.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
@@ -205,8 +204,9 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 		choiceRows := make([]tele.Row, 0, len(firstArg.Choices))
 		for _, choice := range firstArg.Choices {
 			choiceMsg += fmt.Sprintf("- %s\n", choice.Desc)
-			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
+			choiceBtn := choiceMenu.Data(choice.Name, firstArg.Name, choice.Value)
 			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
+
 			bot.teleBot.Handle(&choiceBtn, func(tgCtx tele.Context) error {
 				commands = append(commands, fmt.Sprintf("--%s=%v", firstArg.Name, choice.Value))
 
@@ -277,9 +277,7 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 
 func (bot *Bot) sendMarkdown(tgCtx tele.Context, what string, opts ...any) error {
 	rendered := bot.markdown.Render(what)
-	opts = append(opts, &tele.SendOptions{
-		ParseMode: tele.ModeMarkdownV2,
-	})
+	opts = append(opts, tele.ModeMarkdownV2)
 
 	return tgCtx.Send(rendered, opts...)
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"time"
 
 	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
@@ -93,8 +92,6 @@ func runCommand(parentCmd *cobra.Command) {
 
 		TrapSignal(func() {
 			cancel()
-
-			time.Sleep(1 * time.Second)
 
 			bot.Stop()
 			eng.Stop()
