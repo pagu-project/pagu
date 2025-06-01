@@ -12,24 +12,23 @@ import (
 )
 
 type Manager struct {
+	ctx        context.Context
 	valMapLock sync.RWMutex
 	valMap     map[string]*pactus.PeerInfo
-
-	ctx     context.Context
-	clients []IClient
+	clients    []IClient
 }
 
 func NewClientMgr(ctx context.Context) *Manager {
 	return &Manager{
+		ctx:        ctx,
 		clients:    make([]IClient, 0),
 		valMap:     make(map[string]*pactus.PeerInfo),
 		valMapLock: sync.RWMutex{},
-		ctx:        ctx,
 	}
 }
 
 func (cm *Manager) Start() {
-	ticker := time.NewTicker(30 * time.Minute)
+	ticker := time.NewTicker(1 * time.Hour)
 
 	go func() {
 		for {
@@ -44,7 +43,7 @@ func (cm *Manager) Start() {
 		}
 	}()
 
-	cm.updateValMap()
+	go cm.updateValMap()
 }
 
 func (cm *Manager) Stop() {
