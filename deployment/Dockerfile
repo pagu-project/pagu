@@ -7,6 +7,4 @@ RUN make release
 
 FROM alpine:3.20 AS pagu
 WORKDIR /bin
-COPY --from=builder /pagu/build/pagu-cli .
-COPY --from=builder /pagu/build/pagu-discord .
-COPY --from=builder /pagu/build/pagu-telegram .
+COPY --from=builder /pagu/build/pagu .

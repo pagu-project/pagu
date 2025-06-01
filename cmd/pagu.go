@@ -24,7 +24,7 @@ var configPath string
 
 func main() {
 	rootCmd := &cobra.Command{
-		Use:     "pagu-telegram",
+		Use:     "pagu",
 		Version: version.StringVersion(),
 	}
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
