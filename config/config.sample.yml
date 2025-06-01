@@ -66,6 +66,14 @@ engine:
     fee_paid_by_user: false
     fixed_rate: false
 
+  mailer:
+    host:
+    port:
+    username:
+    password:
+    sender:
+    templates:
+
 # Discord integration configuration
 # Set appropriate values to integrate Pagu with your Discord server.
 discord:

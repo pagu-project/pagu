@@ -98,11 +98,11 @@ func (bot *Bot) registerCommands() error {
 
 		log.Info("registering new command", "name", cmd.Name)
 
-		if cmd.HasSubCommand() {
-			btn := menu.Data(cmd.Name, cmd.Name)
-			commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
-			rows = append(rows, menu.Row(btn))
+		btn := menu.Data(cmd.Name, cmd.Name)
+		commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
+		rows = append(rows, menu.Row(btn))
 
+		if cmd.HasSubCommand() {
 			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 			subRows := make([]tele.Row, 0)
 			for _, subCmd := range cmd.SubCommands {
