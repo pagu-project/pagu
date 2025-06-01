@@ -80,7 +80,7 @@ The deployment system operates as follows:
 To release and deploy a *Stable* version, create a Git tag and push it to the repository. Follow these steps:
 
 1. Ensure that the `origin` remote points to the current repository, not your fork.
-2. Verify that Pagu's [version](../version.go) is updated and matches the release version.
+2. Verify that Pagu's [version](../internal/version/version.go) is updated and matches the release version.
 3. Run the following commands:
 
 ```bash
