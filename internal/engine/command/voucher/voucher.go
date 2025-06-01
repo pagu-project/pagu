@@ -4,6 +4,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/client"
+	"github.com/pagu-project/pagu/pkg/mailer"
 	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
@@ -13,25 +14,22 @@ type VoucherCmd struct {
 	db            *repository.Database
 	wallet        wallet.IWallet
 	clientManager client.IManager
+	mailer        mailer.IMailer
 }
 
-func NewVoucherCmd(db *repository.Database, wlt wallet.IWallet, cli client.IManager) *VoucherCmd {
+func NewVoucherCmd(db *repository.Database, wlt wallet.IWallet,
+	clientManager client.IManager, mailer mailer.IMailer,
+) *VoucherCmd {
 	return &VoucherCmd{
 		db:            db,
 		wallet:        wlt,
-		clientManager: cli,
+		clientManager: clientManager,
+		mailer:        mailer,
 	}
 }
 
 func (v *VoucherCmd) GetCommand() *command.Command {
-	middlewareHandler := command.NewMiddlewareHandler(v.db, v.wallet)
-
 	cmd := v.buildVoucherCommand()
-
-	v.subCmdClaim.Middlewares = []command.MiddlewareFunc{middlewareHandler.WalletBalance}
-	v.subCmdCreate.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
-	v.subCmdCreateBulk.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
-	v.subCmdStatus.Middlewares = []command.MiddlewareFunc{middlewareHandler.OnlyModerator}
 
 	return cmd
 }

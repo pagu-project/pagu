@@ -1,13 +1,13 @@
 package discord
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
@@ -18,23 +18,25 @@ import (
 )
 
 type Bot struct {
-	cfg     *config.DiscordBot
+	ctx     context.Context
+	botID   entity.BotID
+	cfg     *Config
 	Session *discordgo.Session
 	engine  *engine.BotEngine
-	target  string
 }
 
-func NewDiscordBot(botEngine *engine.BotEngine, cfg *config.DiscordBot, target string) (*Bot, error) {
+func NewDiscordBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	session, err := discordgo.New("Bot " + cfg.Token)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Bot{
+		ctx:     ctx,
 		Session: session,
-		engine:  botEngine,
+		engine:  engine,
 		cfg:     cfg,
-		target:  target,
+		botID:   botID,
 	}, nil
 }
 
@@ -51,10 +53,10 @@ func (bot *Bot) Start() error {
 	return bot.registerCommands()
 }
 
-func (bot *Bot) Stop() error {
+func (bot *Bot) Stop() {
 	log.Info("Stopping Discord Bot")
 
-	return bot.Session.Close()
+	_ = bot.Session.Close()
 }
 
 func (bot *Bot) deleteAllCommands() {
@@ -75,36 +77,18 @@ func (bot *Bot) deleteAllCommands() {
 	}
 }
 
-//nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands() error {
-	bot.Session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		bot.commandHandler(s, i)
+	bot.Session.AddHandler(func(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+		bot.commandHandler(session, interaction)
 	})
 
 	cmds := bot.engine.Commands()
-	for i, cmd := range cmds {
-		if !cmd.HasBotID(entity.BotID_Discord) {
+	for _, cmd := range cmds {
+		if !cmd.CanBeHandledByBot(bot.botID) {
 			continue
 		}
 
-		switch bot.target {
-		case config.BotNamePaguMainnet:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Discord) {
-				continue
-			}
-
-		case config.BotNamePaguModerator:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
-				continue
-			}
-
-		default:
-			log.Warn("invalid target", "target", bot.target)
-
-			continue
-		}
-
-		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
+		log.Info("registering new command", "name", cmd.Name)
 
 		discordCmd := discordgo.ApplicationCommand{
 			Type:        discordgo.ChatApplicationCommand,
@@ -114,25 +98,11 @@ func (bot *Bot) registerCommands() error {
 
 		if cmd.HasSubCommand() {
 			for _, subCmd := range cmd.SubCommands {
-				switch bot.target {
-				case config.BotNamePaguMainnet:
-					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Discord) {
-						continue
-					}
-
-				case config.BotNamePaguModerator:
-					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
-						continue
-					}
-
-				default:
-					log.Warn("invalid target", "target", bot.target)
-
+				if !subCmd.CanBeHandledByBot(bot.botID) {
 					continue
 				}
 
-				log.Info("adding sub-command", "command", cmd.Name,
-					"sub-command", subCmd.Name, "desc", subCmd.Help)
+				log.Info("adding sub-command", "command", cmd.Name, "sub-command")
 
 				discordSubCmd := &discordgo.ApplicationCommandOption{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
@@ -141,8 +111,7 @@ func (bot *Bot) registerCommands() error {
 				}
 
 				for _, arg := range subCmd.Args {
-					log.Info("adding sub command argument", "command", cmd.Name,
-						"sub-command", subCmd.Name, "argument", arg.Name, "desc", arg.Desc)
+					log.Info("adding sub command argument", "command", cmd.Name, "sub-command", subCmd.Name, "argument", arg.Name)
 
 					opt := &discordgo.ApplicationCommandOption{
 						Type:        discordOptionType(arg.InputBox),
@@ -181,12 +150,12 @@ func (bot *Bot) registerCommands() error {
 	return nil
 }
 
-func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (bot *Bot) commandHandler(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 	var inputBuilder strings.Builder
 	args := make(map[string]string)
 
 	// Get the application command data
-	discordCmd := i.ApplicationCommandData()
+	discordCmd := interaction.ApplicationCommandData()
 
 	inputBuilder.WriteString(discordCmd.Name)
 
@@ -206,10 +175,10 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 	}
 
 	var callerID string
-	if i.Member != nil {
-		callerID = i.Member.User.ID
-	} else if i.User != nil {
-		callerID = i.User.ID
+	if interaction.Member != nil {
+		callerID = interaction.Member.User.ID
+	} else if interaction.User != nil {
+		callerID = interaction.User.ID
 	} else {
 		log.Warn("unable to obtain the callerID", "input", inputBuilder.String())
 
@@ -217,7 +186,7 @@ func (bot *Bot) commandHandler(s *discordgo.Session, i *discordgo.InteractionCre
 	}
 
 	res := bot.engine.ParseAndExecute(entity.PlatformIDDiscord, callerID, inputBuilder.String())
-	bot.respondResultMsg(res, s, i)
+	bot.respondResultMsg(res, session, interaction)
 }
 
 func parseArgs(
@@ -258,7 +227,9 @@ func parseArgs(
 	return result
 }
 
-func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (bot *Bot) respondResultMsg(res command.CommandResult,
+	session *discordgo.Session, interaction *discordgo.InteractionCreate,
+) {
 	var resEmbed *discordgo.MessageEmbed
 	if res.Successful {
 		resEmbed = &discordgo.MessageEmbed{
@@ -274,10 +245,12 @@ func (bot *Bot) respondResultMsg(res command.CommandResult, s *discordgo.Session
 		}
 	}
 
-	bot.respondEmbed(resEmbed, s, i)
+	bot.respondEmbed(resEmbed, session, interaction)
 }
 
-func (*Bot) respondEmbed(embed *discordgo.MessageEmbed, s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (*Bot) respondEmbed(embed *discordgo.MessageEmbed,
+	session *discordgo.Session, interaction *discordgo.InteractionCreate,
+) {
 	response := &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -285,7 +258,7 @@ func (*Bot) respondEmbed(embed *discordgo.MessageEmbed, s *discordgo.Session, i 
 		},
 	}
 
-	err := s.InteractionRespond(i.Interaction, response)
+	err := session.InteractionRespond(interaction.Interaction, response)
 	if err != nil {
 		log.Error("InteractionRespond error:", "error", err)
 	}

@@ -2,7 +2,7 @@ services:
   pagu_discord:
     image: pagu:${DEPLOY_TAG}
     container_name: pagu_discord_${DEPLOY_TAG}
-    command: "./pagu-discord -c /pagu/config_discord.${DEPLOY_TAG}.yml run"
+    command: "./pagu -c /pagu/config_discord.${DEPLOY_TAG}.yml run"
     networks:
       - pagu_network
     volumes:
@@ -13,7 +13,7 @@ services:
   pagu_moderator:
     image: pagu:${DEPLOY_TAG}
     container_name: pagu_moderator_${DEPLOY_TAG}
-    command: "./pagu-discord -c /pagu/config_moderator.${DEPLOY_TAG}.yml run"
+    command: "./pagu -c /pagu/config_moderator.${DEPLOY_TAG}.yml run"
     networks:
       - pagu_network
     volumes:
@@ -24,7 +24,7 @@ services:
   pagu_telegram:
     image: pagu:${DEPLOY_TAG}
     container_name: pagu_telegram_${DEPLOY_TAG}
-    command: "./pagu-telegram -c /pagu/config_telegram.${DEPLOY_TAG}.yml run"
+    command: "./pagu -c /pagu/config_telegram.${DEPLOY_TAG}.yml run"
     networks:
       - pagu_network
     volumes:

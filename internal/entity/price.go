@@ -35,7 +35,6 @@ type AzbitPriceResponse struct {
 	High24H                  float64 `json:"high24h"`
 }
 
-//nolint:tagliatelle // External dependency
 type TradeOgrePriceResponse struct {
 	InitialPrice string `json:"initialprice"`
 	Price        string `json:"price"`

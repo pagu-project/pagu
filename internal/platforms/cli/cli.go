@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -14,26 +15,42 @@ import (
 
 const PROMPT = "\n>> "
 
-func HandleCliCommands(cmd *cobra.Command, botEngine *engine.BotEngine) {
-	markdown := markdown.NewMarkdownToCLI()
+type Bot struct {
+	ctx    context.Context
+	cmd    *cobra.Command
+	engine *engine.BotEngine
+}
+
+func NewCLIBot(ctx context.Context, cmd *cobra.Command, engine *engine.BotEngine) (*Bot, error) {
+	return &Bot{
+		ctx:    ctx,
+		cmd:    cmd,
+		engine: engine,
+	}, nil
+}
+
+func (bot *Bot) Start() error {
+	markdown := markdown.NewCLIRenderer()
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		cmd.Print(PROMPT)
+		bot.cmd.Print(PROMPT)
 
 		input, _ := reader.ReadString('\n')
 		input = strings.TrimSuffix(input, "\n")
 
 		if strings.EqualFold(input, "exit") {
-			cmd.Println("exiting from cli")
+			bot.cmd.Println("exiting from cli")
 
-			return
+			return nil
 		}
 
-		response := botEngine.ParseAndExecute(entity.PlatformIDCLI, "0", input)
+		response := bot.engine.ParseAndExecute(entity.PlatformIDCLI, "0", input)
 
 		res := fmt.Sprintf("%v\n%v", response.Title, response.Message)
 
-		cmd.Print(markdown.Render(res))
+		bot.cmd.Print(markdown.Render(res))
 	}
 }
+
+func (*Bot) Stop() {}

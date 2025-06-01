@@ -7,25 +7,20 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/markdown"
-	"github.com/pagu-project/pagu/pkg/utils"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	tele "gopkg.in/telebot.v4"
 )
 
 type Bot struct {
 	ctx      context.Context
-	cancel   context.CancelFunc
 	engine   *engine.BotEngine
 	teleBot  *tele.Bot
-	cfg      *config.Config
-	target   string
+	cfg      *Config
+	botID    entity.BotID
 	markdown markdown.Renderer
 }
 
@@ -38,10 +33,10 @@ var (
 	argsValue   = make(map[int64]map[string]string)
 )
 
-func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Config) (*Bot, error) {
+func NewTelegramBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	pref := tele.Settings{
-		Token:     token,
-		ParseMode: tele.ModeHTML,
+		Token:     cfg.BotToken,
+		ParseMode: tele.ModeMarkdownV2,
 		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
 	}
 
@@ -52,17 +47,14 @@ func NewTelegramBot(botEngine *engine.BotEngine, token string, cfg *config.Confi
 		return nil, err
 	}
 
-	markdown := markdown.NewMarkdownToHTML()
-
-	ctx, cancel := context.WithCancel(context.Background())
+	markdown := markdown.NewTelegramRenderer()
 
 	return &Bot{
-		engine:   botEngine,
+		engine:   engine,
 		teleBot:  teleBot,
 		cfg:      cfg,
 		ctx:      ctx,
-		cancel:   cancel,
-		target:   cfg.BotName,
+		botID:    botID,
 		markdown: markdown,
 	}, nil
 }
@@ -81,7 +73,6 @@ func (bot *Bot) Start() error {
 
 func (bot *Bot) Stop() {
 	log.Info("Shutting down Telegram Bot")
-	bot.cancel()
 	bot.teleBot.Stop()
 }
 
@@ -94,65 +85,35 @@ func (bot *Bot) deleteAllCommands() {
 	}
 }
 
-//nolint:gocognit // Complexity cannot be reduced
 func (bot *Bot) registerCommands() error {
 	rows := make([]tele.Row, 0)
 	menu := &tele.ReplyMarkup{ResizeKeyboard: true}
 	commands := make([]tele.Command, 0)
 
 	cmds := bot.engine.Commands()
-	for i, cmd := range cmds {
-		if !cmd.HasBotID(entity.BotID_Telegram) {
+	for _, cmd := range cmds {
+		if !cmd.CanBeHandledByBot(bot.botID) {
 			continue
 		}
 
-		switch bot.target {
-		case config.BotNamePaguMainnet:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Telegram) {
-				continue
-			}
+		log.Info("registering new command", "name", cmd.Name)
 
-		case config.BotNamePaguModerator:
-			if !utils.IsDefinedOnBotID(cmd.TargetBotIDs, entity.BotID_Moderator) {
-				continue
-			}
-
-		default:
-			log.Warn("invalid target", "target", bot.target)
-
-			continue
-		}
-
-		log.Info("registering new command", "name", cmd.Name, "desc", cmd.Help, "index", i, "object", cmd)
-
-		btn := menu.Data(cases.Title(language.English).String(cmd.Name), cmd.Name)
-		commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
-		rows = append(rows, menu.Row(btn))
 		if cmd.HasSubCommand() {
+			btn := menu.Data(cmd.Name, cmd.Name)
+			commands = append(commands, tele.Command{Text: cmd.Name, Description: cmd.Help})
+			rows = append(rows, menu.Row(btn))
+
 			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 			subRows := make([]tele.Row, 0)
 			for _, subCmd := range cmd.SubCommands {
-				switch bot.target {
-				case config.BotNamePaguMainnet:
-					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Telegram) {
-						continue
-					}
-
-				case config.BotNamePaguModerator:
-					if !utils.IsDefinedOnBotID(subCmd.TargetBotIDs, entity.BotID_Moderator) {
-						continue
-					}
-
-				default:
-					log.Warn("invalid target", "target", bot.target)
-
+				if !subCmd.CanBeHandledByBot(bot.botID) {
 					continue
 				}
 
-				log.Info("adding command sub-command", "command", cmd.Name,
-					"sub-command", subCmd.Name, "desc", subCmd.Help)
+				log.Info("adding command sub-command", "command", cmd.Name, "sub-command", subCmd.Name)
 
-				subBtn := subMenu.Data(cases.Title(language.English).String(subCmd.Name), cmd.Name+subCmd.Name)
+				subBtn := subMenu.Data(subCmd.Name, cmd.Name+subCmd.Name)
+				subRows = append(subRows, subMenu.Row(subBtn))
 
 				bot.teleBot.Handle(&subBtn, func(tgCtx tele.Context) error {
 					if len(subCmd.Args) > 0 {
@@ -161,7 +122,6 @@ func (bot *Bot) registerCommands() error {
 
 					return bot.handleCommand(tgCtx, []string{cmd.Name, subCmd.Name})
 				})
-				subRows = append(subRows, subMenu.Row(subBtn))
 			}
 
 			subMenu.Inline(subRows...)
@@ -174,7 +134,7 @@ func (bot *Bot) registerCommands() error {
 			bot.teleBot.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
 				_ = bot.teleBot.Delete(tgCtx.Message())
 
-				return bot.sendMarkdown(tgCtx, cmd.Name, subMenu)
+				return bot.sendMarkdown(tgCtx, cmd.Help, subMenu)
 			})
 		} else {
 			bot.teleBot.Handle(fmt.Sprintf("/%s", cmd.Name), func(tgCtx tele.Context) error {
@@ -244,8 +204,9 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 		choiceRows := make([]tele.Row, 0, len(firstArg.Choices))
 		for _, choice := range firstArg.Choices {
 			choiceMsg += fmt.Sprintf("- %s\n", choice.Desc)
-			choiceBtn := choiceMenu.Data(choice.Name, choice.Name, choice.Value)
+			choiceBtn := choiceMenu.Data(choice.Name, firstArg.Name, choice.Value)
 			choiceRows = append(choiceRows, choiceMenu.Row(choiceBtn))
+
 			bot.teleBot.Handle(&choiceBtn, func(tgCtx tele.Context) error {
 				commands = append(commands, fmt.Sprintf("--%s=%v", firstArg.Name, choice.Value))
 
@@ -315,10 +276,8 @@ func findCommand(commands []*command.Command, senderID int64) *command.Command {
 }
 
 func (bot *Bot) sendMarkdown(tgCtx tele.Context, what string, opts ...any) error {
-	html := bot.markdown.Render(what)
-	opts = append(opts, &tele.SendOptions{
-		ParseMode: tele.ModeMarkdownV2,
-	})
+	rendered := bot.markdown.Render(what)
+	opts = append(opts, tele.ModeMarkdownV2)
 
-	return tgCtx.Send(html, opts...)
+	return tgCtx.Send(rendered, opts...)
 }

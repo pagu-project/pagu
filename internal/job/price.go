@@ -8,44 +8,39 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pagu-project/pagu/config"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/cache"
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
 const (
+	PriceCacheKey = "PriceCacheKey"
+
 	_defaultXeggexPriceEndpoint = "https://api.xeggex.com/api/v2/market/getbysymbol/Pactus%2Fusdt"
 	_defaultTradeOgreEndpoint   = "https://tradeogre.com/api/v1/ticker/PAC-USDT"
 	_defaultAzbitPriceEndpoint  = "https://data.azbit.com/api/tickers?currencyPairCode=PAC_USDT"
 )
 
-type price struct {
+type PriceChecker struct {
 	ctx    context.Context
 	cache  cache.Cache[string, entity.Price]
 	ticker *time.Ticker
-	cancel context.CancelFunc
 }
 
-func NewPrice(
-	cch cache.Cache[string, entity.Price],
-) Job {
-	ctx, cancel := context.WithCancel(context.Background())
-
-	return &price{
+func NewPrice(ctx context.Context, cch cache.Cache[string, entity.Price]) *PriceChecker {
+	return &PriceChecker{
 		cache:  cch,
 		ticker: time.NewTicker(128 * time.Second),
 		ctx:    ctx,
-		cancel: cancel,
 	}
 }
 
-func (p *price) Start() {
+func (p *PriceChecker) Start() {
 	p.start()
 	go p.runTicker()
 }
 
-func (p *price) start() {
+func (p *PriceChecker) start() {
 	var (
 		wg        sync.WaitGroup
 		price     entity.Price
@@ -94,15 +89,15 @@ func (p *price) start() {
 		price.AzbitPacToUSDT = azbit[0]
 	}
 
-	ok := p.cache.Exists(config.PriceCacheKey)
+	ok := p.cache.Exists(PriceCacheKey)
 	if ok {
-		p.cache.Update(config.PriceCacheKey, price, 0)
+		p.cache.Update(PriceCacheKey, price, 0)
 	} else {
-		p.cache.Add(config.PriceCacheKey, price, 0)
+		p.cache.Add(PriceCacheKey, price, 0)
 	}
 }
 
-func (p *price) runTicker() {
+func (p *PriceChecker) runTicker() {
 	for {
 		select {
 		case <-p.ctx.Done():
@@ -114,30 +109,30 @@ func (p *price) runTicker() {
 	}
 }
 
-func (*price) getPrice(ctx context.Context, endpoint string, priceResponse any) error {
+func (*PriceChecker) getPrice(ctx context.Context, endpoint string, priceResponse any) error {
 	cli := http.DefaultClient
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, http.NoBody)
 	if err != nil {
 		return err
 	}
 
-	resp, err := cli.Do(req)
+	res, err := cli.Do(req)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		_ = resp.Body.Close()
+		_ = res.Body.Close()
 	}()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("response code is %v", resp.StatusCode)
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("response code is %v", res.StatusCode)
 	}
 
-	dec := json.NewDecoder(resp.Body)
+	dec := json.NewDecoder(res.Body)
 
 	return dec.Decode(priceResponse)
 }
 
-func (p *price) Stop() {
+func (p *PriceChecker) Stop() {
 	p.ticker.Stop()
 }

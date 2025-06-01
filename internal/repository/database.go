@@ -48,7 +48,6 @@ func NewDB(path string) (*Database, error) {
 		!db.Migrator().HasTable(&entity.PhoenixFaucet{}) ||
 		!db.Migrator().HasTable(&entity.Voucher{}) ||
 		!db.Migrator().HasTable(&entity.ZealyUser{}) ||
-		!db.Migrator().HasTable(&entity.Notification{}) ||
 		!db.Migrator().HasTable(&entity.CrowdfundCampaign{}) ||
 		!db.Migrator().HasTable(&entity.CrowdfundPurchase{}) {
 		if err := db.AutoMigrate(
@@ -56,7 +55,6 @@ func NewDB(path string) (*Database, error) {
 			&entity.PhoenixFaucet{},
 			&entity.ZealyUser{},
 			&entity.Voucher{},
-			&entity.Notification{},
 			&entity.CrowdfundCampaign{},
 			&entity.CrowdfundPurchase{},
 		); err != nil {
