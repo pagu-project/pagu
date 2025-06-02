@@ -107,7 +107,9 @@ func (bot *Bot) findCommandByName(name string) *command.Command {
 	return nil
 }
 
-func (*Bot) renderTextResult(result, destination string) map[string]any {
+func (bot *Bot) renderTextResult(result, destination string) map[string]any {
+	result = bot.markdown.Render(result)
+
 	return map[string]any{
 		"messaging_product": "whatsapp",
 		"recipient_type":    "individual",
@@ -147,6 +149,8 @@ func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) 
 		})
 	}
 
+	text := bot.markdown.Render(cmd.Help)
+
 	return map[string]any{
 		"messaging_product": "whatsapp",
 		"recipient_type":    "individual",
@@ -155,7 +159,7 @@ func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) 
 		"interactive": map[string]any{
 			"type": "list",
 			"body": map[string]any{
-				"text": cmd.Help,
+				"text": text,
 			},
 			"action": map[string]any{
 				"button": "View Options",
