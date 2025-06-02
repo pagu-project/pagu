@@ -51,11 +51,12 @@ func TestGetSession(t *testing.T) {
 	session := manager.OpenSession(userID)
 	session.AddCommand("cmd")
 	session.AddArgName("arg")
+	session.AddArgValue("val")
 	gotSession := manager.GetSession(userID)
 
 	assert.NotNil(t, gotSession, "Expected to retrieve a session")
 	assert.Equal(t, "cmd", gotSession.Commands[0])
-	assert.Equal(t, "arg", gotSession.Args[0])
+	assert.Equal(t, "--arg=val", gotSession.Args[0])
 
 	nonExistent := "ghost"
 	ghostSession := manager.GetSession(nonExistent)
