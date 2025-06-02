@@ -224,7 +224,7 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 }
 
 // handleCommand executes a command with its arguments for the user.
-// It combines the commands and arguments into a single string, calls the engine's Run method,
+// It combines the commands and arguments into a single line and execute the command line.
 // clears the user's context, and sends the result back to the user.
 func (bot *Bot) handleCommand(tgCtx tele.Context, commands []string) error {
 	callerID := strconv.Itoa(int(tgCtx.Sender().ID))

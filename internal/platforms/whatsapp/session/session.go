@@ -2,8 +2,12 @@ package session
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 type Session struct {
@@ -12,31 +16,71 @@ type Session struct {
 	Args     []string
 }
 
+func (s *Session) AddCommand(command string) {
+	s.Commands = append(s.Commands, command)
+}
+
+func (s *Session) AddArgName(argName string) {
+	s.Args = append(s.Args, fmt.Sprintf("--%s=", argName))
+}
+
+func (s *Session) AddArgValue(argValue string) {
+	if len(s.Args) == 0 {
+		log.Warn("No arg name found")
+
+		return
+	}
+
+	s.Args[len(s.Args)-1] = fmt.Sprintf("%s%s", s.Args[len(s.Args)-1], argValue)
+}
+
+func (s *Session) GetLastCommand() string {
+	if len(s.Commands) == 0 {
+		return ""
+	}
+
+	return s.Commands[len(s.Commands)-1]
+}
+
+func (s *Session) GetLastArg() string {
+	return s.Args[len(s.Args)-1]
+}
+
+func (s *Session) GetNumberOfArgs() int {
+	return len(s.Args)
+}
+
+func (s *Session) GetCommandLine() string {
+	if len(s.Commands) < 1 {
+		log.Warn("No commands found", "commands", s.Commands)
+
+		return ""
+	}
+
+	// Exclude the root command (`pagu`)
+	commandWithoutRoot := s.Commands[1:]
+	commandLine := strings.Join(commandWithoutRoot, " ")
+	commandLine += " " + strings.Join(s.Args, " ")
+
+	return commandLine
+}
+
 type SessionManager struct {
+	ctx           context.Context
 	mtx           sync.RWMutex
-	sessions      map[string]Session
+	sessions      map[string]*Session
 	sessionTTL    time.Duration
 	checkInterval time.Duration
-	ctx           context.Context
 }
 
-func NewSessionManager(ctx context.Context) *SessionManager {
+func NewSessionManager(ctx context.Context, sessionTTL, checkInterval time.Duration) *SessionManager {
 	return &SessionManager{
-		mtx:      sync.RWMutex{},
-		sessions: make(map[string]Session),
-		ctx:      ctx,
+		ctx:           ctx,
+		mtx:           sync.RWMutex{},
+		sessions:      make(map[string]*Session),
+		checkInterval: checkInterval,
+		sessionTTL:    sessionTTL,
 	}
-}
-
-func NewSession(command ...string) *Session {
-	return &Session{
-		Commands: command,
-	}
-}
-
-func (mgr *SessionManager) SetConfig(sessionTTL, checkInterval time.Duration) {
-	mgr.checkInterval = checkInterval
-	mgr.sessionTTL = sessionTTL
 }
 
 func (mgr *SessionManager) ExistSession(userID string) bool {
@@ -48,22 +92,24 @@ func (mgr *SessionManager) ExistSession(userID string) bool {
 	return exist
 }
 
-func (mgr *SessionManager) OpenSession(userID string, session Session) {
+func (mgr *SessionManager) OpenSession(userID string) *Session {
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
-	session.OpenTime = time.Now()
+	session := &Session{
+		OpenTime: time.Now(),
+	}
+
 	mgr.sessions[userID] = session
+
+	return session
 }
 
 func (mgr *SessionManager) CloseSession(userID string) {
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
-	_, exist := mgr.sessions[userID]
-	if exist {
-		delete(mgr.sessions, userID)
-	}
+	delete(mgr.sessions, userID)
 }
 
 func (mgr *SessionManager) GetSession(userID string) *Session {
@@ -72,7 +118,7 @@ func (mgr *SessionManager) GetSession(userID string) *Session {
 
 	session := mgr.sessions[userID]
 
-	return &session
+	return session
 }
 
 func (mgr *SessionManager) RemoveExpiredSessions() {

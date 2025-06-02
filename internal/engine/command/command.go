@@ -237,6 +237,14 @@ Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a 
 	}
 }
 
+func (cmd *Command) NameWithEmoji() string {
+	if cmd.Emoji != "" {
+		return fmt.Sprintf("%s %s", cmd.Emoji, cmd.Name)
+	}
+
+	return cmd.Name
+}
+
 func (cmd *Command) CanBeHandledByBot(botID entity.BotID) bool {
 	return slices.Contains(cmd.TargetBotIDs, botID)
 }
