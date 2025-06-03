@@ -25,9 +25,9 @@ You can access Pagu on the following platforms:
 
 We welcome your contributions to make Pagu even better!
 Whether you're fixing bugs, adding features, or improving documentation, your help is invaluable.
-To get started, refer to the [INSTALL.md](./INSTALL.md) file for detailed installation and development instructions.
+To get started, refer to the [Getting Started Guide](./docs/getting-started.md) for detailed installation and development instructions.
 
-If you have any ideas or questions, feel free to reach out or open an issue in the repository. Let’s build a better blockchain ecosystem together!
+If you have any ideas or questions, feel free to reach out or open an issue in the repository. Let's build a better blockchain ecosystem together!
 
 ---
 

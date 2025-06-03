@@ -41,7 +41,7 @@ Alternatively, Pagu can fetch information from public nodes without requiring a 
 ### 4. Wallet Requirements (Optional)
 
 Pagu requires a Pactus wallet to manage transactions.
-If you don’t have a wallet, follow the [instructions to create one](https://docs.pactus.org/tutorials/pactus-wallet/#create-a-wallet).
+If you don't have a wallet, follow the [instructions to create one](https://docs.pactus.org/tutorials/pactus-wallet/#create-a-wallet).
 A wallet is essential for sending transactions through Pagu.
 
 ### 5. Discord Setup (Optional)
@@ -53,14 +53,13 @@ These can be obtained by following the [Discord Developer Guide](https://discord
 
 If you plan to run Pagu on Telegram, you will need a Telegram Bot Token.
 
-
 ## Running Pagu
 
 Run Pagu using the Command-Line Interface (CLI) without the need for integration into Discord or Telegram.
 Use the following command:
 
 ```bash
-go run ./cmd -c ./config/config.sample.yml run
+go run ./internal/cmd run --config ./internal/config/config.sample.yml
 ```
 
 Now, you can interact with Pagu:
