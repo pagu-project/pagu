@@ -246,9 +246,9 @@ func (bot *Bot) webhookHandler(receviedData []byte) error {
 				case "interactive":
 					log.Debug("Received interactive message", "message", message)
 
-					id := message.Interactive.ListReply.ID
-					if strings.HasPrefix(id, "cmd:") {
-						cmdName := strings.TrimPrefix(id, "cmd:")
+					msgID := message.Interactive.ListReply.ID
+					if strings.HasPrefix(msgID, "cmd:") {
+						cmdName := strings.TrimPrefix(msgID, "cmd:")
 						lastCmd := session.GetLastCommand()
 						if lastCmd == cmdName {
 							log.Warn("Received repeated command", "cmdName", cmdName)
@@ -256,12 +256,12 @@ func (bot *Bot) webhookHandler(receviedData []byte) error {
 							log.Debug("Add command", "cmdName", cmdName)
 							session.AddCommand(cmdName)
 						}
-					} else if strings.HasPrefix(id, "choice:") {
-						value := strings.TrimPrefix(id, "choice:")
+					} else if strings.HasPrefix(msgID, "choice:") {
+						value := strings.TrimPrefix(msgID, "choice:")
 						log.Debug("Add arg value", "value", value)
 						session.AddArgValue(value)
 					} else {
-						log.Warn("Received unknown interactive ID format", "id", id)
+						log.Warn("Received unknown interactive ID format", "id", msgID)
 					}
 				case "text":
 					log.Debug("Received text message", "message", message)
