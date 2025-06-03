@@ -27,7 +27,7 @@ engine:
     address: pc1re5uxrtdve6gama8veqt0ttz5vgfne73w9e03w6
 
     # Path to the wallet file.
-    path: ./config/wallet.sample.neutered
+    path: ./internal/config/wallet.sample.neutered
 
     # Password for the wallet file.
     password:

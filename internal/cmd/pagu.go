@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 
-	"github.com/pagu-project/pagu/config"
+	"github.com/pagu-project/pagu/internal/config"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/platforms/cli"

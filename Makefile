@@ -33,10 +33,10 @@ test:
 
 ### building
 release:
-	go build -ldflags "-s -w" -trimpath -o build/pagu ./cmd
+	go build -ldflags "-s -w" -trimpath -o build/pagu ./internal/cmd
 
 build:
-	go build -o build/pagu ./cmd
+	go build -o build/pagu ./internal/cmd
 
 ### Generating commands
 gen:

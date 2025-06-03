@@ -272,11 +272,24 @@ func (cmd *Command) AddHelpSubCommand() {
 }
 
 func (cmd *Command) AddAboutSubCommand() {
+	//nolint:dupword // Pagu is duplicated in the about command
 	const aboutTemplate = `
-**About Pagu**
+## About Pagu
+
+Pagu is a multi-platform bot designed to interact with and monitor the Pactus Blockchain.
+It offers real-time network monitoring, block reward estimation, PAC coin market prices,
+Phoenix Testnet integration, and More...
 
 🏷️ Version: {{.version}}
-🌐 Homepage: https://pagu.bot/
+🌐 Homepage: https://pagu.bot
+
+---------
+
+## About Pactus
+
+🌐 Website:  https://pactus.org
+🔐 Wallet:   https://wallet.pactus.org
+🔍 Explorer: https://pacviewer.com
 `
 
 	cmd.ResultTemplate = aboutTemplate
