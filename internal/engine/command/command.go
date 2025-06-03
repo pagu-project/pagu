@@ -272,6 +272,7 @@ func (cmd *Command) AddHelpSubCommand() {
 }
 
 func (cmd *Command) AddAboutSubCommand() {
+	//nolint:dupword // Pagu is duplicated in the about command
 	const aboutTemplate = `
 ## About Pagu
 
