@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/pagu-project/pagu/internal/engine"
@@ -136,14 +137,14 @@ func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) 
 		return bot.renderTextError(fmt.Errorf("command %s has no subcommands", cmd.Name), destination)
 	}
 
-	rowsSubCmd := []any{}
+	rows := []any{}
 	for _, subCmd := range cmd.SubCommands {
 		if !subCmd.CanBeHandledByBot(bot.botID) {
 			continue
 		}
 
-		rowsSubCmd = append(rowsSubCmd, map[string]any{
-			"id":          subCmd.Name,
+		rows = append(rows, map[string]any{
+			"id":          fmt.Sprintf("cmd:%s", subCmd.Name),
 			"title":       subCmd.NameWithEmoji(),
 			"description": subCmd.Help,
 		})
@@ -158,6 +159,10 @@ func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) 
 		"type":              "interactive",
 		"interactive": map[string]any{
 			"type": "list",
+			"header": map[string]any{
+				"type": "text",
+				"text": cmd.NameWithEmoji(),
+			},
 			"body": map[string]any{
 				"text": text,
 			},
@@ -166,7 +171,46 @@ func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) 
 				"sections": []any{
 					map[string]any{
 						"title": "Menu",
-						"rows":  rowsSubCmd,
+						"rows":  rows,
+					},
+				},
+			},
+		},
+	}
+}
+
+func (bot *Bot) renderInteractiveChoices(argName string, choices []command.Choice, destination string) map[string]any {
+	text := fmt.Sprintf("Select a `%s`:\n\n", argName)
+
+	rows := []any{}
+	for _, choice := range choices {
+		text += fmt.Sprintf("- %s\n", choice.Desc)
+
+		rows = append(rows, map[string]any{
+			"id":          fmt.Sprintf("choice:%s", choice.Value),
+			"title":       choice.Name,
+			"description": bot.markdown.Render(choice.Desc),
+		})
+	}
+
+	text = bot.markdown.Render(text)
+
+	return map[string]any{
+		"messaging_product": "whatsapp",
+		"recipient_type":    "individual",
+		"to":                destination,
+		"type":              "interactive",
+		"interactive": map[string]any{
+			"type": "list",
+			"body": map[string]any{
+				"text": text,
+			},
+			"action": map[string]any{
+				"button": "Choose a `package`",
+				"sections": []any{
+					map[string]any{
+						"title": "Menu",
+						"rows":  rows,
 					},
 				},
 			},
@@ -202,13 +246,22 @@ func (bot *Bot) webhookHandler(receviedData []byte) error {
 				case "interactive":
 					log.Debug("Received interactive message", "message", message)
 
-					cmdName := message.Interactive.ListReply.ID
-					lastCmd := session.GetLastCommand()
-					if lastCmd == cmdName {
-						log.Warn("Received repeated command", "cmdName", cmdName)
+					id := message.Interactive.ListReply.ID
+					if strings.HasPrefix(id, "cmd:") {
+						cmdName := strings.TrimPrefix(id, "cmd:")
+						lastCmd := session.GetLastCommand()
+						if lastCmd == cmdName {
+							log.Warn("Received repeated command", "cmdName", cmdName)
+						} else {
+							log.Debug("Add command", "cmdName", cmdName)
+							session.AddCommand(cmdName)
+						}
+					} else if strings.HasPrefix(id, "choice:") {
+						value := strings.TrimPrefix(id, "choice:")
+						log.Debug("Add arg value", "value", value)
+						session.AddArgValue(value)
 					} else {
-						log.Debug("Add command", "cmdName", cmdName)
-						session.AddCommand(cmdName)
+						log.Warn("Received unknown interactive ID format", "id", id)
 					}
 				case "text":
 					log.Debug("Received text message", "message", message)
@@ -256,9 +309,15 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 			// Command has subcommands, show the menu
 			responseMessage = bot.renderInteractivePage(cmd, destination)
 		} else if len(cmd.Args) > 0 && len(session.Args) < len(cmd.Args) {
+			arg := cmd.Args[len(session.Args)]
 			argName := cmd.Args[len(session.Args)].Name
-			what := fmt.Sprintf("Please enter `%s`:", argName)
-			responseMessage = bot.renderTextResult(what, destination)
+
+			if len(arg.Choices) > 0 {
+				responseMessage = bot.renderInteractiveChoices(argName, arg.Choices, destination)
+			} else {
+				what := fmt.Sprintf("Enter `%s`:", argName)
+				responseMessage = bot.renderTextResult(what, destination)
+			}
 
 			log.Debug("Add arg name", "name", argName)
 			session.AddArgName(argName)
@@ -358,6 +417,8 @@ func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine
 
 			w.WriteHeader(http.StatusOK)
 		} else {
+			log.Warn("Received unknown method", "method", r.Method)
+
 			http.NotFound(w, r)
 		}
 	})
