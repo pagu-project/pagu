@@ -2,7 +2,7 @@ package whatsapp
 
 type Config struct {
 	WebHookToken   string  `yaml:"webhook_token"`
-	GraphToken     string  `yaml:"graph_token"`
+	AccessToken    string  `yaml:"access_token"`
 	WebHookAddress string  `yaml:"webhook_address"`
 	WebHookPath    string  `yaml:"webhook_path"`
 	Session        Session `yaml:"session"`

@@ -1,3 +1,4 @@
+# Defines the Bot Identifier (Bot ID) for Pagu. Example: "CLI", "Discord", "Telegram", etc.
 bot_id: "CLI"
 
 engine:

@@ -353,7 +353,7 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 		return err
 	}
 
-	req.Header.Set("Authorization", "Bearer "+bot.cfg.GraphToken)
+	req.Header.Set("Authorization", "Bearer "+bot.cfg.AccessToken)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
