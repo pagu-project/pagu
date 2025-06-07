@@ -246,6 +246,7 @@ func (bot *Bot) webhookHandler(receviedData []byte) error {
 				case "interactive":
 					log.Debug("Received interactive message", "message", message)
 
+					// TODO: this part is not tested.
 					msgID := message.Interactive.ListReply.ID
 					if strings.HasPrefix(msgID, "cmd:") {
 						cmdName := strings.TrimPrefix(msgID, "cmd:")
