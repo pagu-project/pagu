@@ -222,9 +222,9 @@ func (cmd *Command) RenderHelpTemplate() CommandResult {
    {{.cmd.Name}} [subcommand]
 
 **Available Subcommands:**
-   {{- range .cmd.SubCommands }}
-   ”{{.Name | fixed 12 }}” {{.Emoji}} {{.Help}}
-   {{- end}}
+{{- range .cmd.SubCommands }}
+- ”{{.Name }}” {{.Emoji}} {{.Help}}
+{{- end}}
 
 Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a subcommand.
 `
@@ -235,6 +235,14 @@ Use "{{.cmd.Name}} help --subcommand=[subcommand]" for more information about a 
 		Message:    msg,
 		Successful: true,
 	}
+}
+
+func (cmd *Command) NameWithEmoji() string {
+	if cmd.Emoji != "" {
+		return fmt.Sprintf("%s %s", cmd.Emoji, cmd.Name)
+	}
+
+	return cmd.Name
 }
 
 func (cmd *Command) CanBeHandledByBot(botID entity.BotID) bool {

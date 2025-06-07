@@ -33,6 +33,13 @@ func TestParseCommand(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
+			name:     "repeated args",
+			input:    "command1 command2 --arg1=val1 --arg1=val1",
+			wantCmds: []string{"command1", "command2"},
+			wantArgs: map[string]string{"arg1": "val1"},
+			wantErr:  nil,
+		},
+		{
 			name:     "arguments with quotation",
 			input:    "command1 --arg1='val1' --arg2=\"val2\"",
 			wantCmds: []string{"command1"},

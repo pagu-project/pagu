@@ -101,7 +101,7 @@ func newBotEngine(ctx context.Context,
 	rootCmd := &command.Command{
 		Emoji:        "🤖",
 		Name:         "pagu",
-		Help:         "",
+		Help:         "Welcome to Pagu! Please select a command to start.",
 		TargetBotIDs: entity.AllBotIDs(),
 		SubCommands:  make([]*command.Command, 0),
 	}
@@ -339,4 +339,8 @@ func (be *BotEngine) Start() {
 	log.Info("Starting the Bot Engine")
 
 	be.clientMgr.Start()
+}
+
+func (be *BotEngine) RootCmd() *command.Command {
+	return be.rootCmd
 }

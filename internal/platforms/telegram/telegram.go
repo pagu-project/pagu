@@ -187,7 +187,7 @@ func (bot *Bot) parsTextMessage(tgCtx tele.Context) error {
 
 	_ = bot.teleBot.Delete(tgCtx.Message())
 
-	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Please enter `%s`:", cmd.Args[currentArgsIndex+1].Name))
+	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Enter `%s`:", cmd.Args[currentArgsIndex+1].Name))
 }
 
 func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*command.Args) error {
@@ -199,7 +199,7 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 	firstArg := args[0]
 
 	if len(firstArg.Choices) > 0 {
-		choiceMsg := fmt.Sprintf("Please select a `%s`:\n\n", firstArg.Name)
+		choiceMsg := fmt.Sprintf("Select a `%s`:\n\n", firstArg.Name)
 		choiceMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 		choiceRows := make([]tele.Row, 0, len(firstArg.Choices))
 		for _, choice := range firstArg.Choices {
@@ -220,11 +220,11 @@ func (bot *Bot) handleArgCommand(tgCtx tele.Context, commands []string, args []*
 	}
 
 	// Commands with no choices
-	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Please enter `%s`:", firstArg.Name))
+	return bot.sendMarkdown(tgCtx, fmt.Sprintf("Enter `%s`:", firstArg.Name))
 }
 
 // handleCommand executes a command with its arguments for the user.
-// It combines the commands and arguments into a single string, calls the engine's Run method,
+// It combines the commands and arguments into a single line and execute the command line.
 // clears the user's context, and sends the result back to the user.
 func (bot *Bot) handleCommand(tgCtx tele.Context, commands []string) error {
 	callerID := strconv.Itoa(int(tgCtx.Sender().ID))

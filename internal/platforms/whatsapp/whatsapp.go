@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/gommon/log"
 	"github.com/pagu-project/pagu/internal/engine"
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/platforms/whatsapp/session"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/markdown"
 )
 
@@ -26,23 +26,8 @@ type Bot struct {
 	engine         *engine.BotEngine
 	cmds           []*command.Command
 	cfg            *Config
-	hook           Webhook
 	markdown       markdown.Renderer
 	sessionManager *session.SessionManager
-}
-
-type Webhook struct {
-	verifyToken    string
-	graphAPIToken  string
-	webHookAddredd string
-}
-
-type InteractiveMessage struct {
-	MessagingProduct string `json:"messaging_product"`
-	RecipientType    string `json:"recipient_type"`
-	To               string `json:"to"`
-	Type             string `json:"type"`
-	Interactive      any    `json:"interactive"`
 }
 
 type WebhookRequest struct {
@@ -105,61 +90,30 @@ type ListReply struct {
 	Description string `json:"description"`
 }
 
-func (bot *Bot) renderPage(cmdName, destination string) (InteractiveMessage, error) {
-	var command *command.Command
-	rowsSubCmd := []any{}
-
+func (bot *Bot) findCommandByName(name string) *command.Command {
+	if name == bot.engine.RootCmd().Name {
+		return bot.engine.RootCmd()
+	}
 	for _, cmd := range bot.cmds {
-		if cmd.Name == cmdName {
-			command = cmd
-
-			break
+		if cmd.Name == name {
+			return cmd
+		}
+		for _, subCmd := range cmd.SubCommands {
+			if subCmd.Name == name {
+				return subCmd
+			}
 		}
 	}
 
-	if command == nil {
-		return InteractiveMessage{}, errors.New("render page for subcommand is not possible")
-	}
-
-	if !command.HasSubCommand() {
-		return InteractiveMessage{}, errors.New("render page for command without subcommand is not possible")
-	}
-
-	for indx, subCmd := range command.SubCommands {
-		rowsSubCmd = append(rowsSubCmd, map[string]any{
-			"id":          fmt.Sprintf("%v", indx),
-			"title":       subCmd.Name,
-			"description": subCmd.Help,
-		})
-	}
-
-	return InteractiveMessage{
-		MessagingProduct: "whatsapp",
-		RecipientType:    "indivIDual",
-		To:               destination,
-		Type:             "interactive",
-		Interactive: map[string]any{
-			"type": "list",
-			"body": map[string]any{
-				"text": command.Help,
-			},
-			"action": map[string]any{
-				"button": "View Options",
-				"sections": []any{
-					map[string]any{
-						"title": "Menu",
-						"rows":  rowsSubCmd,
-					},
-				},
-			},
-		},
-	}, nil
+	return nil
 }
 
-func renderResult(result, destination string) map[string]any {
+func (bot *Bot) renderTextResult(result, destination string) map[string]any {
+	result = bot.markdown.Render(result)
+
 	return map[string]any{
 		"messaging_product": "whatsapp",
-		"recipient_type":    "indivIDual",
+		"recipient_type":    "individual",
 		"to":                destination,
 		"type":              "text",
 		"text": map[string]any{
@@ -168,65 +122,56 @@ func renderResult(result, destination string) map[string]any {
 	}
 }
 
-func renderRootCommand(destinatoin string) map[string]any {
+func (bot *Bot) renderTextError(err error, destination string) map[string]any {
+	errorMessage := fmt.Sprintf("❌ An error occurred: %s", err)
+
+	return bot.renderTextResult(errorMessage, destination)
+}
+
+func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) map[string]any {
+	if !cmd.CanBeHandledByBot(bot.botID) {
+		return nil
+	}
+
+	if !cmd.HasSubCommand() {
+		return bot.renderTextError(fmt.Errorf("command %s has no subcommands", cmd.Name), destination)
+	}
+
+	rows := []any{}
+	for _, subCmd := range cmd.SubCommands {
+		if !subCmd.CanBeHandledByBot(bot.botID) {
+			continue
+		}
+
+		rows = append(rows, map[string]any{
+			"id":          fmt.Sprintf("cmd:%s", subCmd.Name),
+			"title":       subCmd.NameWithEmoji(),
+			"description": subCmd.Help,
+		})
+	}
+
+	text := bot.markdown.Render(cmd.Help)
+
 	return map[string]any{
-		"command":           "help",
 		"messaging_product": "whatsapp",
 		"recipient_type":    "individual",
-		"to":                destinatoin,
+		"to":                destination,
 		"type":              "interactive",
 		"interactive": map[string]any{
 			"type": "list",
+			"header": map[string]any{
+				"type": "text",
+				"text": cmd.NameWithEmoji(),
+			},
 			"body": map[string]any{
-				"text": "\n\n\npagu 🤖 \nUsage: \npagu [subcommand] \n\nAvailable Subcommands: ",
+				"text": text,
 			},
 			"action": map[string]any{
 				"button": "View Options",
 				"sections": []any{
 					map[string]any{
 						"title": "Menu",
-						"rows": []any{
-							map[string]any{
-								"id":          "1",
-								"title":       "crowdfund",
-								"description": "🤝 Commands for managing crowdfunding campaigns",
-							},
-							map[string]any{
-								"id":          "2",
-								"title":       "calculator",
-								"description": "🧮 Perform calculations such as reward and fee estimations",
-							},
-							map[string]any{
-								"id":          "3",
-								"title":       "network",
-								"description": "🌐 Commands for network metrics and information",
-							},
-							map[string]any{
-								"id":          "4",
-								"title":       "voucher",
-								"description": "🎁 Commands for managing vouchers",
-							},
-							map[string]any{
-								"id":          "5",
-								"title":       "market",
-								"description": "📈 Commands for managing market",
-							},
-							map[string]any{
-								"id":          "6",
-								"title":       "phoenix",
-								"description": "🐦 Commands for working with Phoenix Testnet",
-							},
-							map[string]any{
-								"id":          "7",
-								"title":       "about",
-								"description": "📝 About Pagu",
-							},
-							map[string]any{
-								"id":          "8",
-								"title":       "help",
-								"description": "❓ Help for pagu command",
-							},
-						},
+						"rows":  rows,
 					},
 				},
 			},
@@ -234,64 +179,54 @@ func renderRootCommand(destinatoin string) map[string]any {
 	}
 }
 
-func (bot *Bot) listCommand(command string) []string {
-	for _, cmd := range bot.cmds {
-		if cmd.Name == command {
-			return []string{cmd.Name}
-		}
+func (bot *Bot) renderInteractiveChoices(argName string, choices []command.Choice, destination string) map[string]any {
+	text := fmt.Sprintf("Select a `%s`:\n\n", argName)
+
+	rows := []any{}
+	for _, choice := range choices {
+		text += fmt.Sprintf("- %s\n", choice.Desc)
+
+		rows = append(rows, map[string]any{
+			"id":          fmt.Sprintf("choice:%s", choice.Value),
+			"title":       choice.Name,
+			"description": bot.markdown.Render(choice.Desc),
+		})
 	}
 
-	for _, cmd := range bot.cmds {
-		if cmd.HasSubCommand() {
-			for _, subCmd := range cmd.SubCommands {
-				if subCmd.Name == command {
-					return []string{cmd.Name, subCmd.Name}
-				}
-			}
-		}
-	}
+	text = bot.markdown.Render(text)
 
-	return nil
+	return map[string]any{
+		"messaging_product": "whatsapp",
+		"recipient_type":    "individual",
+		"to":                destination,
+		"type":              "interactive",
+		"interactive": map[string]any{
+			"type": "list",
+			"body": map[string]any{
+				"text": text,
+			},
+			"action": map[string]any{
+				"button": "Choose a `package`",
+				"sections": []any{
+					map[string]any{
+						"title": "Menu",
+						"rows":  rows,
+					},
+				},
+			},
+		},
+	}
 }
 
-func (bot *Bot) findArgs(subCommand string) []string {
-	for _, cmd := range bot.cmds {
-		for _, subCmd := range cmd.SubCommands {
-			if subCmd.Name == subCommand {
-				args := []string{}
-				for _, arg := range subCmd.Args {
-					args = append(args, arg.Name)
-				}
-
-				return args
-			}
-		}
-	}
-
-	return nil
-}
-
-func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
+//nolint:gocognit // high complexity
+func (bot *Bot) webhookHandler(receviedData []byte) error {
 	var resBody WebhookRequest
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("Error reading body: %v", err)
-		http.Error(w, "Unable to read body", http.StatusBadRequest)
-
-		return
-	}
-	defer func() {
-		_ = r.Body.Close()
-	}()
-
-	if err := json.Unmarshal(body, &resBody); err != nil {
-		log.Printf("Error unmarshalling resonse body: %v", err)
-		http.Error(w, "Unable to parse request body", http.StatusBadRequest)
-
-		return
+	if err := json.Unmarshal(receviedData, &resBody); err != nil {
+		return fmt.Errorf("unable to unmarshal body: %w", err)
 	}
 
+	//nolint:nestif // high complexity
 	if len(resBody.Entry) > 0 {
 		for _, entry := range resBody.Entry {
 			for _, change := range entry.Changes {
@@ -299,150 +234,152 @@ func (bot *Bot) webhookHandler(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 				message := change.Value.Messages[0]
-				log.Printf("message from webhook: %+v\n", message)
 
 				phoneNumberID := change.Value.Metadata.PhoneNumberID
-				session := session.NewSession()
+				session := bot.sessionManager.GetSession(phoneNumberID)
 
-				var msg string
-				if message.Type == "interactive" {
-					msg = message.Interactive.ListReply.Title
-					session.Commands = bot.listCommand(msg)
-				} else {
-					msg = message.Text.Body
-					if !strings.EqualFold(msg, "help") && !strings.EqualFold(msg, "start") {
-						session = bot.sessionManager.GetSession(phoneNumberID)
-						session.Args = append(session.Args, msg)
-					}
+				if session == nil {
+					session = bot.sessionManager.OpenSession(phoneNumberID)
 				}
 
-				bot.sessionManager.OpenSession(phoneNumberID, *session)
-				bot.sendCommand(r.Context(), phoneNumberID, message.From)
-			}
-		}
-	}
+				switch message.Type {
+				case "interactive":
+					log.Debug("Received interactive message", "message", message)
 
-	w.WriteHeader(http.StatusOK)
-}
-
-func (bot *Bot) verificationHandler(w http.ResponseWriter, r *http.Request) {
-	mode := r.URL.Query().Get("hub.mode")
-	token := r.URL.Query().Get("hub.verify_token")
-	challenge := r.URL.Query().Get("hub.challenge")
-
-	if mode == "subscribe" && token == bot.hook.verifyToken {
-		w.WriteHeader(http.StatusOK)
-		_, err := fmt.Fprint(w, challenge)
-		if err != nil {
-			log.Print(err)
-		}
-
-		return
-	}
-
-	http.Error(w, "Forbidden", http.StatusForbidden)
-}
-
-func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination string) {
-	var (
-		jsonData   []byte
-		err        error
-		commandRes []byte
-		session    = bot.sessionManager.GetSession(phoneNumberID)
-	)
-
-	//nolint:nestif // TODO: reduce complexity?
-	if len(session.Commands) > 0 {
-		cmd, err := bot.renderPage(session.Commands[len(session.Commands)-1], destination)
-		if err == nil {
-			jsonData, err = json.Marshal(cmd)
-			if err != nil {
-				log.Printf("Error marshalling list message: %s", err)
-
-				return
-			}
-		} else {
-			args := bot.findArgs(session.Commands[len(session.Commands)-1])
-			if len(args) > 0 {
-				if len(session.Args) < len(args) {
-					commandRes = []byte(fmt.Sprintf("Enter %s: ", args[len(session.Args)]))
-				} else {
-					for indx, arg := range session.Args {
-						if indx < len(args) {
-							session.Commands = append(session.Commands, fmt.Sprintf("--%s=%s", args[indx], arg))
+					// TODO: this part is not tested.
+					msgID := message.Interactive.ListReply.ID
+					if strings.HasPrefix(msgID, "cmd:") {
+						cmdName := strings.TrimPrefix(msgID, "cmd:")
+						lastCmd := session.GetLastCommand()
+						if lastCmd == cmdName {
+							log.Warn("Received repeated command", "cmdName", cmdName)
+						} else {
+							log.Debug("Add command", "cmdName", cmdName)
+							session.AddCommand(cmdName)
 						}
+					} else if strings.HasPrefix(msgID, "choice:") {
+						value := strings.TrimPrefix(msgID, "choice:")
+						log.Debug("Add arg value", "value", value)
+						session.AddArgValue(value)
+					} else {
+						log.Warn("Received unknown interactive ID format", "id", msgID)
 					}
-					commandRes = bot.handleCommand(session.Commands)
+				case "text":
+					log.Debug("Received text message", "message", message)
+					msg := message.Text.Body
+
+					if len(session.Args) > 0 {
+						log.Debug("Add arg value", "value", msg)
+						session.AddArgValue(msg)
+					}
+				default:
+					log.Warn("Received unknown message type", "message", message)
 				}
+
+				err := bot.sendCommand(bot.ctx, phoneNumberID, message.From)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination string) error {
+	log.Debug("Sending command", "phoneNumberID", phoneNumberID, "destination", destination)
+
+	var responseMessage map[string]any
+
+	session := bot.sessionManager.GetSession(phoneNumberID)
+
+	//nolint:nestif // high complexity
+	if len(session.Commands) > 0 {
+		lastCmd := session.Commands[len(session.Commands)-1]
+		cmd := bot.findCommandByName(lastCmd)
+
+		if cmd == nil {
+			log.Warn("Command not found", "cmdName", lastCmd)
+			bot.sessionManager.CloseSession(phoneNumberID)
+
+			return nil
+		}
+
+		if cmd.HasSubCommand() {
+			// Command has subcommands, show the menu
+			responseMessage = bot.renderInteractivePage(cmd, destination)
+		} else if len(cmd.Args) > 0 && len(session.Args) < len(cmd.Args) {
+			arg := cmd.Args[len(session.Args)]
+			argName := cmd.Args[len(session.Args)].Name
+
+			if len(arg.Choices) > 0 {
+				responseMessage = bot.renderInteractiveChoices(argName, arg.Choices, destination)
 			} else {
-				commandRes = bot.handleCommand(session.Commands)
+				what := fmt.Sprintf("Enter `%s`:", argName)
+				responseMessage = bot.renderTextResult(what, destination)
 			}
 
-			result := bot.markdown.Render(string(commandRes))
-			cmd := renderResult(result, destination)
-			jsonData, err = json.Marshal(cmd)
-			if err != nil {
-				log.Printf("Error marshalling list message: %s", err)
+			log.Debug("Add arg name", "name", argName)
+			session.AddArgName(argName)
+		} else {
+			res := bot.executeCommand(session, destination)
 
-				return
+			if res.Successful {
+				responseMessage = bot.renderTextResult(res.Message, destination)
+			} else {
+				responseMessage = bot.renderTextError(errors.New(res.Message), destination)
 			}
+
+			// Close the session after executing the command
+			bot.sessionManager.CloseSession(phoneNumberID)
 		}
 	} else {
-		cmd := renderRootCommand(destination)
-		jsonData, err = json.Marshal(cmd)
-		if err != nil {
-			log.Printf("Error marshalling list message: %s", err)
+		rootCmd := bot.engine.RootCmd()
+		responseMessage = bot.renderInteractivePage(rootCmd, destination)
 
-			return
-		}
+		session.AddCommand(rootCmd.Name)
 	}
 
-	url := fmt.Sprintf("https://graph.facebook.com/v18.0/%s/messages", phoneNumberID)
+	url := fmt.Sprintf("https://graph.facebook.com/v23.0/%s/messages", phoneNumberID)
 
-	// Send the request using net/http (not fiber.Client)
+	jsonData, err := json.Marshal(responseMessage)
+	if err != nil {
+		return err
+	}
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Printf("Error creating request: %s", err)
-
-		return
+		return err
 	}
 
-	// Set headers
-	req.Header.Set("Authorization", "Bearer "+bot.hook.graphAPIToken)
+	req.Header.Set("Authorization", "Bearer "+bot.cfg.GraphToken)
 	req.Header.Set("Content-Type", "application/json")
 
-	// Send the request using the default HTTP client
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Printf("Error sending list message: %s", err)
-
-		return
+		return err
 	}
 	defer func() {
 		_ = res.Body.Close()
 	}()
 
 	if res.StatusCode != http.StatusOK {
-		log.Printf("Failed to send list message: %s", res.Status)
+		return fmt.Errorf("failed to send list message: %s", res.Status)
 	}
+
+	return nil
 }
 
 func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine *engine.BotEngine) (*Bot, error) {
 	server := http.NewServeMux()
 	cmds := engine.Commands()
 
-	sessionManager := session.NewSessionManager(ctx)
-	sessionManager.SetConfig(
+	sessionManager := session.NewSessionManager(ctx,
 		time.Duration(cfg.Session.SessionTTL*int(time.Second)),
 		time.Duration(cfg.Session.CheckInterval*int(time.Second)),
 	)
-
-	webHook := Webhook{
-		verifyToken:    cfg.WebHookToken,
-		graphAPIToken:  cfg.GraphToken,
-		webHookAddredd: cfg.WebHookAddress,
-	}
 
 	markdown := markdown.NewWhatsAppRenderer()
 
@@ -454,26 +391,36 @@ func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine
 		ctx:            ctx,
 		botID:          botID,
 		sessionManager: sessionManager,
-		hook:           webHook,
 		markdown:       markdown,
 	}
 	go bot.sessionManager.RemoveExpiredSessions()
 
-	// Webhook handlers
-	server.HandleFunc("/webhook", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			bot.verificationHandler(w, r)
-		} else if r.Method == http.MethodPost {
-			bot.webhookHandler(w, r)
-		} else {
-			http.NotFound(w, r)
-		}
-	})
+	server.HandleFunc(cfg.WebHookPath, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			receviedData, err := io.ReadAll(r.Body)
+			if err != nil {
+				log.Warn("unable to read body: %w", err)
+				w.WriteHeader(http.StatusBadRequest)
 
-	server.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		_, err := fmt.Fprint(w, "<pre>Nothing to see here. Checkout README.md to start.</pre>")
-		if err != nil {
-			log.Print(err)
+				return
+			}
+			defer func() {
+				_ = r.Body.Close()
+			}()
+
+			err = bot.webhookHandler(receviedData)
+			if err != nil {
+				log.Error("Webhook handler error", "error", err)
+				w.WriteHeader(http.StatusInternalServerError)
+
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+		} else {
+			log.Warn("Received unknown method", "method", r.Method)
+
+			http.NotFound(w, r)
 		}
 	})
 
@@ -482,7 +429,7 @@ func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine
 
 func (bot *Bot) Start() error {
 	server := &http.Server{
-		Addr:         bot.hook.webHookAddredd,
+		Addr:         bot.cfg.WebHookAddress,
 		Handler:      bot.server,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
@@ -490,13 +437,15 @@ func (bot *Bot) Start() error {
 	}
 
 	go func() {
-		log.Printf("Server is listening on address: %s", bot.hook.webHookAddredd)
+		log.Info("Server is listening", "address", bot.cfg.WebHookAddress)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Error starting server: %s", err)
+			log.Warn("Error starting server", "error", err)
 		}
 	}()
 
-	log.Info("Starting WhatsApp Bot...")
+	log.Info("Starting WhatsApp Bot...",
+		"sessionTTL", bot.cfg.Session.SessionTTL,
+		"checkInterval", bot.cfg.Session.CheckInterval)
 
 	return nil
 }
@@ -505,14 +454,14 @@ func (*Bot) Stop() {
 	log.Info("Shutting down WhatsApp Bot")
 }
 
-// handleCommand executes a command with its arguments for the user.
-// It combines the commands and arguments into a single string, calls the engine's Run method,
-// clears the user's context, and sends the result back to the user.
-func (bot *Bot) handleCommand(commands []string) []byte {
-	fullCommand := strings.Join(commands, " ")
+// executeCommand executes a session with its commands and arguments for the user.
+// It combines the commands and arguments into a single line, execute the command line
+// and returns the result.
+func (bot *Bot) executeCommand(session *session.Session, callerID string) command.CommandResult {
+	commandLine := session.GetCommandLine()
+
+	log.Debug("Executing command", "commandLine", commandLine)
 
 	// Call the engine's Run method with the full command string
-	res := bot.engine.ParseAndExecute(entity.PlatformIDTelegram, "", fullCommand)
-
-	return []byte(res.Message)
+	return bot.engine.ParseAndExecute(entity.PlatformIDTelegram, callerID, commandLine)
 }

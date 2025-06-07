@@ -93,6 +93,7 @@ whatsapp:
   webhook_token:
   graph_token:
   webhook_address:
+  webhook_path: "/webhook"
 
   session:
     session_ttl: 600
@@ -101,7 +102,7 @@ whatsapp:
 
 # Logger configuration
 logger:
-  level: "info" # Logging level: debug, info, warn, error, or fatal.
+  level: "debug" # Logging level: debug, info, warn, error, or fatal.
   filename: "pagu.log" # Name of the log file.
   max_size: 10 # Maximum size (in MB) of the log file before rotation.
   max_backups: 10 # Maximum number of backup log files to retain.

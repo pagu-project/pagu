@@ -12,11 +12,15 @@ func TestTelegramRender(t *testing.T) {
 
 	input := `# Hello
 This is a link https://example.com and some **bold** and __italic__ text.
+## Header 2
 ”inline fixed-width code”
+”  inline fixed-width code  ”
 `
 	expected := `*Hello*
 This is a link https://example\.com and some *bold* and _italic_ text\.
+*Header 2*
 ”inline fixed\-width code”
+”  inline fixed\-width code  ”
 `
 
 	output := renderer.Render(input)

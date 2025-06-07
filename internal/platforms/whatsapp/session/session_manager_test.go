@@ -4,85 +4,64 @@ import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestOpenAndExistSession(t *testing.T) {
-	manager := NewSessionManager(context.Background())
+	manager := NewSessionManager(context.Background(), time.Minute, time.Minute)
 	userID := "user1"
-	session := Session{
-		Commands: []string{"start"},
-		Args:     []string{"arg1"},
-	}
 
 	// Check that session does not exist
-	if manager.ExistSession(userID) {
-		t.Errorf("Expected session to not exist initially")
-	}
+	assert.False(t, manager.ExistSession(userID), "Session should not exist initially")
 
 	// Open session and check existence
-	manager.OpenSession(userID, session)
-	if !manager.ExistSession(userID) {
-		t.Errorf("Expected session to exist after opening")
-	}
+	_ = manager.OpenSession(userID)
+	assert.True(t, manager.ExistSession(userID), "Session should exist after opening")
 
 	// Check another user that was never added
 	otherUser := "nonexistent"
-	if manager.ExistSession(otherUser) {
-		t.Errorf("Expected session to not exist for a different user")
-	}
+	assert.False(t, manager.ExistSession(otherUser), "Session should not exist for a different user")
 }
 
 func TestCloseSession(t *testing.T) {
-	manager := NewSessionManager(context.Background())
+	manager := NewSessionManager(context.Background(), time.Minute, time.Minute)
 	userID := "user2"
-	session := Session{}
 
-	if manager.ExistSession(userID) {
-		t.Errorf("Expected session to not exist initially")
-	}
+	assert.False(t, manager.ExistSession(userID), "Session should not exist initially")
 
 	// Open and then close session
-	manager.OpenSession(userID, session)
+	_ = manager.OpenSession(userID)
 	manager.CloseSession(userID)
 
-	if manager.ExistSession(userID) {
-		t.Errorf("Expected session to be removed after closing")
-	}
+	assert.False(t, manager.ExistSession(userID), "Session should not exist after closing")
+}
 
-	// Try closing again (should be a no-op, but not crash)
+func TestCloseNonExistingSession(t *testing.T) {
+	manager := NewSessionManager(context.Background(), time.Minute, time.Minute)
+	userID := "user3"
 	manager.CloseSession(userID)
+
+	assert.False(t, manager.ExistSession(userID), "Session should not exist after closing")
 }
 
 func TestGetSession(t *testing.T) {
-	manager := NewSessionManager(context.Background())
+	manager := NewSessionManager(context.Background(), time.Minute, time.Minute)
 	userID := "user3"
-	session := Session{
-		Commands: []string{"cmd"},
-		Args:     []string{"arg"},
-	}
-
-	// Open session and retrieve it
-	manager.OpenSession(userID, session)
+	session := manager.OpenSession(userID)
+	session.AddCommand("cmd")
+	session.AddArgName("arg")
+	session.AddArgValue("val")
 	gotSession := manager.GetSession(userID)
 
-	if gotSession == nil {
-		t.Fatal("Expected to retrieve a session, got nil")
-	}
+	assert.NotNil(t, gotSession, "Expected to retrieve a session")
+	assert.Equal(t, "cmd", gotSession.Commands[0])
+	assert.Equal(t, "--arg=val", gotSession.Args[0])
 
-	if gotSession.Commands[0] != "cmd" || gotSession.Args[0] != "arg" {
-		t.Errorf("Session data mismatch: got %+v", gotSession)
-	}
-
-	// Get session for non-existent user
 	nonExistent := "ghost"
 	ghostSession := manager.GetSession(nonExistent)
-	if ghostSession == nil {
-		t.Fatal("Expected GetSession to return a pointer (even if empty)")
-	}
 
-	if len(ghostSession.Commands) != 0 || len(ghostSession.Args) != 0 {
-		t.Errorf("Expected empty session data, got %+v", ghostSession)
-	}
+	assert.Nil(t, ghostSession, "Expected a non-nil session object for non-existent user")
 }
 
 func TestRemoveExpiredSessions(t *testing.T) {
@@ -90,26 +69,24 @@ func TestRemoveExpiredSessions(t *testing.T) {
 	defer cancel()
 
 	mgr := &SessionManager{
-		sessions:      make(map[string]Session),
-		sessionTTL:    1 * time.Second,        // 1 second TTL for testing
-		checkInterval: 100 * time.Millisecond, // short check interval
+		sessions:      make(map[string]*Session),
+		sessionTTL:    3 * time.Second,
+		checkInterval: 100 * time.Millisecond,
 		ctx:           ctx,
 	}
 
-	mgr.sessions["session1"] = Session{OpenTime: time.Now().Add(-2 * time.Second)}        // expired
-	mgr.sessions["session2"] = Session{OpenTime: time.Now().Add(-500 * time.Millisecond)} // not expired
+	mgr.sessions["expired"] = &Session{OpenTime: time.Now().Add(-5 * time.Second)}
+	mgr.sessions["active"] = &Session{OpenTime: time.Now()}
 
 	go mgr.RemoveExpiredSessions()
-
-	time.Sleep(2 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	mgr.mtx.Lock()
 	defer mgr.mtx.Unlock()
 
-	if _, exists := mgr.sessions["session1"]; exists {
-		t.Errorf("Expected session 'session1' to be removed, but it still exists")
-	}
-	if _, exists := mgr.sessions["session2"]; exists {
-		t.Errorf("Expected session 'session2' to still exist, but it was removed")
-	}
+	_, exists1 := mgr.sessions["expired"]
+	_, exists2 := mgr.sessions["active"]
+
+	assert.False(t, exists1, "expired should be removed as expired")
+	assert.True(t, exists2, "active should still exist as not expired")
 }
