@@ -63,8 +63,9 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 
 func (c *CalculatorCmd) buildCalculatorCommand() *command.Command {
 	calculatorCmd := &command.Command{
-		Emoji:        "🧮",
 		Name:         "calculator",
+		Emoji:        "🧮",
+		Active:       true,
 		Help:         "Perform calculations such as reward and fee estimations",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),

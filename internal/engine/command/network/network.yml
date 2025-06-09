@@ -1,6 +1,7 @@
 ---
 emoji: 🌐
 name: network
+active: true
 help: Commands for network metrics and information
 sub_commands:
   - name: node-info

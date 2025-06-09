@@ -1,12 +1,13 @@
 ---
 emoji: 📈
 name: market
+active: true
 help: Commands for managing market
 sub_commands:
 - name: price
   help: Shows the latest price of PAC coin across different markets
   result_template: |
-  
+
     Xeggex Price: **{{.xeggexPrice}} USDT**
     [Xeggex](https://xeggex.com/market/PACTUS_USDT)
 

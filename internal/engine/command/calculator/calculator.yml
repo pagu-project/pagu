@@ -1,6 +1,7 @@
 ---
 name: calculator
 emoji: 🧮
+active: true
 help: Perform calculations such as reward and fee estimations
 sub_commands:
   - name: reward

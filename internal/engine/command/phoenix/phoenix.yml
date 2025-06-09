@@ -1,6 +1,7 @@
 ---
 emoji: 🐦
 name: phoenix
+active: true
 help: Commands for working with Phoenix Testnet
 sub_commands:
   - name: health
