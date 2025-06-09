@@ -106,12 +106,20 @@ func newBotEngine(ctx context.Context,
 		SubCommands:  make([]*command.Command, 0),
 	}
 
-	rootCmd.AddSubCommand(crowdfundCmd.GetCommand())
-	rootCmd.AddSubCommand(calculatorCmd.GetCommand())
-	rootCmd.AddSubCommand(networkCmd.GetCommand())
-	rootCmd.AddSubCommand(voucherCmd.GetCommand())
-	rootCmd.AddSubCommand(marketCmd.GetCommand())
-	rootCmd.AddSubCommand(phoenixCmd.GetCommand())
+	subCommands := []*command.Command{
+		crowdfundCmd.GetCommand(),
+		calculatorCmd.GetCommand(),
+		networkCmd.GetCommand(),
+		voucherCmd.GetCommand(),
+		marketCmd.GetCommand(),
+		phoenixCmd.GetCommand(),
+	}
+
+	for _, cmd := range subCommands {
+		if cmd.Active {
+			rootCmd.AddSubCommand(cmd)
+		}
+	}
 
 	rootCmd.AddAboutSubCommand()
 	rootCmd.AddHelpSubCommand()

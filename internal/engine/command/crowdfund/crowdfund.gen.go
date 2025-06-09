@@ -151,8 +151,9 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 
 func (c *CrowdfundCmd) buildCrowdfundCommand() *command.Command {
 	crowdfundCmd := &command.Command{
-		Emoji:        "🤝",
 		Name:         "crowdfund",
+		Emoji:        "🤝",
+		Active:       true,
 		Help:         "Commands for managing crowdfunding campaigns",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),

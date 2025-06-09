@@ -108,8 +108,9 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 
 func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 	voucherCmd := &command.Command{
-		Emoji:        "🎁",
 		Name:         "voucher",
+		Emoji:        "🎁",
+		Active:       false,
 		Help:         "Commands for managing vouchers",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),

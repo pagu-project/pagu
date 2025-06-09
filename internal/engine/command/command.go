@@ -89,8 +89,9 @@ type Args struct {
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Emoji          string         `yaml:"emoji"`
 	Name           string         `yaml:"name"`
+	Emoji          string         `yaml:"emoji"`
+	Active         bool           `yaml:"active"`
 	Help           string         `yaml:"help"`
 	Args           []*Args        `yaml:"args"`
 	SubCommands    []*Command     `yaml:"sub_commands"`

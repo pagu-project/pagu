@@ -63,8 +63,9 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 
 func (c *PhoenixCmd) buildPhoenixCommand() *command.Command {
 	phoenixCmd := &command.Command{
-		Emoji:        "🐦",
 		Name:         "phoenix",
+		Emoji:        "🐦",
+		Active:       true,
 		Help:         "Commands for working with Phoenix Testnet",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),

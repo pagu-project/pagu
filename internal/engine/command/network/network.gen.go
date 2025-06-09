@@ -54,8 +54,9 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 
 func (c *NetworkCmd) buildNetworkCommand() *command.Command {
 	networkCmd := &command.Command{
-		Emoji:        "🌐",
 		Name:         "network",
+		Emoji:        "🌐",
+		Active:       true,
 		Help:         "Commands for network metrics and information",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),

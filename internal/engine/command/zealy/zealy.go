@@ -21,8 +21,9 @@ func NewZealyCmd(db *repository.Database, wlt wallet.IWallet) *ZealyCmd {
 
 func (z *ZealyCmd) GetCommand() *command.Command {
 	subCmdClaim := &command.Command{
-		Name: "claim",
-		Help: "Claim your Zealy reward",
+		Name:   "claim",
+		Active: false,
+		Help:   "Claim your Zealy reward",
 		Args: []*command.Args{
 			{
 				Name:     "address",

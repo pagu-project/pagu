@@ -26,8 +26,9 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 
 func (c *MarketCmd) buildMarketCommand() *command.Command {
 	marketCmd := &command.Command{
-		Emoji:        "📈",
 		Name:         "market",
+		Emoji:        "📈",
+		Active:       true,
 		Help:         "Commands for managing market",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),
