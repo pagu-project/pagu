@@ -11,9 +11,9 @@ func NewTelegramRenderer() *TelegramRenderer {
 	return &TelegramRenderer{}
 }
 
-func escapeMarkdownV2(text string) string {
+func (*TelegramRenderer) escapeMarkdownV2(text string) string {
 	replacer := strings.NewReplacer(
-		`\,`, `\\`,
+		`\`, `\\`,
 		"[", "\\[",
 		"]", "\\]",
 		"(", "\\(",
@@ -27,16 +27,22 @@ func escapeMarkdownV2(text string) string {
 		"|", "\\|",
 		"{", "\\{",
 		"}", "\\}",
-		".", "\\.",
 		"!", "\\!",
 	)
 
 	return replacer.Replace(text)
 }
 
+func (*TelegramRenderer) UnescapeMarkdownLinks(input string) string {
+	// Regular expression to match \[text\]\(url\)
+	re := regexp.MustCompile(`\\\[([^\\]+)\\\]\\\(([^\\]+)\\\)`)
+
+	return re.ReplaceAllString(input, "[$1]($2)")
+}
+
 // Render converts the input string into a format compatible with Telegram's MarkdownV2 style.
 // For formatting rules, see: https://core.telegram.org/bots/api#markdownv2-style
-func (*TelegramRenderer) Render(input string) string {
+func (r *TelegramRenderer) Render(input string) string {
 	// Headers: convert "# Heading" into "*Heading*"
 	input = regexp.MustCompile(`(?m)^#+\s*(.+)$`).ReplaceAllString(input, "*$1*")
 
@@ -47,5 +53,9 @@ func (*TelegramRenderer) Render(input string) string {
 	input = strings.ReplaceAll(input, "__", "_")
 
 	// Escape remaining MarkdownV2 special characters
-	return escapeMarkdownV2(input)
+	input = r.escapeMarkdownV2(input)
+
+	input = r.UnescapeMarkdownLinks(input)
+
+	return strings.ReplaceAll(input, ".", "\\.")
 }
