@@ -2,7 +2,7 @@
 emoji: 📈
 name: market
 active: true
-help: Commands for managing market
+help: Commands to check market and price of PAC coin
 sub_commands:
 - name: price
   help: Shows the latest price of PAC coin across different markets

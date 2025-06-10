@@ -29,7 +29,7 @@ func (c *MarketCmd) buildMarketCommand() *command.Command {
 		Name:         "market",
 		Emoji:        "📈",
 		Active:       true,
-		Help:         "Commands for managing market",
+		Help:         "Commands to check market and price of PAC coin",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),
 	}
