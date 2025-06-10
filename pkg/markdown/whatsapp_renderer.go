@@ -11,7 +11,7 @@ func NewWhatsAppRenderer() *WhatsAppRenderer {
 	return &WhatsAppRenderer{}
 }
 
-func (*WhatsAppRenderer) ReplaceMarkdownLinks(input string) string {
+func (*WhatsAppRenderer) replaceMarkdownLinks(input string) string {
 	// Regular expression to match [text](url)
 	re := regexp.MustCompile(`\[[^\]]+\]\(([^)]+)\)`)
 
@@ -30,7 +30,7 @@ func (r *WhatsAppRenderer) Render(input string) string {
 	// Italic: __text__ → _text_
 	input = strings.ReplaceAll(input, "__", "_")
 
-	input = r.ReplaceMarkdownLinks(input)
+	input = r.replaceMarkdownLinks(input)
 
 	// Trim spaces inside quotes
 	for {

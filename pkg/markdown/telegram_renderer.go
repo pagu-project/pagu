@@ -27,15 +27,20 @@ func (*TelegramRenderer) escapeMarkdownV2(text string) string {
 		"|", "\\|",
 		"{", "\\{",
 		"}", "\\}",
-		"!", "\\!",
+		".", "\\.",
 	)
 
 	return replacer.Replace(text)
 }
 
-func (*TelegramRenderer) UnescapeMarkdownLinks(input string) string {
-	// Regular expression to match \[text\]\(url\)
-	re := regexp.MustCompile(`\\\[([^\\]+)\\\]\\\(([^\\]+)\\\)`)
+func (*TelegramRenderer) encodeMarkdownLinks(input string) string {
+	re := regexp.MustCompile(`\[([^\]]+)\]\(([^)]+)\)`)
+
+	return re.ReplaceAllString(input, "†$1†‡$2‡")
+}
+
+func (*TelegramRenderer) decodeMarkdownLinks(input string) string {
+	re := regexp.MustCompile(`†([^†]+)†‡([^‡]+)‡`)
 
 	return re.ReplaceAllString(input, "[$1]($2)")
 }
@@ -52,10 +57,14 @@ func (r *TelegramRenderer) Render(input string) string {
 	// Italic: __text__ → _text_
 	input = strings.ReplaceAll(input, "__", "_")
 
+	// [Google](https://google.com) → †Google†‡https://google.com‡
+	input = r.encodeMarkdownLinks(input)
+
 	// Escape remaining MarkdownV2 special characters
 	input = r.escapeMarkdownV2(input)
 
-	input = r.UnescapeMarkdownLinks(input)
+	// †Google†‡https://google.com‡ → [Google](https://google.com)
+	input = r.decodeMarkdownLinks(input)
 
-	return strings.ReplaceAll(input, ".", "\\.")
+	return input
 }
