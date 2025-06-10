@@ -10,8 +10,8 @@ import (
 func TestTelegramUnescapeMarkdownLinks(t *testing.T) {
 	renderer := markdown.NewTelegramRenderer()
 
-	text := `Check out \[Google Images\]\(https://images.google.com\) and \[GitHub\]\(https://github.com\) for more information.`
-	expected := `Check out [Google Images](https://images.google.com) and [GitHub](https://github.com) for more information.`
+	text := `Check out \[example\]\(https://example.com\) for more information.`
+	expected := `Check out [example](https://example.com) for more information.`
 
 	text = renderer.UnescapeMarkdownLinks(text)
 	assert.Equal(t, expected, text)
