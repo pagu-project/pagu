@@ -27,6 +27,7 @@ func (*TelegramRenderer) escapeMarkdownV2(text string) string {
 		"|", "\\|",
 		"{", "\\{",
 		"}", "\\}",
+		"!", "\\!",
 		".", "\\.",
 	)
 
