@@ -36,7 +36,7 @@ func setup(t *testing.T) *testData {
 	mockMailer := mailer.NewMockIMailer(ctrl)
 
 	voucherCmd := NewVoucherCmd(testDB, mockWallet, mockClientMgr, mockMailer)
-	voucherCmd.buildVoucherCommand()
+	voucherCmd.BuildCommand(entity.BotID_CLI)
 
 	return &testData{
 		TestSuite:     ts,

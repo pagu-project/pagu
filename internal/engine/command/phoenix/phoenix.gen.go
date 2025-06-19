@@ -61,7 +61,7 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 	}
 }
 
-func (c *PhoenixCmd) buildPhoenixCommand() *command.Command {
+func (c *PhoenixCmd) buildPhoenixCommand(botID entity.BotID) *command.Command {
 	phoenixCmd := &command.Command{
 		Name:         "phoenix",
 		Emoji:        "🐦",
@@ -73,10 +73,10 @@ func (c *PhoenixCmd) buildPhoenixCommand() *command.Command {
 
 	c.phoenixSubCmds = c.buildSubCmds()
 
-	phoenixCmd.AddSubCommand(c.subCmdHealth)
-	phoenixCmd.AddSubCommand(c.subCmdStatus)
-	phoenixCmd.AddSubCommand(c.subCmdFaucet)
-	phoenixCmd.AddSubCommand(c.subCmdWallet)
+	phoenixCmd.AddSubCommand(botID, c.subCmdHealth)
+	phoenixCmd.AddSubCommand(botID, c.subCmdStatus)
+	phoenixCmd.AddSubCommand(botID, c.subCmdFaucet)
+	phoenixCmd.AddSubCommand(botID, c.subCmdWallet)
 
 	return phoenixCmd
 }

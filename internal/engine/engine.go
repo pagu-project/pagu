@@ -32,7 +32,7 @@ type BotEngine struct {
 	rootCmd   *command.Command
 }
 
-func NewBotEngine(ctx context.Context, cfg *Config) (*BotEngine, error) {
+func NewBotEngine(ctx context.Context, botID entity.BotID, cfg *Config) (*BotEngine, error) {
 	db, err := repository.NewDB(cfg.Database.URL)
 	if err != nil {
 		return nil, err
@@ -72,10 +72,11 @@ func NewBotEngine(ctx context.Context, cfg *Config) (*BotEngine, error) {
 		return nil, err
 	}
 
-	return newBotEngine(ctx, cfg, db, mgr, wlt, mailer, nowPayments), nil
+	return newBotEngine(ctx, botID, cfg, db, mgr, wlt, mailer, nowPayments), nil
 }
 
 func newBotEngine(ctx context.Context,
+	botID entity.BotID,
 	cfg *Config,
 	db *repository.Database,
 	mgr client.IManager,
@@ -107,22 +108,22 @@ func newBotEngine(ctx context.Context,
 	}
 
 	subCommands := []*command.Command{
-		crowdfundCmd.GetCommand(),
-		calculatorCmd.GetCommand(),
-		networkCmd.GetCommand(),
-		voucherCmd.GetCommand(),
-		marketCmd.GetCommand(),
-		phoenixCmd.GetCommand(),
+		crowdfundCmd.BuildCommand(botID),
+		voucherCmd.BuildCommand(botID),
+		calculatorCmd.BuildCommand(botID),
+		networkCmd.BuildCommand(botID),
+		phoenixCmd.BuildCommand(botID),
+		marketCmd.BuildCommand(botID),
 	}
 
 	for _, cmd := range subCommands {
 		if cmd.Active {
-			rootCmd.AddSubCommand(cmd)
+			rootCmd.AddSubCommand(botID, cmd)
 		}
 	}
 
-	rootCmd.AddAboutSubCommand()
-	rootCmd.AddHelpSubCommand()
+	rootCmd.AddAboutSubCommand(botID)
+	rootCmd.AddHelpSubCommand(botID)
 
 	return &BotEngine{
 		ctx:       ctx,

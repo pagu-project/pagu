@@ -92,10 +92,6 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for _, cmd := range cmds {
-		if !cmd.CanBeHandledByBot(bot.botID) {
-			continue
-		}
-
 		log.Info("registering new command", "name", cmd.Name)
 
 		btn := menu.Data(cmd.Name, cmd.Name)
@@ -106,10 +102,6 @@ func (bot *Bot) registerCommands() error {
 			subMenu := &tele.ReplyMarkup{ResizeKeyboard: true}
 			subRows := make([]tele.Row, 0)
 			for _, subCmd := range cmd.SubCommands {
-				if !subCmd.CanBeHandledByBot(bot.botID) {
-					continue
-				}
-
 				log.Info("adding command sub-command", "command", cmd.Name, "sub-command", subCmd.Name)
 
 				subBtn := subMenu.Data(subCmd.Name, cmd.Name+subCmd.Name)

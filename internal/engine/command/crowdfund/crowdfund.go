@@ -41,8 +41,8 @@ func (c *CrowdfundCmd) activeCampaign() *entity.CrowdfundCampaign {
 	return c.db.GetCrowdfundActiveCampaign()
 }
 
-func (c *CrowdfundCmd) GetCommand() *command.Command {
-	cmd := c.buildCrowdfundCommand()
+func (c *CrowdfundCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildCrowdfundCommand(botID)
 
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {

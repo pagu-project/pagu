@@ -24,7 +24,7 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 	}
 }
 
-func (c *MarketCmd) buildMarketCommand() *command.Command {
+func (c *MarketCmd) buildMarketCommand(botID entity.BotID) *command.Command {
 	marketCmd := &command.Command{
 		Name:         "market",
 		Emoji:        "📈",
@@ -36,7 +36,7 @@ func (c *MarketCmd) buildMarketCommand() *command.Command {
 
 	c.marketSubCmds = c.buildSubCmds()
 
-	marketCmd.AddSubCommand(c.subCmdPrice)
+	marketCmd.AddSubCommand(botID, c.subCmdPrice)
 
 	return marketCmd
 }

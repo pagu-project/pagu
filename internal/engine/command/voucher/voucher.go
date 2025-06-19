@@ -2,6 +2,7 @@ package voucher
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/client"
 	"github.com/pagu-project/pagu/pkg/mailer"
@@ -28,8 +29,8 @@ func NewVoucherCmd(db *repository.Database, wlt wallet.IWallet,
 	}
 }
 
-func (v *VoucherCmd) GetCommand() *command.Command {
-	cmd := v.buildVoucherCommand()
+func (v *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := v.buildVoucherCommand(botID)
 
 	return cmd
 }

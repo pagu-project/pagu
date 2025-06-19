@@ -67,7 +67,7 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *{{.Name}}SubCmds {
 	}
 }
 
-func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command() *command.Command {
+func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command(botID entity.BotID) *command.Command {
 	{{.Name}}Cmd := &command.Command{
 		Name:       "{{.Name}}",
 		Emoji:      "{{.Emoji}}",
@@ -89,7 +89,7 @@ func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command() *command.Command 
 
 {{- $cmdName := .Name }}
 {{ range .SubCommands }}
-	{{$cmdName}}Cmd.AddSubCommand(c.subCmd{{.Name | title}})
+	{{$cmdName}}Cmd.AddSubCommand(botID, c.subCmd{{.Name | title}})
 {{- end}}
 
 	return {{.Name}}Cmd

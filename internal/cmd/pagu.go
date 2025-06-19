@@ -56,7 +56,7 @@ func runCommand(parentCmd *cobra.Command) {
 		log.InitGlobalLogger(&cfg.Logger)
 
 		// starting eng.
-		eng, err := engine.NewBotEngine(ctx, &cfg.Engine)
+		eng, err := engine.NewBotEngine(ctx, cfg.BotID, &cfg.Engine)
 		ExitOnError(cmd, err)
 
 		eng.Start()

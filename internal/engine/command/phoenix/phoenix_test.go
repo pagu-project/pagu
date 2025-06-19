@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/amount"
@@ -39,7 +40,7 @@ func setup(t *testing.T) *testData {
 	phoenixCmd := NewPhoenixCmd(context.Background(), cfg,
 		testDB)
 
-	_ = phoenixCmd.GetCommand()
+	_ = phoenixCmd.BuildCommand(entity.BotID_CLI)
 
 	return &testData{
 		TestSuite:  ts,

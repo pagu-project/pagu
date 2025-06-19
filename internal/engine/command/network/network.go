@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/client"
 )
 
@@ -51,8 +52,8 @@ type NetStatus struct {
 	CirculatingSupply   int64
 }
 
-func (n *NetworkCmd) GetCommand() *command.Command {
-	cmd := n.buildNetworkCommand()
+func (n *NetworkCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := n.buildNetworkCommand(botID)
 
 	return cmd
 }
