@@ -3,6 +3,7 @@ package calculator
 import (
 	"testing"
 
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/client"
 	"go.uber.org/mock/gomock"
@@ -24,7 +25,7 @@ func setup(t *testing.T) *testData {
 	mockClientMgr := client.NewMockIManager(ctrl)
 
 	calculatorCmd := NewCalculatorCmd(mockClientMgr)
-	calculatorCmd.buildCalculatorCommand()
+	calculatorCmd.BuildCommand(entity.BotID_CLI)
 
 	return &testData{
 		TestSuite:     ts,

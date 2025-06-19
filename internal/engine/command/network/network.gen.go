@@ -52,7 +52,7 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 	}
 }
 
-func (c *NetworkCmd) buildNetworkCommand() *command.Command {
+func (c *NetworkCmd) buildNetworkCommand(botID entity.BotID) *command.Command {
 	networkCmd := &command.Command{
 		Name:         "network",
 		Emoji:        "🌐",
@@ -64,9 +64,9 @@ func (c *NetworkCmd) buildNetworkCommand() *command.Command {
 
 	c.networkSubCmds = c.buildSubCmds()
 
-	networkCmd.AddSubCommand(c.subCmdNodeInfo)
-	networkCmd.AddSubCommand(c.subCmdHealth)
-	networkCmd.AddSubCommand(c.subCmdStatus)
+	networkCmd.AddSubCommand(botID, c.subCmdNodeInfo)
+	networkCmd.AddSubCommand(botID, c.subCmdHealth)
+	networkCmd.AddSubCommand(botID, c.subCmdStatus)
 
 	return networkCmd
 }

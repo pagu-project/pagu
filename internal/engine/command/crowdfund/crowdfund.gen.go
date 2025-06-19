@@ -149,7 +149,7 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 	}
 }
 
-func (c *CrowdfundCmd) buildCrowdfundCommand() *command.Command {
+func (c *CrowdfundCmd) buildCrowdfundCommand(botID entity.BotID) *command.Command {
 	crowdfundCmd := &command.Command{
 		Name:         "crowdfund",
 		Emoji:        "🤝",
@@ -161,12 +161,12 @@ func (c *CrowdfundCmd) buildCrowdfundCommand() *command.Command {
 
 	c.crowdfundSubCmds = c.buildSubCmds()
 
-	crowdfundCmd.AddSubCommand(c.subCmdCreate)
-	crowdfundCmd.AddSubCommand(c.subCmdEdit)
-	crowdfundCmd.AddSubCommand(c.subCmdReport)
-	crowdfundCmd.AddSubCommand(c.subCmdInfo)
-	crowdfundCmd.AddSubCommand(c.subCmdPurchase)
-	crowdfundCmd.AddSubCommand(c.subCmdClaim)
+	crowdfundCmd.AddSubCommand(botID, c.subCmdCreate)
+	crowdfundCmd.AddSubCommand(botID, c.subCmdEdit)
+	crowdfundCmd.AddSubCommand(botID, c.subCmdReport)
+	crowdfundCmd.AddSubCommand(botID, c.subCmdInfo)
+	crowdfundCmd.AddSubCommand(botID, c.subCmdPurchase)
+	crowdfundCmd.AddSubCommand(botID, c.subCmdClaim)
 
 	return crowdfundCmd
 }

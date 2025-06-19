@@ -129,20 +129,12 @@ func (bot *Bot) renderTextError(err error, destination string) map[string]any {
 }
 
 func (bot *Bot) renderInteractivePage(cmd *command.Command, destination string) map[string]any {
-	if !cmd.CanBeHandledByBot(bot.botID) {
-		return nil
-	}
-
 	if !cmd.HasSubCommand() {
 		return bot.renderTextError(fmt.Errorf("command %s has no subcommands", cmd.Name), destination)
 	}
 
 	rows := []any{}
 	for _, subCmd := range cmd.SubCommands {
-		if !subCmd.CanBeHandledByBot(bot.botID) {
-			continue
-		}
-
 		rows = append(rows, map[string]any{
 			"id":          fmt.Sprintf("cmd:%s", subCmd.Name),
 			"title":       subCmd.NameWithEmoji(),

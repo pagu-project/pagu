@@ -8,6 +8,7 @@ import (
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/engine/command/phoenix"
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/testsuite"
 	"github.com/pagu-project/pagu/pkg/client"
 	"github.com/pagu-project/pagu/pkg/mailer"
@@ -175,7 +176,8 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 			PrivateKey: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z",
 		},
 	}
-	eng := newBotEngine(ctx, cfg, testDB, mockClientManager, mockWallet, mockMailer, mockNowPayments)
+	eng := newBotEngine(ctx, entity.BotID_CLI, cfg,
+		testDB, mockClientManager, mockWallet, mockMailer, mockNowPayments)
 
 	var checkCommands func(cmds []*command.Command)
 

@@ -246,7 +246,7 @@ func (cmd *Command) NameWithEmoji() string {
 	return cmd.Name
 }
 
-func (cmd *Command) CanBeHandledByBot(botID entity.BotID) bool {
+func (cmd *Command) canBeHandledByBot(botID entity.BotID) bool {
 	return slices.Contains(cmd.TargetBotIDs, botID)
 }
 
@@ -254,19 +254,23 @@ func (cmd *Command) HasSubCommand() bool {
 	return len(cmd.SubCommands) > 0 && cmd.SubCommands != nil
 }
 
-func (cmd *Command) AddSubCommand(subCmd *Command) {
+func (cmd *Command) AddSubCommand(botID entity.BotID, subCmd *Command) {
 	if subCmd == nil {
 		return
 	}
 
+	if !subCmd.canBeHandledByBot(botID) {
+		return
+	}
+
 	if subCmd.HasSubCommand() {
-		subCmd.AddHelpSubCommand()
+		subCmd.AddHelpSubCommand(botID)
 	}
 
 	cmd.SubCommands = append(cmd.SubCommands, subCmd)
 }
 
-func (cmd *Command) AddHelpSubCommand() {
+func (cmd *Command) AddHelpSubCommand(botID entity.BotID) {
 	helpCmd := &Command{
 		Emoji:        "❓",
 		Name:         "help",
@@ -277,10 +281,10 @@ func (cmd *Command) AddHelpSubCommand() {
 		},
 	}
 
-	cmd.AddSubCommand(helpCmd)
+	cmd.AddSubCommand(botID, helpCmd)
 }
 
-func (cmd *Command) AddAboutSubCommand() {
+func (cmd *Command) AddAboutSubCommand(botID entity.BotID) {
 	//nolint:dupword // Pagu is duplicated in the about command
 	const aboutTemplate = `
 ## About Pagu
@@ -313,5 +317,5 @@ Phoenix Testnet integration, and More...
 		},
 	}
 
-	cmd.AddSubCommand(aboutCmd)
+	cmd.AddSubCommand(botID, aboutCmd)
 }

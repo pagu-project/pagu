@@ -61,7 +61,7 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 	}
 }
 
-func (c *CalculatorCmd) buildCalculatorCommand() *command.Command {
+func (c *CalculatorCmd) buildCalculatorCommand(botID entity.BotID) *command.Command {
 	calculatorCmd := &command.Command{
 		Name:         "calculator",
 		Emoji:        "🧮",
@@ -73,8 +73,8 @@ func (c *CalculatorCmd) buildCalculatorCommand() *command.Command {
 
 	c.calculatorSubCmds = c.buildSubCmds()
 
-	calculatorCmd.AddSubCommand(c.subCmdReward)
-	calculatorCmd.AddSubCommand(c.subCmdFee)
+	calculatorCmd.AddSubCommand(botID, c.subCmdReward)
+	calculatorCmd.AddSubCommand(botID, c.subCmdFee)
 
 	return calculatorCmd
 }

@@ -106,11 +106,11 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	}
 }
 
-func (c *VoucherCmd) buildVoucherCommand() *command.Command {
+func (c *VoucherCmd) buildVoucherCommand(botID entity.BotID) *command.Command {
 	voucherCmd := &command.Command{
 		Name:         "voucher",
 		Emoji:        "🎁",
-		Active:       false,
+		Active:       true,
 		Help:         "Commands for managing vouchers",
 		SubCommands:  make([]*command.Command, 0),
 		TargetBotIDs: entity.AllBotIDs(),
@@ -118,9 +118,9 @@ func (c *VoucherCmd) buildVoucherCommand() *command.Command {
 
 	c.voucherSubCmds = c.buildSubCmds()
 
-	voucherCmd.AddSubCommand(c.subCmdClaim)
-	voucherCmd.AddSubCommand(c.subCmdCreate)
-	voucherCmd.AddSubCommand(c.subCmdStatus)
+	voucherCmd.AddSubCommand(botID, c.subCmdClaim)
+	voucherCmd.AddSubCommand(botID, c.subCmdCreate)
+	voucherCmd.AddSubCommand(botID, c.subCmdStatus)
 
 	return voucherCmd
 }

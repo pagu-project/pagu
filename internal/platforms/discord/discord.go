@@ -84,10 +84,6 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for _, cmd := range cmds {
-		if !cmd.CanBeHandledByBot(bot.botID) {
-			continue
-		}
-
 		log.Info("registering new command", "name", cmd.Name)
 
 		discordCmd := discordgo.ApplicationCommand{
@@ -98,10 +94,6 @@ func (bot *Bot) registerCommands() error {
 
 		if cmd.HasSubCommand() {
 			for _, subCmd := range cmd.SubCommands {
-				if !subCmd.CanBeHandledByBot(bot.botID) {
-					continue
-				}
-
 				log.Info("adding sub-command", "command", cmd.Name, "sub-command")
 
 				discordSubCmd := &discordgo.ApplicationCommandOption{

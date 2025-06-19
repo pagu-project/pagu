@@ -7,6 +7,7 @@ import (
 	"github.com/pactus-project/pactus/crypto"
 	"github.com/pactus-project/pactus/crypto/ed25519"
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/internal/repository"
 	"github.com/pagu-project/pagu/pkg/amount"
 	"github.com/pagu-project/pagu/pkg/client"
@@ -52,8 +53,8 @@ func NewPhoenixCmd(ctx context.Context, cfg *Config, db *repository.Database,
 	}
 }
 
-func (c *PhoenixCmd) GetCommand() *command.Command {
-	cmd := c.buildPhoenixCommand()
+func (c *PhoenixCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildPhoenixCommand(botID)
 
 	return cmd
 }

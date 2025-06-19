@@ -2,6 +2,7 @@ package calculator
 
 import (
 	"github.com/pagu-project/pagu/internal/engine/command"
+	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/client"
 )
 
@@ -17,8 +18,8 @@ func NewCalculatorCmd(clientMgr client.IManager) *CalculatorCmd {
 	}
 }
 
-func (c *CalculatorCmd) GetCommand() *command.Command {
-	cmd := c.buildCalculatorCommand()
+func (c *CalculatorCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildCalculatorCommand(botID)
 
 	return cmd
 }

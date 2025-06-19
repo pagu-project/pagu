@@ -1,7 +1,7 @@
 ---
 name: voucher
 emoji: 🎁
-active: false
+active: true
 help: Commands for managing vouchers
 sub_commands:
   - name: claim
