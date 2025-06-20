@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"time"
+
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
@@ -25,4 +27,8 @@ func (Voucher) TableName() string {
 
 func (v *Voucher) IsClaimed() bool {
 	return v.TxHash != ""
+}
+
+func (v *Voucher) IsExpired() bool {
+	return time.Until(v.CreatedAt.AddDate(0, int(v.ValidMonths), 0)) <= 0
 }

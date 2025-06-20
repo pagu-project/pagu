@@ -69,17 +69,35 @@ sub_commands:
         optional: false
   - name: status
     target_bot_ids: [CLI, Moderator]
-    help: View the status of vouchers or a specific voucher
+    help: View the status of a specific voucher
     result_template: |
-      Code: {{.voucher.Code}}
-      Amount: {{.voucher.Amount}}
-      Expire At: {{.expireAt}}
-      Recipient: {{.voucher.Recipient}}
-      Description: {{.voucher.Desc}}
-      Claimed: {{.isClaimed}}
-      Tx Link: {{.txLink}}
+      **Code**: {{.voucher.Code}}
+      **Amount**: {{.voucher.Amount}}
+      **Expire** At: {{.expireAt}}
+      **Recipient**: {{.voucher.Recipient}}
+      **Description**: {{.voucher.Desc}}
+      **Claimed**: {{.isClaimed}}
+      **Tx** Link: {{.txLink}}
     args:
       - name: code
         desc: The voucher code (8 characters)
         input_box: Text
+        optional: true
+      - name: email
+        desc: The recipient email
+        input_box: Text
+        optional: true
+
+  - name: report
+    target_bot_ids: [CLI, Moderator]
+    help: The report of total vouchers
+    result_template: |
+      **Total Vouchers**: {{.total}}
+      **Total Claimed**: {{.totalClaimed}}
+      **Total Claimed Amount**: {{.totalClaimedAmount}}
+      **Total Expired**: {{.totalExpired}}
+    args:
+      - name: since
+        desc: Since how many month ago
+        input_box: Integer
         optional: true

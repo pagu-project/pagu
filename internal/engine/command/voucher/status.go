@@ -1,34 +1,35 @@
 package voucher
 
 import (
-	"errors"
 	"fmt"
-	"time"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
-	"github.com/pagu-project/pagu/pkg/amount"
 )
 
 func (v *VoucherCmd) statusHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
 	if args[argNameStatusCode] != "" {
-		code, ok := args[argNameStatusCode]
-		if !ok {
-			return cmd.RenderErrorTemplate(errors.New("invalid code param"))
+		voucher, err := v.db.GetVoucherByCode(args[argNameStatusCode])
+		if err != nil {
+			return cmd.RenderErrorTemplate(err)
 		}
 
-		return v.statusVoucher(cmd, code)
+		return v.statusVoucher(cmd, voucher)
 	}
 
-	return v.statusAllVouchers(cmd)
+	if args[argNameStatusEmail] != "" {
+		voucher, err := v.db.GetVoucherByEmail(args[argNameStatusEmail])
+		if err != nil {
+			return cmd.RenderErrorTemplate(err)
+		}
+
+		return v.statusVoucher(cmd, voucher)
+	}
+
+	return cmd.RenderFailedTemplate("set email or code")
 }
 
-func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.CommandResult {
-	voucher, err := v.db.GetVoucherByCode(code)
-	if err != nil {
-		return cmd.RenderFailedTemplate("Voucher code is not valid, no voucher found")
-	}
-
+func (*VoucherCmd) statusVoucher(cmd *command.Command, voucher *entity.Voucher) command.CommandResult {
 	isClaimed := "NO"
 	txLink := ""
 	if voucher.IsClaimed() {
@@ -38,47 +39,9 @@ func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.Co
 
 	voucherExpiryDate := voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0).Format("02/01/2006, 15:04:05")
 
-	return cmd.RenderResultTemplate("voucher",
-		voucher,
-		"expireAt",
-		voucherExpiryDate,
-		"isClaimed",
-		isClaimed,
-		"txLink",
-		txLink)
-}
-
-func (v *VoucherCmd) statusAllVouchers(cmd *command.Command) command.CommandResult {
-	vouchers, err := v.db.ListVoucher()
-	if err != nil {
-		return cmd.RenderErrorTemplate(err)
-	}
-
-	total := 0
-	totalAmount := amount.Amount(0)
-	totalClaimedAmount := amount.Amount(0)
-	totalClaimed := 0
-	totalExpired := 0
-
-	for _, vch := range vouchers {
-		total++
-		totalAmount += vch.Amount
-
-		if vch.IsClaimed() {
-			totalClaimed++
-			totalClaimedAmount += vch.Amount
-		}
-		if time.Until(vch.CreatedAt.AddDate(0, int(vch.ValidMonths), 0)) <= 0 {
-			totalExpired++
-		}
-	}
-
-	return cmd.SuccessfulResultF("Total Vouchers: %d\nTotal Amount: %s\n\n\n"+
-		"Claimed: %d\nTotal Claimed Amount: %s\nTotal Expired: %d"+
-		"\n",
-		total,
-		totalAmount,
-		totalClaimed,
-		totalClaimedAmount,
-		totalExpired)
+	return cmd.RenderResultTemplate(
+		"voucher", voucher,
+		"expireAt", voucherExpiryDate,
+		"isClaimed", isClaimed,
+		"txLink", txLink)
 }

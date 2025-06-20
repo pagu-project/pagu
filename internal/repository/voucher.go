@@ -20,14 +20,25 @@ func (db *Database) AddVoucher(v *entity.Voucher) error {
 	return nil
 }
 
-func (db *Database) GetVoucherByCode(code string) (entity.Voucher, error) {
+func (db *Database) GetVoucherByCode(code string) (*entity.Voucher, error) {
 	var voucher entity.Voucher
 	err := db.gormDB.Model(&entity.Voucher{}).Where("code = ?", code).First(&voucher).Error
 	if err != nil {
-		return entity.Voucher{}, err
+		return nil, err
 	}
 
-	return voucher, nil
+	return &voucher, nil
+}
+
+func (db *Database) GetVoucherByEmail(email string) (*entity.Voucher, error) {
+	// TODO: maybe more than 1?
+	var voucher entity.Voucher
+	err := db.gormDB.Model(&entity.Voucher{}).Where("email = ?", email).First(&voucher).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &voucher, nil
 }
 
 func (db *Database) ClaimVoucher(id uint, txHash string, claimer uint) error {
