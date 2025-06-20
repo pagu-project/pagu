@@ -44,10 +44,8 @@ func (v *VoucherCmd) createHandler(
 func (v *VoucherCmd) createVoucher(caller *entity.User,
 	tmplName, recipient, email, amtStr, validMonthsStr, desc string,
 ) (*entity.Voucher, error) {
-	existing, err := v.db.GetNonExpiredVoucherByEmail(email)
-	if err != nil {
-		return nil, fmt.Errorf("failed to check existing vouchers: %w", err)
-	}
+	existing := v.db.GetNonExpiredVoucherByEmail(email)
+
 	if existing != nil {
 		return nil, fmt.Errorf("email already has a non-expired voucher")
 	}

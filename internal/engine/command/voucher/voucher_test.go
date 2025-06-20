@@ -90,7 +90,7 @@ func WithCreatedAt(createdAt time.Time) VoucherOption {
 	}
 }
 
-// Helper for setting email in VoucherOption style
+// Helper for setting email in VoucherOption style.
 func WithEmail(email string) VoucherOption {
 	return func(v *entity.Voucher) {
 		v.Email = email
@@ -108,7 +108,7 @@ func (td *testData) createTestVoucher(t *testing.T, opts ...VoucherOption) *enti
 
 	voucher := &entity.Voucher{
 		ValidMonths: 1,
-		Email:       "test@test.com",
+		Email:       td.RandEmail(),
 		Recipient:   td.RandString(8),
 		Amount:      td.RandAmount(),
 		Creator:     uint(td.RandInt(100)),

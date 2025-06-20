@@ -9,12 +9,12 @@ import (
 const (
 	argNameClaimCode         = "code"
 	argNameClaimAddress      = "address"
+	argNameCreateTemplate    = "template"
 	argNameCreateRecipient   = "recipient"
 	argNameCreateEmail       = "email"
 	argNameCreateAmount      = "amount"
 	argNameCreateValidMonths = "valid-months"
 	argNameCreateDescription = "description"
-	argNameCreateTemplate    = "template"
 	argNameStatusCode        = "code"
 )
 
@@ -57,6 +57,12 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		},
 		Args: []*command.Args{
 			{
+				Name:     "template",
+				Desc:     "The email template to use for the voucher",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
+			},
+			{
 				Name:     "recipient",
 				Desc:     "The name of the recipient",
 				InputBox: command.InputBoxText,
@@ -84,12 +90,6 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 				Name:     "description",
 				Desc:     "A description of the voucher's purpose",
 				InputBox: command.InputBoxText,
-				Optional: false,
-			},
-			{
-				Name:     "template",
-				Desc:     "The email template to use for the voucher",
-				InputBox: command.InputBoxChoice,
 				Optional: false,
 			},
 		},

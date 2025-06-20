@@ -2,6 +2,7 @@ package testsuite
 
 import (
 	"encoding/hex"
+	"fmt"
 	"math/rand"
 	"os"
 	"slices"
@@ -218,6 +219,11 @@ func (ts *TestSuite) RandString(length int) string {
 	return string(b)
 }
 
+// RandEmail generates a random email.
+func (ts *TestSuite) RandEmail() string {
+	return fmt.Sprintf("%s@test.com", ts.RandString(10))
+}
+
 // DecodingHex decodes the input string from hexadecimal format and returns the resulting byte slice.
 func (*TestSuite) DecodingHex(in string) []byte {
 	d, err := hex.DecodeString(in)
@@ -233,8 +239,9 @@ func (ts *TestSuite) RandAccAddress() crypto.Address {
 	return crypto.NewAddress(crypto.AddressTypeEd25519Account, ts.RandBytes(20))
 }
 
-// CreateTempFile creates a temporary file with the given content, returning its path. The caller is responsible for cleanup. Panics on error.
-func (ts *TestSuite) CreateTempFile(content string) string {
+// CreateTempFile creates a temporary file with the given content, returning its path.
+// It panics on error.
+func (*TestSuite) CreateTempFile(content string) string {
 	tmpFile, err := os.CreateTemp("", "")
 	if err != nil {
 		panic(err)
@@ -247,5 +254,6 @@ func (ts *TestSuite) CreateTempFile(content string) string {
 	if err != nil {
 		panic(err)
 	}
+
 	return tmpFile.Name()
 }

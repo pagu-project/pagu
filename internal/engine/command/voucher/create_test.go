@@ -16,7 +16,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("more than 1000 PAC", func(t *testing.T) {
 		args := map[string]string{
-			"email":        "test@test.com",
+			"email":        td.RandEmail(),
 			"amount":       "1001",
 			"valid-months": "1",
 			"template":     "sample",
@@ -29,7 +29,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("invalid amount", func(t *testing.T) {
 		args := map[string]string{
-			"email":        "test@test.com",
+			"email":        td.RandEmail(),
 			"amount":       "invalid-amount",
 			"valid-months": "1",
 			"template":     "sample",
@@ -55,7 +55,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("wrong month", func(t *testing.T) {
 		args := map[string]string{
-			"email":        "test@test.com",
+			"email":        td.RandEmail(),
 			"amount":       "100",
 			"valid-months": "1.1",
 			"template":     "sample",
@@ -67,7 +67,7 @@ func TestCreate(t *testing.T) {
 
 	t.Run("normal", func(t *testing.T) {
 		args := map[string]string{
-			"email":        "test@test.com",
+			"email":        td.RandEmail(),
 			"recipient":    "Kayhan",
 			"amount":       "100",
 			"valid-months": "1",
@@ -75,7 +75,10 @@ func TestCreate(t *testing.T) {
 			"description":  "Some descriptions",
 		}
 
-		td.mockMailer.EXPECT().SendTemplateMail(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		assert.Eventually(t, func() bool {
+			td.mockMailer.EXPECT().SendTemplateMail(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			return true
+		}, time.Second, 100*time.Millisecond)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
@@ -103,7 +106,10 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 			"description":  "Some descriptions",
 		}
 
-		td.mockMailer.EXPECT().SendTemplateMail(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		assert.Eventually(t, func() bool {
+			td.mockMailer.EXPECT().SendTemplateMail(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			return true
+		}, time.Second, 100*time.Millisecond)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
