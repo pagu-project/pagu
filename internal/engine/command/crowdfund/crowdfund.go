@@ -46,7 +46,7 @@ func (c *CrowdfundCmd) BuildCommand(botID entity.BotID) *command.Command {
 
 	activeCampaign := c.activeCampaign()
 	if activeCampaign != nil {
-		purchaseChoices := []command.Choice{}
+		choices := []command.Choice{}
 		for index, pkg := range activeCampaign.Packages {
 			choice := command.Choice{
 				Name:  pkg.Name,
@@ -54,9 +54,9 @@ func (c *CrowdfundCmd) BuildCommand(botID entity.BotID) *command.Command {
 				Value: fmt.Sprintf("%d", index+1),
 			}
 
-			purchaseChoices = append(purchaseChoices, choice)
+			choices = append(choices, choice)
 		}
-		c.subCmdPurchase.Args[0].Choices = purchaseChoices
+		c.subCmdPurchase.Args[0].Choices = choices
 	}
 
 	return cmd

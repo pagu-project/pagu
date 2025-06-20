@@ -1,6 +1,9 @@
 package voucher
 
 import (
+	"errors"
+	"fmt"
+	"net/mail"
 	"strconv"
 
 	"github.com/pagu-project/pagu/internal/engine/command"
@@ -22,47 +25,82 @@ func (v *VoucherCmd) createHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
+	vch, err := v.createVoucher(
+		caller,
+		args[argNameCreateTemplate],
+		args[argNameCreateRecipient],
+		args[argNameCreateEmail],
+		args[argNameCreateAmount],
+		args[argNameCreateValidMonths],
+		args[argNameCreateDescription],
+	)
+	if err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
+
+	return cmd.RenderResultTemplate("voucher", vch)
+}
+
+func (v *VoucherCmd) createVoucher(caller *entity.User,
+	tmplName, recipient, email, amtStr, validMonthsStr, desc string,
+) (*entity.Voucher, error) {
+	existing := v.db.GetNonExpiredVoucherByEmail(email)
+
+	if existing != nil {
+		return nil, errors.New("email already has a non-expired voucher")
+	}
+
+	tmplPath, exists := v.templates[tmplName]
+	if !exists {
+		return nil, fmt.Errorf("template not exists: %s", tmplName)
+	}
+
+	amt, err := amount.FromString(amtStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid amount: %w", err)
+	}
+
+	maxAmt, _ := amount.NewAmount(1000)
+	if amt > maxAmt {
+		return nil, errors.New("amount is more than 1000 PAC")
+	}
+
+	expireMonths, err := strconv.Atoi(validMonthsStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid valid-months param: %w", err)
+	}
+
+	_, err = mail.ParseAddress(email)
+	if err != nil {
+		return nil, fmt.Errorf("invalid email address: %s", email)
+	}
 	code := utils.RandomString(8, utils.CapitalAlphanumerical)
-	for _, err := v.db.GetVoucherByCode(code); err == nil; {
-		code = utils.RandomString(8, utils.CapitalAlphanumerical)
-	}
-
-	amt, err := amount.FromString(args["amount"])
-	if err != nil {
-		return cmd.RenderFailedTemplate("Invalid amount param")
-	}
-
-	maxStake, _ := amount.NewAmount(1000)
-	if amt > maxStake {
-		return cmd.RenderFailedTemplate("Stake amount is more than 1000")
-	}
-
-	expireMonths, err := strconv.Atoi(args["valid-months"])
-	if err != nil {
-		return cmd.RenderFailedTemplate("Invalid valid-months param")
-	}
 
 	vch := &entity.Voucher{
 		Creator:     caller.ID,
 		Code:        code,
 		ValidMonths: uint8(expireMonths),
 		Amount:      amt,
+		Recipient:   recipient,
+		Email:       email,
+		Desc:        desc,
 	}
-
-	vch.Recipient = args["recipient"]
-	vch.Desc = args["description"]
 
 	err = v.db.AddVoucher(vch)
 	if err != nil {
-		return cmd.RenderErrorTemplate(err)
+		return nil, err
 	}
 
-	// TODO: fix me later
-	//   1- Ensure recipient is a valid email
-	//   2- define voucher template
-	//   3- define data for templates
-	//   4- Send email and test
-	// v.mailer.SendTemplateMail(vch.Recipient, )
+	data := map[string]string{
+		"Code":        vch.Code,
+		"Amount":      vch.Amount.String(),
+		"ValidMonths": strconv.Itoa(int(vch.ValidMonths)),
+		"Recipient":   vch.Recipient,
+	}
+	err = v.mailer.SendTemplateMailAsync(email, tmplPath, data)
+	if err != nil {
+		return nil, err
+	}
 
-	return cmd.RenderResultTemplate("voucher", vch)
+	return vch, nil
 }

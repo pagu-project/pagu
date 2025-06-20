@@ -96,7 +96,7 @@ func newBotEngine(ctx context.Context,
 	calculatorCmd := calculator.NewCalculatorCmd(mgr)
 	networkCmd := network.NewNetworkCmd(ctx, mgr)
 	phoenixCmd := phoenix.NewPhoenixCmd(ctx, &cfg.Phoenix, db)
-	voucherCmd := voucher.NewVoucherCmd(db, wlt, mgr, mailer)
+	voucherCmd := voucher.NewVoucherCmd(ctx, &cfg.Voucher, db, wlt, mgr, mailer)
 	marketCmd := market.NewMarketCmd(mgr, priceCache)
 
 	rootCmd := &command.Command{

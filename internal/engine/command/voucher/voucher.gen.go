@@ -9,9 +9,11 @@ import (
 const (
 	argNameClaimCode         = "code"
 	argNameClaimAddress      = "address"
+	argNameCreateTemplate    = "template"
+	argNameCreateRecipient   = "recipient"
+	argNameCreateEmail       = "email"
 	argNameCreateAmount      = "amount"
 	argNameCreateValidMonths = "valid-months"
-	argNameCreateRecipient   = "recipient"
 	argNameCreateDescription = "description"
 	argNameStatusCode        = "code"
 )
@@ -48,12 +50,30 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Name:           "create",
 		Help:           "Generate a single voucher code",
 		Handler:        c.createHandler,
-		ResultTemplate: "Voucher created successfully!\nCode: {{.voucher.Code}}\n",
+		ResultTemplate: "Voucher created successfully!\nRecipient:: {{.voucher.Recipient}}\nEmail: {{.voucher.Email}}\nAmount: {{.voucher.Amount}}\nCode: {{.voucher.Code}}\n",
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
 		Args: []*command.Args{
+			{
+				Name:     "template",
+				Desc:     "The email template to use for the voucher",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
+			},
+			{
+				Name:     "recipient",
+				Desc:     "The name of the recipient",
+				InputBox: command.InputBoxText,
+				Optional: false,
+			},
+			{
+				Name:     "email",
+				Desc:     "The email address to send the voucher to",
+				InputBox: command.InputBoxText,
+				Optional: false,
+			},
 			{
 				Name:     "amount",
 				Desc:     "The amount of PAC to bond",
@@ -67,16 +87,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 				Optional: false,
 			},
 			{
-				Name:     "recipient",
-				Desc:     "The recipient's name for the voucher",
-				InputBox: command.InputBoxText,
-				Optional: true,
-			},
-			{
 				Name:     "description",
 				Desc:     "A description of the voucher's purpose",
 				InputBox: command.InputBoxText,
-				Optional: true,
+				Optional: false,
 			},
 		},
 	}

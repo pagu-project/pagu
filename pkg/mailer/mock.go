@@ -52,3 +52,17 @@ func (mr *MockIMailerMockRecorder) SendTemplateMail(recipient, templatePath, dat
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendTemplateMail", reflect.TypeOf((*MockIMailer)(nil).SendTemplateMail), recipient, templatePath, data)
 }
+
+// SendTemplateMailAsync mocks base method.
+func (m *MockIMailer) SendTemplateMailAsync(recipient, templatePath string, data map[string]string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendTemplateMailAsync", recipient, templatePath, data)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendTemplateMailAsync indicates an expected call of SendTemplateMailAsync.
+func (mr *MockIMailerMockRecorder) SendTemplateMailAsync(recipient, templatePath, data any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendTemplateMailAsync", reflect.TypeOf((*MockIMailer)(nil).SendTemplateMailAsync), recipient, templatePath, data)
+}

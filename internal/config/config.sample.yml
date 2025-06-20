@@ -73,7 +73,10 @@ engine:
     username:
     password:
     sender:
+
+  voucher:
     templates:
+      sample: ./internal/config/templates/sample.tmpl
 
 # Discord integration configuration
 # Set appropriate values to integrate Pagu with your Discord server.
@@ -99,7 +102,6 @@ whatsapp:
   session:
     session_ttl: 600
     check_interval: 30
-
 
 # Logger configuration
 logger:

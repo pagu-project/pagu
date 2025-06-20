@@ -24,8 +24,23 @@ sub_commands:
     help: Generate a single voucher code
     result_template: |
       Voucher created successfully!
+      Recipient:: {{.voucher.Recipient}}
+      Email: {{.voucher.Email}}
+      Amount: {{.voucher.Amount}}
       Code: {{.voucher.Code}}
     args:
+      - name: template
+        desc: The email template to use for the voucher
+        input_box: Choice
+        optional: false
+      - name: recipient
+        desc: The name of the recipient
+        input_box: Text
+        optional: false
+      - name: email
+        desc: The email address to send the voucher to
+        input_box: Text
+        optional: false
       - name: amount
         desc: The amount of PAC to bond
         input_box: Float
@@ -34,14 +49,10 @@ sub_commands:
         desc: Number of months the voucher remains valid after issuance
         input_box: Integer
         optional: false
-      - name: recipient
-        desc: The recipient's name for the voucher
-        input_box: Text
-        optional: true
       - name: description
         desc: A description of the voucher's purpose
         input_box: Text
-        optional: true
+        optional: false
   - name: status
     target_bot_ids: [CLI, Moderator]
     help: View the status of vouchers or a specific voucher
