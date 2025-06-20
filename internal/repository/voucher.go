@@ -30,8 +30,8 @@ func (db *Database) GetVoucherByCode(code string) (*entity.Voucher, error) {
 	return &voucher, nil
 }
 
-// TODO: maybe more than 1?
 func (db *Database) GetVoucherByEmail(email string) (*entity.Voucher, error) {
+	// TODO: maybe more than 1?
 	var voucher entity.Voucher
 	err := db.gormDB.Model(&entity.Voucher{}).Where("email = ?", email).First(&voucher).Error
 	if err != nil {
