@@ -9,6 +9,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/amount"
+	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
@@ -80,6 +81,7 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 	if err != nil {
 		return nil, err
 	}
+	log.Info("voucher created", "email", voucher.Email, "amount", voucher.Amount, "code", voucher.Code)
 
 	return voucher, nil
 }
