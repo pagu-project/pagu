@@ -17,7 +17,7 @@ func (v *VoucherCmd) createHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	vch, err := v.createVoucher(
+	voucher, err := v.createVoucher(
 		caller,
 		args[argNameCreateRecipient],
 		args[argNameCreateEmail],
@@ -29,12 +29,12 @@ func (v *VoucherCmd) createHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	err = v.sendEmail(args[argNameCreateTemplate], vch)
+	err = v.sendEmail(args[argNameCreateTemplate], voucher)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	return cmd.RenderResultTemplate("voucher", vch)
+	return cmd.RenderResultTemplate("voucher", voucher)
 }
 
 func (v *VoucherCmd) createVoucher(caller *entity.User,
@@ -66,7 +66,7 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 	}
 	code := utils.RandomString(8, utils.CapitalAlphanumerical)
 
-	vch := &entity.Voucher{
+	voucher := &entity.Voucher{
 		Creator:     caller.ID,
 		Code:        code,
 		ValidMonths: uint8(expireMonths),
@@ -76,24 +76,24 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 		Desc:        desc,
 	}
 
-	err = v.db.AddVoucher(vch)
+	err = v.db.AddVoucher(voucher)
 	if err != nil {
 		return nil, err
 	}
 
-	return vch, nil
+	return voucher, nil
 }
 
-func (v *VoucherCmd) sendEmail(tmplName string, vch *entity.Voucher) error {
+func (v *VoucherCmd) sendEmail(tmplName string, voucher *entity.Voucher) error {
 	tmplPath := v.templates[tmplName]
 
 	data := map[string]string{
-		"Code":        vch.Code,
-		"Amount":      vch.Amount.String(),
-		"ValidMonths": strconv.Itoa(int(vch.ValidMonths)),
-		"Recipient":   vch.Recipient,
+		"Code":        voucher.Code,
+		"Amount":      voucher.Amount.String(),
+		"ValidMonths": strconv.Itoa(int(voucher.ValidMonths)),
+		"Recipient":   voucher.Recipient,
 	}
-	err := v.mailer.SendTemplateMailAsync(vch.Email, tmplPath, data)
+	err := v.mailer.SendTemplateMailAsync(voucher.Email, tmplPath, data)
 	if err != nil {
 		return err
 	}

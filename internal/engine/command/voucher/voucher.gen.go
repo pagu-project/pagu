@@ -18,6 +18,8 @@ const (
 	argNameCreateBulkTemplate = "template"
 	argNameCreateBulkCsv      = "csv"
 	argNameStatusCode         = "code"
+	argNameStatusEmail        = "email"
+	argNameReportSince        = "since"
 )
 
 type voucherSubCmds struct {
@@ -25,6 +27,7 @@ type voucherSubCmds struct {
 	subCmdCreate     *command.Command
 	subCmdCreateBulk *command.Command
 	subCmdStatus     *command.Command
+	subCmdReport     *command.Command
 }
 
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
@@ -123,9 +126,9 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
-		Help:           "View the status of vouchers or a specific voucher",
+		Help:           "View the status of a specific voucher",
 		Handler:        c.statusHandler,
-		ResultTemplate: "Code: {{.voucher.Code}}\nAmount: {{.voucher.Amount}}\nExpire At: {{.expireAt}}\nRecipient: {{.voucher.Recipient}}\nDescription: {{.voucher.Desc}}\nClaimed: {{.isClaimed}}\nTx Link: {{.txLink}}\n",
+		ResultTemplate: "**Code**: {{.voucher.Code}}\n**Amount**: {{.voucher.Amount}}\n**Expire** At: {{.expireAt}}\n**Recipient**: {{.voucher.Recipient}}\n**Description**: {{.voucher.Desc}}\n**Claimed**: {{.isClaimed}}\n**Tx** Link: {{.txLink}}\n",
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
@@ -137,6 +140,30 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 				InputBox: command.InputBoxText,
 				Optional: true,
 			},
+			{
+				Name:     "email",
+				Desc:     "The recipient email",
+				InputBox: command.InputBoxText,
+				Optional: true,
+			},
+		},
+	}
+	subCmdReport := &command.Command{
+		Name:           "report",
+		Help:           "The report of total vouchers",
+		Handler:        c.reportHandler,
+		ResultTemplate: "**Total Vouchers**: {{.total}}\n**Total Claimed**: {{.totalClaimed}}\n**Total Claimed Amount**: {{.totalClaimedAmount}}\n**Total Expired**: {{.totalExpired}}\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
+		Args: []*command.Args{
+			{
+				Name:     "since",
+				Desc:     "Since how many month ago",
+				InputBox: command.InputBoxInteger,
+				Optional: true,
+			},
 		},
 	}
 
@@ -145,6 +172,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		subCmdCreate:     subCmdCreate,
 		subCmdCreateBulk: subCmdCreateBulk,
 		subCmdStatus:     subCmdStatus,
+		subCmdReport:     subCmdReport,
 	}
 }
 
@@ -164,6 +192,7 @@ func (c *VoucherCmd) buildVoucherCommand(botID entity.BotID) *command.Command {
 	voucherCmd.AddSubCommand(botID, c.subCmdCreate)
 	voucherCmd.AddSubCommand(botID, c.subCmdCreateBulk)
 	voucherCmd.AddSubCommand(botID, c.subCmdStatus)
+	voucherCmd.AddSubCommand(botID, c.subCmdReport)
 
 	return voucherCmd
 }

@@ -89,14 +89,14 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 
 	t.Run("expired voucher", func(t *testing.T) {
 		createdAt := time.Now().AddDate(0, -2, 0) // 2 months ago
-		vch := td.createTestVoucher(t,
+		voucher := td.createTestVoucher(t,
 			WithValidMonths(1), // 1 month validity
 			WithCreatedAt(createdAt),
 		)
 
 		args := map[string]string{
-			"email":        vch.Email,
-			"recipient":    vch.Recipient,
+			"email":        voucher.Email,
+			"recipient":    voucher.Recipient,
 			"amount":       "100",
 			"valid-months": "1",
 			"template":     "sample",
@@ -112,13 +112,13 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 
 	t.Run("non-expired voucher", func(t *testing.T) {
 		createdAt := time.Now().AddDate(0, -1, 0) // 1 month ago
-		vch := td.createTestVoucher(t,
+		voucher := td.createTestVoucher(t,
 			WithValidMonths(2), // 2 months validity
 			WithCreatedAt(createdAt),
 		)
 		args := map[string]string{
-			"email":        vch.Email,
-			"recipient":    vch.Recipient,
+			"email":        voucher.Email,
+			"recipient":    voucher.Recipient,
 			"amount":       "100",
 			"valid-months": "1",
 			"template":     "sample",

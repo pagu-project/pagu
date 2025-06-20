@@ -29,7 +29,7 @@ func (v *VoucherCmd) createBulkHandler(
 	}
 
 	for index, rec := range bulkRecorders {
-		vch, err := v.createVoucher(
+		voucher, err := v.createVoucher(
 			caller,
 			rec.Recipient,
 			rec.Email,
@@ -46,7 +46,7 @@ func (v *VoucherCmd) createBulkHandler(
 			sleepTime += 5 * time.Second
 			time.Sleep(sleepTime)
 
-			err := v.sendEmail(args[argNameCreateBulkTemplate], vch)
+			err := v.sendEmail(args[argNameCreateBulkTemplate], voucher)
 			if err != nil {
 				log.Error("unable to send bulk email", "error", err)
 			}
