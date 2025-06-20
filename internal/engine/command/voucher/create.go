@@ -1,6 +1,7 @@
 package voucher
 
 import (
+	"errors"
 	"fmt"
 	"net/mail"
 	"strconv"
@@ -8,7 +9,6 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/amount"
-	"github.com/pagu-project/pagu/pkg/log"
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
@@ -47,7 +47,7 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 	existing := v.db.GetNonExpiredVoucherByEmail(email)
 
 	if existing != nil {
-		return nil, fmt.Errorf("email already has a non-expired voucher")
+		return nil, errors.New("email already has a non-expired voucher")
 	}
 
 	tmplPath, exists := v.templates[tmplName]
@@ -62,7 +62,7 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 
 	maxAmt, _ := amount.NewAmount(1000)
 	if amt > maxAmt {
-		return nil, fmt.Errorf("amount is more than 1000 PAC")
+		return nil, errors.New("amount is more than 1000 PAC")
 	}
 
 	expireMonths, err := strconv.Atoi(validMonthsStr)
@@ -91,18 +91,16 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 		return nil, err
 	}
 
-	go func() {
-		data := map[string]string{
-			"Code":        vch.Code,
-			"Amount":      vch.Amount.String(),
-			"ValidMonths": strconv.Itoa(int(vch.ValidMonths)),
-			"Recipient":   vch.Recipient,
-		}
-		err = v.mailer.SendTemplateMail(email, tmplPath, data)
-		if err != nil {
-			log.Warn("failed to send voucher email: %v", err)
-		}
-	}()
+	data := map[string]string{
+		"Code":        vch.Code,
+		"Amount":      vch.Amount.String(),
+		"ValidMonths": strconv.Itoa(int(vch.ValidMonths)),
+		"Recipient":   vch.Recipient,
+	}
+	err = v.mailer.SendTemplateMailAsync(email, tmplPath, data)
+	if err != nil {
+		return nil, err
+	}
 
 	return vch, nil
 }

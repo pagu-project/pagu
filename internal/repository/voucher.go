@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/pagu-project/pagu/internal/entity"
+	"github.com/pagu-project/pagu/pkg/log"
 	"gorm.io/gorm"
 )
 
@@ -63,6 +64,7 @@ func (db *Database) GetNonExpiredVoucherByEmail(email string) *entity.Voucher {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
 		}
+		log.Warn("failed to fetch non-expired voucher by email '%s': %v", email, err)
 
 		return nil
 	}

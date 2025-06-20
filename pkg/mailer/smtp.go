@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-mail/mail/v2"
+	"github.com/pagu-project/pagu/pkg/log"
 )
 
 type SMTPMailer struct {
@@ -33,28 +34,53 @@ func (*SMTPMailer) LoadMailTemplate(path string) (*template.Template, error) {
 	return tmpl, nil
 }
 
-func (s *SMTPMailer) SendTemplateMail(recipient, tmplPath string, data map[string]string) error {
-	tmpl, err := s.LoadMailTemplate(tmplPath)
+func (s *SMTPMailer) SendTemplateMailAsync(recipient, tmplPath string, data map[string]string) error {
+	msg, err := s.makeMessage(recipient, tmplPath, data)
 	if err != nil {
 		return err
+	}
+
+	go func() {
+		err = s.dialer.DialAndSend(msg)
+		if err != nil {
+			log.Warn("failed to send voucher email: %v", err)
+		}
+	}()
+
+	return nil
+}
+
+func (s *SMTPMailer) SendTemplateMail(recipient, tmplPath string, data map[string]string) error {
+	msg, err := s.makeMessage(recipient, tmplPath, data)
+	if err != nil {
+		return err
+	}
+
+	return s.dialer.DialAndSend(msg)
+}
+
+func (s *SMTPMailer) makeMessage(recipient, tmplPath string, data map[string]string) (*mail.Message, error) {
+	tmpl, err := s.LoadMailTemplate(tmplPath)
+	if err != nil {
+		return nil, err
 	}
 
 	subject := new(bytes.Buffer)
 	err = tmpl.ExecuteTemplate(subject, "subject", data)
 	if err != nil {
-		return fmt.Errorf("error executing template with subject: %w", err)
+		return nil, fmt.Errorf("error executing template with subject: %w", err)
 	}
 
 	plainBody := new(bytes.Buffer)
 	err = tmpl.ExecuteTemplate(plainBody, "plainBody", data)
 	if err != nil {
-		return fmt.Errorf("error executing plain body: %w", err)
+		return nil, fmt.Errorf("error executing plain body: %w", err)
 	}
 
 	htmlBody := new(bytes.Buffer)
 	err = tmpl.ExecuteTemplate(htmlBody, "htmlBody", data)
 	if err != nil {
-		return fmt.Errorf("error executing HTML body: %w", err)
+		return nil, fmt.Errorf("error executing HTML body: %w", err)
 	}
 
 	msg := mail.NewMessage()
@@ -64,5 +90,5 @@ func (s *SMTPMailer) SendTemplateMail(recipient, tmplPath string, data map[strin
 	msg.SetBody("text/plain", plainBody.String())
 	msg.AddAlternative("text/html", htmlBody.String())
 
-	return s.dialer.DialAndSend(msg)
+	return msg, nil
 }

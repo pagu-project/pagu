@@ -50,7 +50,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Name:           "create",
 		Help:           "Generate a single voucher code",
 		Handler:        c.createHandler,
-		ResultTemplate: "Voucher created successfully!\nCode: {{.voucher.Code}}\n",
+		ResultTemplate: "Voucher created successfully!\nRecipient:: {{.voucher.Recipient}}\nEmail: {{.voucher.Email}}\nAmount: {{.voucher.Amount}}\nCode: {{.voucher.Code}}\n",
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,

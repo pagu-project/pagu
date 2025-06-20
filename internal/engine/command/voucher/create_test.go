@@ -75,10 +75,7 @@ func TestCreate(t *testing.T) {
 			"description":  "Some descriptions",
 		}
 
-		assert.Eventually(t, func() bool {
-			td.mockMailer.EXPECT().SendTemplateMail(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-			return true
-		}, time.Second, 100*time.Millisecond)
+		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
@@ -106,10 +103,7 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 			"description":  "Some descriptions",
 		}
 
-		assert.Eventually(t, func() bool {
-			td.mockMailer.EXPECT().SendTemplateMail(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-			return true
-		}, time.Second, 100*time.Millisecond)
+		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)

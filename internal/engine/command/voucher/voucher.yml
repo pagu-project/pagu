@@ -24,6 +24,9 @@ sub_commands:
     help: Generate a single voucher code
     result_template: |
       Voucher created successfully!
+      Recipient:: {{.voucher.Recipient}}
+      Email: {{.voucher.Email}}
+      Amount: {{.voucher.Amount}}
       Code: {{.voucher.Code}}
     args:
       - name: template
