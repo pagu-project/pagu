@@ -62,7 +62,7 @@ func (cfg *Config) BasicCheck() error {
 
 	for _, tmplPath := range cfg.Engine.Voucher.Templates {
 		if !utils.PathExists(tmplPath) {
-			return errors.New("config: voucher template file not exists")
+			return fmt.Errorf("config: voucher template file not exists: %s", tmplPath)
 		}
 	}
 
