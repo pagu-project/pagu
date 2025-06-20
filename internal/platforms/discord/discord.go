@@ -252,7 +252,7 @@ func (*Bot) respondEmbed(embed *discordgo.MessageEmbed,
 
 	err := session.InteractionRespond(interaction.Interaction, response)
 	if err != nil {
-		log.Error("InteractionRespond error:", "error", err)
+		log.Error("InteractionRespond error", "error", err)
 	}
 }
 
@@ -268,7 +268,7 @@ func (bot *Bot) UpdateStatusInfo() {
 		err = bot.Session.UpdateStatusComplex(newStatus("validators count",
 			utils.FormatNumber(int64(status.ValidatorsCount))))
 		if err != nil {
-			log.Error("can't set status", "err", err)
+			log.Error("can't set status", "error", err)
 
 			continue
 		}
@@ -278,7 +278,7 @@ func (bot *Bot) UpdateStatusInfo() {
 		err = bot.Session.UpdateStatusComplex(newStatus("total accounts",
 			utils.FormatNumber(int64(status.TotalAccounts))))
 		if err != nil {
-			log.Error("can't set status", "err", err)
+			log.Error("can't set status", "error", err)
 
 			continue
 		}
@@ -287,7 +287,7 @@ func (bot *Bot) UpdateStatusInfo() {
 
 		err = bot.Session.UpdateStatusComplex(newStatus("height", utils.FormatNumber(int64(status.CurrentBlockHeight))))
 		if err != nil {
-			log.Error("can't set status", "err", err)
+			log.Error("can't set status", "error", err)
 
 			continue
 		}
@@ -299,7 +299,7 @@ func (bot *Bot) UpdateStatusInfo() {
 
 		err = bot.Session.UpdateStatusComplex(newStatus("circ supply", formattedCirculatingSupply))
 		if err != nil {
-			log.Error("can't set status", "err", err)
+			log.Error("can't set status", "error", err)
 
 			continue
 		}
@@ -311,7 +311,7 @@ func (bot *Bot) UpdateStatusInfo() {
 
 		err = bot.Session.UpdateStatusComplex(newStatus("total power", formattedTotalNetworkPower))
 		if err != nil {
-			log.Error("can't set status", "err", err)
+			log.Error("can't set status", "error", err)
 
 			continue
 		}

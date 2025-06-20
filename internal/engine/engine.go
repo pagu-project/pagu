@@ -52,7 +52,7 @@ func NewBotEngine(ctx context.Context, botID entity.BotID, cfg *Config) (*BotEng
 	for _, nn := range cfg.NetworkNodes {
 		client, err := client.NewClient(nn)
 		if err != nil {
-			log.Warn("error on adding new network client", "err", err, "addr", nn)
+			log.Warn("error on adding new network client", "error", err, "addr", nn)
 		}
 		mgr.AddClient(client)
 	}
@@ -256,7 +256,7 @@ func (be *BotEngine) executeCommand(
 
 	caller, err := be.GetUser(platformID, callerID)
 	if err != nil {
-		log.Error(err.Error())
+		log.Error("unable to GetUser", "error", err)
 
 		return cmd.RenderErrorTemplate(fmt.Errorf("user is not defined in %s application", platformID))
 	}

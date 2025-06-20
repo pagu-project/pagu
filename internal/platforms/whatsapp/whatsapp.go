@@ -391,7 +391,7 @@ func NewWhatsAppBot(ctx context.Context, cfg *Config, botID entity.BotID, engine
 		if r.Method == http.MethodPost {
 			receviedData, err := io.ReadAll(r.Body)
 			if err != nil {
-				log.Warn("unable to read body: %w", err)
+				log.Warn("unable to read body", "error", err)
 				w.WriteHeader(http.StatusBadRequest)
 
 				return
