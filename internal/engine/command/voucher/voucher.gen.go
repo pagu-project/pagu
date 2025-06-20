@@ -9,10 +9,12 @@ import (
 const (
 	argNameClaimCode         = "code"
 	argNameClaimAddress      = "address"
+	argNameCreateRecipient   = "recipient"
+	argNameCreateEmail       = "email"
 	argNameCreateAmount      = "amount"
 	argNameCreateValidMonths = "valid-months"
-	argNameCreateRecipient   = "recipient"
 	argNameCreateDescription = "description"
+	argNameCreateTemplate    = "template"
 	argNameStatusCode        = "code"
 )
 
@@ -55,6 +57,18 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		},
 		Args: []*command.Args{
 			{
+				Name:     "recipient",
+				Desc:     "The name of the recipient",
+				InputBox: command.InputBoxText,
+				Optional: false,
+			},
+			{
+				Name:     "email",
+				Desc:     "The email address to send the voucher to",
+				InputBox: command.InputBoxText,
+				Optional: false,
+			},
+			{
 				Name:     "amount",
 				Desc:     "The amount of PAC to bond",
 				InputBox: command.InputBoxFloat,
@@ -67,16 +81,16 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 				Optional: false,
 			},
 			{
-				Name:     "recipient",
-				Desc:     "The recipient's name for the voucher",
-				InputBox: command.InputBoxText,
-				Optional: true,
-			},
-			{
 				Name:     "description",
 				Desc:     "A description of the voucher's purpose",
 				InputBox: command.InputBoxText,
-				Optional: true,
+				Optional: false,
+			},
+			{
+				Name:     "template",
+				Desc:     "The email template to use for the voucher",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
 			},
 		},
 	}

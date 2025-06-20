@@ -1,0 +1,95 @@
+{{define "subject"}}Hello!{{end}}
+
+{{define "plainBody"}}
+    Dear {{.Recipient}},
+
+    We are excited to have you on the Pactus Network!
+
+    Warm Regards,
+    Pactus Team
+{{end}}
+{{define "htmlBody"}}
+<!doctype html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+
+<body>
+  <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate;width:100%">
+    <tbody>
+      <tr>
+        <td align="center" style="padding: 0 30px">
+          <img alt="Project logo" src="https://pactus.org/images/newsletter/pactus-logo-text-64.png"
+            style="height:64px;Margin-bottom:5px">
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0 30px">
+          <h1 style="font-size:18px;font-weight:normal;text-align:left">Dear {{.Recipient}},</h1>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 0 30px">
+          <p style="font-size:18px;font-weight:normal;text-align:left">We are excited to have you on the Pactus Network!</p>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding: 0 30px">
+          <p style="font-size:18px;font-weight:normal;text-align:left;font-style: italic;">
+            Warm Regards,<br>
+            Pactus Team
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center"
+          style="padding-right:24px;padding-left:24px;padding-bottom:24px; padding-top: 12px;">
+          <!-- SOCIAL LINKS: START -->
+          <table role="presentation" style="width: auto;" border="0" width="auto" cellpadding="0" cellspacing="0">
+            <tr>
+              <td style="padding:4px;">
+                <a target="_blank" href="https://discord.gg/pactus">
+                  <img src="https://pactus.org/images/newsletter/social-discord.png" alt="Discord" style="width:50px;"
+                    width="50">
+                </a>
+              </td>
+              <td style="padding:4px;">
+                <a target="_blank" href="https://x.com/pactuschain/">
+                  <img src="https://pactus.org/images/newsletter/social-x.png" alt="X (Twitter)" style="width:50px;"
+                    width="50">
+                </a>
+              </td>
+              <td style="padding:4px;">
+                <a target="_blank" href="https://t.me/pactusblockchain">
+                  <img src="https://pactus.org/images/newsletter/social-telegram.png" alt="Telegram" style="width:50px;"
+                    width="50">
+                </a>
+              </td>
+              <td style="padding:4px;">
+                <a target="_blank" href="https://linkedin.com/company/pactus-blockchain">
+                  <img src="https://pactus.org/images/newsletter/social-linkedin.png" alt="LinkedIn" style="width:50px;"
+                    width="50">
+                </a>
+              </td>
+              <td style="padding:4px;">
+                <a target="_blank" href="https://github.com/pactus-project">
+                  <img src="https://pactus.org/images/newsletter/social-github.png" alt="GitHub" style="width:50px;"
+                    width="50">
+                </a>
+              </td>
+            </tr>
+          </table>
+          <!-- SOCIAL LINKS: END -->
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</body>
+
+</html>
+{{end}}

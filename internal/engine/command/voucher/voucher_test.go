@@ -1,6 +1,7 @@
 package voucher
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -22,6 +23,7 @@ type testData struct {
 	testDB        *repository.Database
 	mockClientMgr *client.MockIManager
 	mockWallet    *wallet.MockIWallet
+	mockMailer    *mailer.MockIMailer
 }
 
 func setup(t *testing.T) *testData {
@@ -30,12 +32,20 @@ func setup(t *testing.T) *testData {
 	ts := testsuite.NewTestSuite(t)
 	ctrl := gomock.NewController(t)
 
+	tempFile := ts.CreateTempFile("{{.Recipient}} {{.Amount}} {{.Code}}")
+
+	testConfig := Config{
+		Templates: map[string]string{
+			"sample": tempFile,
+		},
+	}
 	testDB := ts.MakeTestDB()
 	mockClientMgr := client.NewMockIManager(ctrl)
 	mockWallet := wallet.NewMockIWallet(ctrl)
 	mockMailer := mailer.NewMockIMailer(ctrl)
 
-	voucherCmd := NewVoucherCmd(testDB, mockWallet, mockClientMgr, mockMailer)
+	voucherCmd := NewVoucherCmd(context.Background(), &testConfig,
+		testDB, mockWallet, mockClientMgr, mockMailer)
 	voucherCmd.BuildCommand(entity.BotID_CLI)
 
 	return &testData{
@@ -44,6 +54,7 @@ func setup(t *testing.T) *testData {
 		testDB:        testDB,
 		mockClientMgr: mockClientMgr,
 		mockWallet:    mockWallet,
+		mockMailer:    mockMailer,
 	}
 }
 
@@ -79,6 +90,13 @@ func WithCreatedAt(createdAt time.Time) VoucherOption {
 	}
 }
 
+// Helper for setting email in VoucherOption style
+func WithEmail(email string) VoucherOption {
+	return func(v *entity.Voucher) {
+		v.Email = email
+	}
+}
+
 func WithRecipient(recipient string) VoucherOption {
 	return func(v *entity.Voucher) {
 		v.Recipient = recipient
@@ -90,6 +108,8 @@ func (td *testData) createTestVoucher(t *testing.T, opts ...VoucherOption) *enti
 
 	voucher := &entity.Voucher{
 		ValidMonths: 1,
+		Email:       "test@test.com",
+		Recipient:   td.RandString(8),
 		Amount:      td.RandAmount(),
 		Creator:     uint(td.RandInt(100)),
 		Code:        td.RandString(8),

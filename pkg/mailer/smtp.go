@@ -33,13 +33,8 @@ func (*SMTPMailer) LoadMailTemplate(path string) (*template.Template, error) {
 	return tmpl, nil
 }
 
-func (s *SMTPMailer) SendTemplateMail(recipient, tmplName string, data map[string]string) error {
-	tmllPath, exists := s.cfg.Templates[tmplName]
-	if !exists {
-		return fmt.Errorf("template not exists: %s", tmplName)
-	}
-
-	tmpl, err := s.LoadMailTemplate(tmllPath)
+func (s *SMTPMailer) SendTemplateMail(recipient, tmplPath string, data map[string]string) error {
+	tmpl, err := s.LoadMailTemplate(tmplPath)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,10 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/pagu-project/pagu/internal/entity"
+	"gorm.io/gorm"
 )
 
 func (db *Database) AddVoucher(v *entity.Voucher) error {
@@ -46,4 +49,24 @@ func (db *Database) ListVoucher() ([]*entity.Voucher, error) {
 	}
 
 	return vouchers, nil
+}
+
+// GetNonExpiredVoucherByEmail returns a non-expired voucher for the given email, or nil if none exists.
+func (db *Database) GetNonExpiredVoucherByEmail(email string) (*entity.Voucher, error) {
+	var voucher entity.Voucher
+	err := db.gormDB.Model(&entity.Voucher{}).
+		Where("email = ?", email).
+		Order("created_at DESC").
+		First(&voucher).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+	expireAt := voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0)
+	if expireAt.After(time.Now()) {
+		return &voucher, nil
+	}
+	return nil, nil
 }
