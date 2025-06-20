@@ -64,7 +64,7 @@ func (db *Database) GetNonExpiredVoucherByEmail(email string) *entity.Voucher {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
 		}
-		log.Warn("failed to fetch non-expired voucher by email '%s': %v", email, err)
+		log.Warn("failed to fetch non-expired voucher by email", "email", email, "error", err)
 
 		return nil
 	}

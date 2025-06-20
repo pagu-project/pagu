@@ -55,7 +55,7 @@ func (p *PriceChecker) start() {
 	go func() {
 		defer wg.Done()
 		if err := p.getPrice(ctx, _defaultXeggexPriceEndpoint, &xeggex); err != nil {
-			log.Error(err.Error())
+			log.Error("unable to get Xeggex price", "error", err)
 
 			return
 		}
@@ -65,7 +65,7 @@ func (p *PriceChecker) start() {
 	go func() {
 		defer wg.Done()
 		if err := p.getPrice(ctx, _defaultTradeOgreEndpoint, &tradeOgre); err != nil {
-			log.Error(err.Error())
+			log.Error("unable to get TradeOgre price", "error", err)
 
 			return
 		}
@@ -75,7 +75,7 @@ func (p *PriceChecker) start() {
 	go func() {
 		defer wg.Done()
 		if err := p.getPrice(ctx, _defaultAzbitPriceEndpoint, &azbit); err != nil {
-			log.Error(err.Error())
+			log.Error("unable to get Azbit price", "error", err)
 
 			return
 		}

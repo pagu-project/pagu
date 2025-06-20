@@ -42,7 +42,7 @@ func NewTelegramBot(ctx context.Context, cfg *Config, botID entity.BotID, engine
 
 	teleBot, err := tele.NewBot(pref)
 	if err != nil {
-		log.Error("Failed to create Telegram bot:", err)
+		log.Error("Failed to create Telegram bot", "error", err)
 
 		return nil, err
 	}

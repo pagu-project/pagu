@@ -49,7 +49,7 @@ func (cm *Manager) Start() {
 func (cm *Manager) Stop() {
 	for addr, c := range cm.clients {
 		if err := c.Close(); err != nil {
-			log.Error("could not close connection to RPC node", "err", err, "RPCAddr", addr)
+			log.Error("could not close connection to RPC node", "error", err, "RPCAddr", addr)
 		}
 	}
 }
@@ -60,7 +60,7 @@ func (cm *Manager) updateValMap() {
 	for _, client := range cm.clients {
 		networkInfo, err := client.GetNetworkInfo(cm.ctx)
 		if err != nil {
-			log.Warn("cannot connect to client", "err", err, "target", client.Target())
+			log.Warn("cannot connect to client", "error", err, "target", client.Target())
 
 			continue
 		}

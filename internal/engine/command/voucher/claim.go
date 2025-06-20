@@ -37,14 +37,14 @@ func (v *VoucherCmd) claimHandler(
 	valInfo, _ := v.clientManager.GetValidatorInfo(address)
 	if valInfo != nil {
 		err = errors.New("this address is already a staked validator")
-		log.Warn(fmt.Sprintf("Staked validator found. %s", address))
+		log.Warn("Staked validator found", "address", address)
 
 		return cmd.RenderErrorTemplate(err)
 	}
 
 	pubKey, err := v.clientManager.FindPublicKey(address, false)
 	if err != nil {
-		log.Warn(fmt.Sprintf("Peer not found. %s", address))
+		log.Warn("Peer not found", "address", address)
 
 		return cmd.RenderErrorTemplate(err)
 	}
