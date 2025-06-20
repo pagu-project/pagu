@@ -11,10 +11,10 @@ import (
 )
 
 func (v *VoucherCmd) statusHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
-	if args["code"] != "" {
-		code, ok := args["code"]
+	if args[argNameStatusCode] != "" {
+		code, ok := args[argNameStatusCode]
 		if !ok {
-			return cmd.ErrorResult(errors.New("invalid code param"))
+			return cmd.RenderErrorTemplate(errors.New("invalid code param"))
 		}
 
 		return v.statusVoucher(cmd, code)
@@ -51,7 +51,7 @@ func (v *VoucherCmd) statusVoucher(cmd *command.Command, code string) command.Co
 func (v *VoucherCmd) statusAllVouchers(cmd *command.Command) command.CommandResult {
 	vouchers, err := v.db.ListVoucher()
 	if err != nil {
-		return cmd.ErrorResult(err)
+		return cmd.RenderErrorTemplate(err)
 	}
 
 	total := 0

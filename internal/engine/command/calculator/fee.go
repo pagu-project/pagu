@@ -11,7 +11,7 @@ func (c *CalculatorCmd) feeHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	amt, err := amount.FromString(args["amount"])
+	amt, err := amount.FromString(args[argNameFeeAmount])
 	if err != nil {
 		return cmd.RenderFailedTemplate("Invalid amount param")
 	}

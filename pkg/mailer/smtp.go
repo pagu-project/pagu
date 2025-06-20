@@ -43,7 +43,7 @@ func (s *SMTPMailer) SendTemplateMailAsync(recipient, tmplPath string, data map[
 	go func() {
 		err = s.dialer.DialAndSend(msg)
 		if err != nil {
-			log.Warn("failed to send voucher email", "error", err)
+			log.Error("failed to send voucher email", "error", err)
 		}
 	}()
 

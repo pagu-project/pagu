@@ -60,5 +60,11 @@ func (cfg *Config) BasicCheck() error {
 		return errors.New("config: network nodes is empty")
 	}
 
+	for _, tmplPath := range cfg.Engine.Voucher.Templates {
+		if !utils.PathExists(tmplPath) {
+			return errors.New("config: voucher template file not exists")
+		}
+	}
+
 	return nil
 }

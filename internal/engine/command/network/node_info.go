@@ -12,7 +12,7 @@ import (
 func (n *NetworkCmd) nodeInfoHandler(_ *entity.User,
 	cmd *command.Command, args map[string]string,
 ) command.CommandResult {
-	valAddress := args["validator_address"]
+	valAddress := args[argNameNodeInfoValidator_address]
 
 	peerInfo, err := n.clientMgr.GetPeerInfo(valAddress)
 	if err != nil {

@@ -77,7 +77,7 @@ func (cm *Manager) updateValMap() {
 			continue
 		}
 
-		log.Info("fetching network information", "target", client.Target(), "connected", networkInfo.ConnectedPeersCount)
+		log.Debug("fetching network information", "target", client.Target(), "connected", networkInfo.ConnectedPeersCount)
 		for _, peer := range networkInfo.ConnectedPeers {
 			for _, addr := range peer.ConsensusAddresses {
 				current := freshValMap[addr]

@@ -17,8 +17,9 @@ func TestStatusNormal(t *testing.T) {
 	testVoucher := td.createTestVoucher(t, WithCode(voucherCode), WithAmount(100e9))
 
 	t.Run("one code status normal", func(t *testing.T) {
-		args := make(map[string]string)
-		args["code"] = voucherCode
+		args := map[string]string{
+			"code": voucherCode,
+		}
 		result := td.voucherCmd.statusHandler(caller, td.voucherCmd.subCmdStatus, args)
 		assert.True(t, result.Successful)
 		assert.Contains(t, result.Message, "Code: 12345678")
@@ -26,8 +27,9 @@ func TestStatusNormal(t *testing.T) {
 	})
 
 	t.Run("wrong code", func(t *testing.T) {
-		args := make(map[string]string)
-		args["code"] = "000"
+		args := map[string]string{
+			"code": "000",
+		}
 		result := td.voucherCmd.statusHandler(caller, td.voucherCmd.subCmdStatus, args)
 		assert.False(t, result.Successful)
 		assert.Contains(t, result.Message, "Voucher code is not valid, no voucher found")

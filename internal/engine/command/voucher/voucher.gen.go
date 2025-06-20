@@ -7,21 +7,24 @@ import (
 )
 
 const (
-	argNameClaimCode         = "code"
-	argNameClaimAddress      = "address"
-	argNameCreateTemplate    = "template"
-	argNameCreateRecipient   = "recipient"
-	argNameCreateEmail       = "email"
-	argNameCreateAmount      = "amount"
-	argNameCreateValidMonths = "valid-months"
-	argNameCreateDescription = "description"
-	argNameStatusCode        = "code"
+	argNameClaimCode          = "code"
+	argNameClaimAddress       = "address"
+	argNameCreateTemplate     = "template"
+	argNameCreateRecipient    = "recipient"
+	argNameCreateEmail        = "email"
+	argNameCreateAmount       = "amount"
+	argNameCreateValidMonths  = "valid-months"
+	argNameCreateDescription  = "description"
+	argNameCreateBulkTemplate = "template"
+	argNameCreateBulkCsv      = "csv"
+	argNameStatusCode         = "code"
 )
 
 type voucherSubCmds struct {
-	subCmdClaim  *command.Command
-	subCmdCreate *command.Command
-	subCmdStatus *command.Command
+	subCmdClaim      *command.Command
+	subCmdCreate     *command.Command
+	subCmdCreateBulk *command.Command
+	subCmdStatus     *command.Command
 }
 
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
@@ -94,6 +97,30 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 			},
 		},
 	}
+	subCmdCreateBulk := &command.Command{
+		Name:           "create-bulk",
+		Help:           "Generate bulk voucher codes from JSON input",
+		Handler:        c.createBulkHandler,
+		ResultTemplate: "Vouchers are going to send to recipients.\n",
+		TargetBotIDs: []entity.BotID{
+			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
+		Args: []*command.Args{
+			{
+				Name:     "template",
+				Desc:     "The email template to use for the voucher",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
+			},
+			{
+				Name:     "csv",
+				Desc:     "The csv file containing the voucher information (`recipient,email,amount,valid-months,desc`)",
+				InputBox: command.InputBoxFile,
+				Optional: false,
+			},
+		},
+	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
 		Help:           "View the status of vouchers or a specific voucher",
@@ -114,9 +141,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	}
 
 	return &voucherSubCmds{
-		subCmdClaim:  subCmdClaim,
-		subCmdCreate: subCmdCreate,
-		subCmdStatus: subCmdStatus,
+		subCmdClaim:      subCmdClaim,
+		subCmdCreate:     subCmdCreate,
+		subCmdCreateBulk: subCmdCreateBulk,
+		subCmdStatus:     subCmdStatus,
 	}
 }
 
@@ -134,6 +162,7 @@ func (c *VoucherCmd) buildVoucherCommand(botID entity.BotID) *command.Command {
 
 	voucherCmd.AddSubCommand(botID, c.subCmdClaim)
 	voucherCmd.AddSubCommand(botID, c.subCmdCreate)
+	voucherCmd.AddSubCommand(botID, c.subCmdCreateBulk)
 	voucherCmd.AddSubCommand(botID, c.subCmdStatus)
 
 	return voucherCmd

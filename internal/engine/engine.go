@@ -339,14 +339,10 @@ func (be *BotEngine) GetUser(platformID entity.PlatformID, platformUserID string
 }
 
 func (be *BotEngine) Stop() {
-	log.Info("Stopping the Bot Engine")
-
 	be.clientMgr.Stop()
 }
 
 func (be *BotEngine) Start() {
-	log.Info("Starting the Bot Engine")
-
 	be.clientMgr.Start()
 }
 

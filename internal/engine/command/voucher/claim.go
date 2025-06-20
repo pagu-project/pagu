@@ -15,7 +15,7 @@ func (v *VoucherCmd) claimHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	code := args["code"]
+	code := args[argNameClaimCode]
 	if len(code) != 8 {
 		return cmd.RenderFailedTemplate("Voucher code is not valid, length must be 8")
 	}
@@ -33,7 +33,7 @@ func (v *VoucherCmd) claimHandler(
 		return cmd.RenderFailedTemplate("Voucher code claimed before")
 	}
 
-	address := args["address"]
+	address := args[argNameClaimAddress]
 	valInfo, _ := v.clientManager.GetValidatorInfo(address)
 	if valInfo != nil {
 		err = errors.New("this address is already a staked validator")
