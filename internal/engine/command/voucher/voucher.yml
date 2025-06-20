@@ -53,6 +53,20 @@ sub_commands:
         desc: A description of the voucher's purpose
         input_box: Text
         optional: false
+  - name: create-bulk
+    target_bot_ids: [CLI, Moderator]
+    help: Generate bulk voucher codes from JSON input
+    result_template: |
+      Vouchers are going to send to recipients.
+    args:
+      - name: template
+        desc: The email template to use for the voucher
+        input_box: Choice
+        optional: false
+      - name: csv
+        desc: The csv file containing the voucher information (`recipient,email,amount,valid-months,desc`)
+        input_box: File
+        optional: false
   - name: status
     target_bot_ids: [CLI, Moderator]
     help: View the status of vouchers or a specific voucher

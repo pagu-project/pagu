@@ -72,7 +72,7 @@ func (bot *Bot) deleteAllCommands() {
 		if err != nil {
 			log.Error("unable to delete command", "error", err, "cmd", cmd.Name)
 		} else {
-			log.Info("discord command unregistered", "name", cmd.Name)
+			log.Debug("discord command unregistered", "name", cmd.Name)
 		}
 	}
 }
@@ -84,7 +84,7 @@ func (bot *Bot) registerCommands() error {
 
 	cmds := bot.engine.Commands()
 	for _, cmd := range cmds {
-		log.Info("registering new command", "name", cmd.Name)
+		log.Debug("registering new command", "name", cmd.Name)
 
 		discordCmd := discordgo.ApplicationCommand{
 			Type:        discordgo.ChatApplicationCommand,
@@ -94,7 +94,7 @@ func (bot *Bot) registerCommands() error {
 
 		if cmd.HasSubCommand() {
 			for _, subCmd := range cmd.SubCommands {
-				log.Info("adding sub-command", "command", cmd.Name, "sub-command")
+				log.Debug("adding sub-command", "command", cmd.Name, "sub-command", subCmd.Name)
 
 				discordSubCmd := &discordgo.ApplicationCommandOption{
 					Type:        discordgo.ApplicationCommandOptionSubCommand,
@@ -103,7 +103,7 @@ func (bot *Bot) registerCommands() error {
 				}
 
 				for _, arg := range subCmd.Args {
-					log.Info("adding sub command argument", "command", cmd.Name, "sub-command", subCmd.Name, "argument", arg.Name)
+					log.Debug("adding sub command argument", "command", cmd.Name, "sub-command", subCmd.Name, "argument", arg.Name)
 
 					opt := &discordgo.ApplicationCommandOption{
 						Type:        discordOptionType(arg.InputBox),
@@ -201,9 +201,16 @@ func parseArgs(
 		result[opt.Name] = strconv.FormatBool(opt.BoolValue())
 
 	case discordgo.ApplicationCommandOptionAttachment:
-		// TODO: handle multiple attachment
 		for _, attachment := range rootCmd.Resolved.Attachments {
-			result[opt.Name] = attachment.URL
+			data, err := utils.DownloadFile(attachment.URL)
+			if err != nil {
+				log.Warn("unable to download file", "error", err)
+			} else {
+				result[opt.Name] = string(data)
+			}
+
+			// We expect one attached file.
+			break
 		}
 
 	case discordgo.ApplicationCommandOptionSubCommand,

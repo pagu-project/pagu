@@ -55,10 +55,10 @@ func runCommand(parentCmd *cobra.Command) {
 		// Initialize global logger.
 		log.InitGlobalLogger(&cfg.Logger)
 
-		// starting eng.
 		eng, err := engine.NewBotEngine(ctx, cfg.BotID, &cfg.Engine)
 		ExitOnError(cmd, err)
 
+		log.Info("starting Pagu", "bot-id", cfg.BotID)
 		eng.Start()
 
 		var bot BotInstance
@@ -91,6 +91,8 @@ func runCommand(parentCmd *cobra.Command) {
 		ExitOnError(cmd, err)
 
 		TrapSignal(func() {
+			log.Info("stopping Pagu")
+
 			cancel()
 
 			bot.Stop()

@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"slices"
 	"strings"
@@ -162,4 +164,17 @@ func IsToggleEnabled(toggleStr string) bool {
 	toggleStr = strings.ToLower(toggleStr)
 
 	return toggleStr == "true" || toggleStr == "yes" || toggleStr == "on" || toggleStr == "1"
+}
+
+func DownloadFile(url string) ([]byte, error) {
+	//nolint // cannot set the url as a constant
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	return io.ReadAll(resp.Body)
 }

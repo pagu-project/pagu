@@ -49,6 +49,7 @@ func (v *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
 		choices = append(choices, choice)
 	}
 	v.subCmdCreate.Args[0].Choices = choices
+	v.subCmdCreateBulk.Args[0].Choices = choices
 
 	return cmd
 }

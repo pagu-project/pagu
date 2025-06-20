@@ -12,14 +12,6 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-type BulkRecorder struct {
-	Recipient        string  `csv:"Recipient"`
-	Email            string  `csv:"Email"`
-	Amount           float64 `csv:"Amount"`
-	ValidatedInMonth int     `csv:"Validated"`
-	Description      string  `csv:"Description"`
-}
-
 func (v *VoucherCmd) createHandler(
 	caller *entity.User,
 	cmd *command.Command,
@@ -27,7 +19,6 @@ func (v *VoucherCmd) createHandler(
 ) command.CommandResult {
 	vch, err := v.createVoucher(
 		caller,
-		args[argNameCreateTemplate],
 		args[argNameCreateRecipient],
 		args[argNameCreateEmail],
 		args[argNameCreateAmount],
@@ -38,21 +29,20 @@ func (v *VoucherCmd) createHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
+	err = v.sendEmail(args[argNameCreateTemplate], vch)
+	if err != nil {
+		return cmd.RenderErrorTemplate(err)
+	}
+
 	return cmd.RenderResultTemplate("voucher", vch)
 }
 
 func (v *VoucherCmd) createVoucher(caller *entity.User,
-	tmplName, recipient, email, amtStr, validMonthsStr, desc string,
+	recipient, email, amtStr, validMonthsStr, desc string,
 ) (*entity.Voucher, error) {
 	existing := v.db.GetNonExpiredVoucherByEmail(email)
-
 	if existing != nil {
-		return nil, errors.New("email already has a non-expired voucher")
-	}
-
-	tmplPath, exists := v.templates[tmplName]
-	if !exists {
-		return nil, fmt.Errorf("template not exists: %s", tmplName)
+		return nil, fmt.Errorf("email already has a non-expired voucher: %s", email)
 	}
 
 	amt, err := amount.FromString(amtStr)
@@ -91,16 +81,22 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 		return nil, err
 	}
 
+	return vch, nil
+}
+
+func (v *VoucherCmd) sendEmail(tmplName string, vch *entity.Voucher) error {
+	tmplPath := v.templates[tmplName]
+
 	data := map[string]string{
 		"Code":        vch.Code,
 		"Amount":      vch.Amount.String(),
 		"ValidMonths": strconv.Itoa(int(vch.ValidMonths)),
 		"Recipient":   vch.Recipient,
 	}
-	err = v.mailer.SendTemplateMailAsync(email, tmplPath, data)
+	err := v.mailer.SendTemplateMailAsync(vch.Email, tmplPath, data)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return vch, nil
+	return nil
 }

@@ -56,6 +56,16 @@ func (b *BotID) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
+func (b BotID) String() string {
+	for name, id := range BotNameToID {
+		if id == b {
+			return name
+		}
+	}
+
+	return fmt.Sprintf("%d", b)
+}
+
 // PlatformID defines the platform from which the user is calling the API.
 // It is stored in the database alongside the user ID to track user activity on specific platforms.
 // The numeric values must be preserved for consistency.

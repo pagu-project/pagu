@@ -16,7 +16,7 @@ func (c *CalculatorCmd) rewardHandler(
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	stake, err := amount.FromString(args["stake"])
+	stake, err := amount.FromString(args[argNameRewardStake])
 	if err != nil {
 		return cmd.RenderFailedTemplate("Invalid stake param")
 	}
@@ -28,7 +28,7 @@ func (c *CalculatorCmd) rewardHandler(
 			fmt.Errorf("%v is invalid amount, minimum stake amount is 1 PAC and maximum is 1,000 PAC", stake))
 	}
 
-	numOfDays, err := strconv.Atoi(args["days"])
+	numOfDays, err := strconv.Atoi(args[argNameRewardDays])
 	if err != nil {
 		return cmd.RenderErrorTemplate(errors.New("invalid days param"))
 	}
