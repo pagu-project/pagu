@@ -20,6 +20,7 @@ func (c *VoucherCmd) createHandler(
 ) command.CommandResult {
 	voucher, err := c.createVoucher(
 		caller,
+		args[argNameCreateTemplate],
 		args[argNameCreateType],
 		args[argNameCreateRecipient],
 		args[argNameCreateEmail],
@@ -40,10 +41,15 @@ func (c *VoucherCmd) createHandler(
 }
 
 func (c *VoucherCmd) createVoucher(caller *entity.User,
-	typStr string, recipient, email, amtStr, validMonthsStr, desc string,
+	tmplName, typStr, recipient, email, amtStr, validMonthsStr, desc string,
 ) (*entity.Voucher, error) {
 	existing := c.db.GetNonExpiredVoucherByEmail(email)
 	if existing != nil {
+		if !existing.IsClaimed() {
+			// Resend the email
+			_ = c.sendEmail(tmplName, existing)
+		}
+
 		return nil, fmt.Errorf("email already has a non-expired voucher: %s", email)
 	}
 
