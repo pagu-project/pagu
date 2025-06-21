@@ -34,8 +34,8 @@ func (*SMTPMailer) LoadMailTemplate(path string) (*template.Template, error) {
 	return tmpl, nil
 }
 
-func (s *SMTPMailer) SendTemplateMailAsync(recipient, tmplPath string, data map[string]string) error {
-	msg, err := s.makeMessage(recipient, tmplPath, data)
+func (s *SMTPMailer) SendTemplateMailAsync(email, tmplPath string, data map[string]string) error {
+	msg, err := s.makeMessage(email, tmplPath, data)
 	if err != nil {
 		return err
 	}
@@ -43,15 +43,15 @@ func (s *SMTPMailer) SendTemplateMailAsync(recipient, tmplPath string, data map[
 	go func() {
 		err = s.dialer.DialAndSend(msg)
 		if err != nil {
-			log.Error("failed to send voucher email", "error", err)
+			log.Error("failed to send email", "error", err, "email", email)
 		}
 	}()
 
 	return nil
 }
 
-func (s *SMTPMailer) SendTemplateMail(recipient, tmplPath string, data map[string]string) error {
-	msg, err := s.makeMessage(recipient, tmplPath, data)
+func (s *SMTPMailer) SendTemplateMail(email, tmplPath string, data map[string]string) error {
+	msg, err := s.makeMessage(email, tmplPath, data)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (s *SMTPMailer) SendTemplateMail(recipient, tmplPath string, data map[strin
 	return s.dialer.DialAndSend(msg)
 }
 
-func (s *SMTPMailer) makeMessage(recipient, tmplPath string, data map[string]string) (*mail.Message, error) {
+func (s *SMTPMailer) makeMessage(email, tmplPath string, data map[string]string) (*mail.Message, error) {
 	tmpl, err := s.LoadMailTemplate(tmplPath)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func (s *SMTPMailer) makeMessage(recipient, tmplPath string, data map[string]str
 
 	msg := mail.NewMessage()
 	msg.SetHeader("From", s.cfg.Sender)
-	msg.SetHeader("To", recipient)
+	msg.SetHeader("To", email)
 	msg.SetHeader("Subject", subject.String())
 	msg.SetBody("text/plain", plainBody.String())
 	msg.AddAlternative("text/html", htmlBody.String())
