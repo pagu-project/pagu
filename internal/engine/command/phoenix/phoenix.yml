@@ -7,22 +7,22 @@ sub_commands:
   - name: health
     help: Check the network health status
     result_template: |
-      Network is {{.Status}}
-      Current Time: {{.CurrentTime}}
-      Last Block Time: {{.LastBlockTime}}
-      Time Difference: {{.TimeDiff}}
-      Last Block Height: {{.LastBlockHeight}}
+      **Network is {{.Status}}**
+      **Current Time**: {{.CurrentTime}}
+      **Last Block Time**: {{.LastBlockTime}}
+      **Time Difference**: {{.TimeDiff}}
+      **Last Block Height**: {{.LastBlockHeight}}
 
   - name: status
     help: View network statistics
     result_template: |
-      Network Name: {{.NetworkName}}
-      Connected Peers: {{.ConnectedPeers}}
-      Validator Count: {{.ValidatorsCount}}
-      Account Count: {{.AccountsCount}}
-      Current Block Height: {{.CurrentBlockHeight}}
-      Total Power: {{.TotalPower}} tPAC
-      Total Committee Power: {{.TotalCommitteePower}} tPAC
+      **Network Name**: {{.NetworkName}}
+      **Connected Peers**: {{.ConnectedPeers}}
+      **Validator Count**: {{.ValidatorsCount}}
+      **Account Count**: {{.AccountsCount}}
+      **Current Block Height**: {{.CurrentBlockHeight}}
+      **Total Power**: {{.TotalPower}} tPAC
+      **Total Committee Power**: {{.TotalCommitteePower}} tPAC
 
       > Note📝: This info is from a random network node. Some data may not be consistent.
 
@@ -40,9 +40,9 @@ sub_commands:
         input_box: Text
 
   - name: wallet
-    help: Show the faucet wallet balance
+    help: Show the Pagu Phoenix (Faucet) wallet info
     result_template: |
       Pagu Phoenix Wallet:
 
-      Address: {{.address}}
-      Balance: {{.balance}}
+      **Address**: {{.address}}
+      **Balance**: {{.balance}}

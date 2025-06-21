@@ -20,14 +20,14 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 		Name:           "health",
 		Help:           "Check the network health status",
 		Handler:        c.healthHandler,
-		ResultTemplate: "Network is {{.Status}}\nCurrent Time: {{.CurrentTime}}\nLast Block Time: {{.LastBlockTime}}\nTime Difference: {{.TimeDiff}}\nLast Block Height: {{.LastBlockHeight}}\n",
+		ResultTemplate: "**Network is {{.Status}}**\n**Current Time**: {{.CurrentTime}}\n**Last Block Time**: {{.LastBlockTime}}\n**Time Difference**: {{.TimeDiff}}\n**Last Block Height**: {{.LastBlockHeight}}\n",
 		TargetBotIDs:   entity.AllBotIDs(),
 	}
 	subCmdStatus := &command.Command{
 		Name:           "status",
 		Help:           "View network statistics",
 		Handler:        c.statusHandler,
-		ResultTemplate: "Network Name: {{.NetworkName}}\nConnected Peers: {{.ConnectedPeers}}\nValidator Count: {{.ValidatorsCount}}\nAccount Count: {{.AccountsCount}}\nCurrent Block Height: {{.CurrentBlockHeight}}\nTotal Power: {{.TotalPower}} tPAC\nTotal Committee Power: {{.TotalCommitteePower}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
+		ResultTemplate: "**Network Name**: {{.NetworkName}}\n**Connected Peers**: {{.ConnectedPeers}}\n**Validator Count**: {{.ValidatorsCount}}\n**Account Count**: {{.AccountsCount}}\n**Current Block Height**: {{.CurrentBlockHeight}}\n**Total Power**: {{.TotalPower}} tPAC\n**Total Committee Power**: {{.TotalCommitteePower}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
 		TargetBotIDs:   entity.AllBotIDs(),
 	}
 	subCmdFaucet := &command.Command{
@@ -47,9 +47,9 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 	}
 	subCmdWallet := &command.Command{
 		Name:           "wallet",
-		Help:           "Show the faucet wallet balance",
+		Help:           "Show the Pagu Phoenix (Faucet) wallet info",
 		Handler:        c.walletHandler,
-		ResultTemplate: "Pagu Phoenix Wallet:\n\nAddress: {{.address}}\nBalance: {{.balance}}\n",
+		ResultTemplate: "Pagu Phoenix Wallet:\n\n**Address**: {{.address}}\n**Balance**: {{.balance}}\n",
 		TargetBotIDs:   entity.AllBotIDs(),
 	}
 
