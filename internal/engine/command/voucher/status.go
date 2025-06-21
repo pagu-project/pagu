@@ -7,23 +7,23 @@ import (
 	"github.com/pagu-project/pagu/internal/entity"
 )
 
-func (v *VoucherCmd) statusHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
+func (c *VoucherCmd) statusHandler(_ *entity.User, cmd *command.Command, args map[string]string) command.CommandResult {
 	if args[argNameStatusCode] != "" {
-		voucher, err := v.db.GetVoucherByCode(args[argNameStatusCode])
+		voucher, err := c.db.GetVoucherByCode(args[argNameStatusCode])
 		if err != nil {
 			return cmd.RenderErrorTemplate(err)
 		}
 
-		return v.statusVoucher(cmd, voucher)
+		return c.statusVoucher(cmd, voucher)
 	}
 
 	if args[argNameStatusEmail] != "" {
-		voucher, err := v.db.GetVoucherByEmail(args[argNameStatusEmail])
+		voucher, err := c.db.GetVoucherByEmail(args[argNameStatusEmail])
 		if err != nil {
 			return cmd.RenderErrorTemplate(err)
 		}
 
-		return v.statusVoucher(cmd, voucher)
+		return c.statusVoucher(cmd, voucher)
 	}
 
 	return cmd.RenderFailedTemplate("set email or code")

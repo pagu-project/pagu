@@ -6,6 +6,7 @@ import (
 	"github.com/pagu-project/pagu/internal/engine/command"
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/client"
+	"github.com/pagu-project/pagu/pkg/wallet"
 )
 
 type NetworkCmd struct {
@@ -13,12 +14,14 @@ type NetworkCmd struct {
 
 	ctx       context.Context
 	clientMgr client.IManager
+	wallet    wallet.IWallet
 }
 
-func NewNetworkCmd(ctx context.Context, clientMgr client.IManager) *NetworkCmd {
+func NewNetworkCmd(ctx context.Context, clientMgr client.IManager, wallet wallet.IWallet) *NetworkCmd {
 	return &NetworkCmd{
 		ctx:       ctx,
 		clientMgr: clientMgr,
+		wallet:    wallet,
 	}
 }
 
@@ -52,8 +55,8 @@ type NetStatus struct {
 	CirculatingSupply   int64
 }
 
-func (n *NetworkCmd) BuildCommand(botID entity.BotID) *command.Command {
-	cmd := n.buildNetworkCommand(botID)
+func (c *NetworkCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildNetworkCommand(botID)
 
 	return cmd
 }

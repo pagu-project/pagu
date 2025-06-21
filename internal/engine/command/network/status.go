@@ -7,22 +7,22 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (n *NetworkCmd) statusHandler(
+func (c *NetworkCmd) statusHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	netInfo, err := n.clientMgr.GetNetworkInfo()
+	netInfo, err := c.clientMgr.GetNetworkInfo()
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
 
-	chainInfo, err := n.clientMgr.GetBlockchainInfo()
+	chainInfo, err := c.clientMgr.GetBlockchainInfo()
 	if err != nil {
 		return cmd.ErrorResult(err)
 	}
 
-	supply := n.clientMgr.GetCirculatingSupply()
+	supply := c.clientMgr.GetCirculatingSupply()
 
 	// Convert NanoPAC to PAC using the Amount type.
 	totalNetworkPower := amount.Amount(chainInfo.TotalPower).ToPAC()

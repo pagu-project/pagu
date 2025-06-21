@@ -7,20 +7,21 @@ sub_commands:
   - name: node-info
     help: View information about a specific node
     result_template: |
-      PeerID: {{.PeerID}}
-      IP Address: {{.IPAddress}}
-      Agent: {{.Agent}}
-      Moniker: {{.Moniker}}
-      Country: {{.Country}}
-      City: {{.City}}
-      Region Name: {{.RegionName}}
-      TimeZone: {{.TimeZone}}
-      ISP: {{.ISP}}
+      **PeerID**: {{.PeerID}}
+      **IP Address**: {{.IPAddress}}
+      **Agent**: {{.Agent}}
+      **Moniker**: {{.Moniker}}
+      **Country**: {{.Country}}
+      **City**: {{.City}}
+      **Region Name**: {{.RegionName}}
+      **TimeZone**: {{.TimeZone}}
+      **ISP**: {{.ISP}}
 
-      Validator Info🔍
-      Number: {{.Number}}
-      PIP-19 Score: {{.AvailabilityScore}}
-      Stake: {{.Stake}} PAC's
+      ## Validator Info 🔍
+
+      **Number**: {{.Number}}
+      **PIP-19 Score**: {{.AvailabilityScore}}
+      **Stake**: {{.Stake}} PAC
     args:
       - name: validator_address
         desc: The validator address
@@ -31,23 +32,31 @@ sub_commands:
   - name: health
     help: Check the network health status
     result_template: |
-      Network is {{.Status}}
-      Current Time: {{.CurrentTime}}
-      Last Block Time: {{.LastBlockTime}}
-      Time Difference: {{.TimeDiff}}
-      Last Block Height: {{.LastBlockHeight}}
+      **Network is {{.Status}}**
+      **Current Time**: {{.CurrentTime}}
+      **Last Block Time**: {{.LastBlockTime}}
+      **Time Difference**: {{.TimeDiff}}
+      **Last Block Height**: {{.LastBlockHeight}}
 
   # In case you update this message, please update the phoenix message as well.
   - name: status
     help: View network statistics
     result_template: |
-      Network Name: {{.NetworkName}}
-      Connected Peers: {{.ConnectedPeers}}
-      Validator Count: {{.ValidatorsCount}}
-      Account Count: {{.AccountsCount}}
-      Current Block Height: {{.CurrentBlockHeight}}
-      Total Power: {{.TotalPower}} PAC
-      Total Committee Power: {{.TotalCommitteePower}} PAC
-      Circulating Supply: {{.CirculatingSupply}} PAC
+      **Network Name**: {{.NetworkName}}
+      **Connected Peers**: {{.ConnectedPeers}}
+      **Validator Count**: {{.ValidatorsCount}}
+      **Account Count**: {{.AccountsCount}}
+      **Current Block Height**: {{.CurrentBlockHeight}}
+      **Total Power**: {{.TotalPower}} PAC
+      **Total Committee Power**: {{.TotalCommitteePower}} PAC
+      **Circulating Supply**: {{.CirculatingSupply}} PAC
 
       > Note📝: This info is from one random network node. Some data may not be consistent.
+  - name: wallet
+    help: Show the Pagu wallet info
+    target_bot_ids: [Moderator, CLI]
+    result_template: |
+      Pagu Wallet:
+
+      **Address**: {{.address}}
+      **Balance**: {{.balance}}

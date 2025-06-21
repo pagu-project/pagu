@@ -6,8 +6,8 @@ import (
 	"github.com/pagu-project/pagu/pkg/amount"
 )
 
-func (v *VoucherCmd) reportHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
-	vouchers, err := v.db.ListVoucher()
+func (c *VoucherCmd) reportHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
+	vouchers, err := c.db.ListVoucher()
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}

@@ -17,7 +17,7 @@ type bulkRecorder struct {
 	Description string `csv:"desc"`
 }
 
-func (v *VoucherCmd) createBulkHandler(
+func (c *VoucherCmd) createBulkHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -29,7 +29,7 @@ func (v *VoucherCmd) createBulkHandler(
 	}
 
 	for index, rec := range bulkRecorders {
-		voucher, err := v.createVoucher(
+		voucher, err := c.createVoucher(
 			caller,
 			rec.Recipient,
 			rec.Email,
@@ -46,7 +46,7 @@ func (v *VoucherCmd) createBulkHandler(
 			sleepTime += 5 * time.Second
 			time.Sleep(sleepTime)
 
-			err := v.sendEmail(args[argNameCreateBulkTemplate], voucher)
+			err := c.sendEmail(args[argNameCreateBulkTemplate], voucher)
 			if err != nil {
 				log.Error("unable to send bulk email", "error", err)
 			}
