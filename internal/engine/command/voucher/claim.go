@@ -10,7 +10,7 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
-func (v *VoucherCmd) claimHandler(
+func (c *VoucherCmd) claimHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
@@ -20,7 +20,7 @@ func (v *VoucherCmd) claimHandler(
 		return cmd.RenderFailedTemplate("Voucher code is not valid, length must be 8")
 	}
 
-	voucher, err := v.db.GetVoucherByCode(code)
+	voucher, err := c.db.GetVoucherByCode(code)
 	if err != nil {
 		return cmd.RenderFailedTemplate("Voucher code is not valid, no voucher found")
 	}
@@ -34,7 +34,7 @@ func (v *VoucherCmd) claimHandler(
 	}
 
 	address := args[argNameClaimAddress]
-	valInfo, _ := v.clientManager.GetValidatorInfo(address)
+	valInfo, _ := c.clientManager.GetValidatorInfo(address)
 	if valInfo != nil {
 		err = errors.New("this address is already a staked validator")
 		log.Warn("Staked validator found", "address", address)
@@ -42,7 +42,7 @@ func (v *VoucherCmd) claimHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	pubKey, err := v.clientManager.FindPublicKey(address, false)
+	pubKey, err := c.clientManager.FindPublicKey(address, false)
 	if err != nil {
 		log.Warn("Peer not found", "address", address)
 
@@ -50,7 +50,7 @@ func (v *VoucherCmd) claimHandler(
 	}
 
 	memo := fmt.Sprintf("Voucher %s claimed by Pagu", code)
-	txHash, err := v.wallet.BondTransaction(pubKey, address, memo, voucher.Amount)
+	txHash, err := c.wallet.BondTransaction(pubKey, address, memo, voucher.Amount)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}
@@ -59,7 +59,7 @@ func (v *VoucherCmd) claimHandler(
 		return cmd.RenderFailedTemplate("Can't send bond transaction")
 	}
 
-	if err = v.db.ClaimVoucher(voucher.ID, txHash, caller.ID); err != nil {
+	if err = c.db.ClaimVoucher(voucher.ID, txHash, caller.ID); err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}
 

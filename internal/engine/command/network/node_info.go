@@ -9,18 +9,18 @@ import (
 	utils2 "github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (n *NetworkCmd) nodeInfoHandler(_ *entity.User,
+func (c *NetworkCmd) nodeInfoHandler(_ *entity.User,
 	cmd *command.Command, args map[string]string,
 ) command.CommandResult {
 	valAddress := args[argNameNodeInfoValidator_address]
 
-	peerInfo, err := n.clientMgr.GetPeerInfo(valAddress)
+	peerInfo, err := c.clientMgr.GetPeerInfo(valAddress)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}
 
 	ip := utils2.ExtractIPFromMultiAddr(peerInfo.Address)
-	geoData := utils2.GetGeoIP(n.ctx, ip)
+	geoData := utils2.GetGeoIP(c.ctx, ip)
 
 	nodeInfo := &NodeInfo{
 		PeerID:     peerInfo.PeerId,
@@ -37,7 +37,7 @@ func (n *NetworkCmd) nodeInfoHandler(_ *entity.User,
 	// here we check if the node is also a validator.
 	// if its a validator , then we populate the validator data.
 	// if not validator then we set everything to 0/empty .
-	val, err := n.clientMgr.GetValidatorInfo(valAddress)
+	val, err := c.clientMgr.GetValidatorInfo(valAddress)
 	if err == nil && val != nil {
 		nodeInfo.ValidatorNum = val.Validator.Number
 		nodeInfo.AvailabilityScore = val.Validator.AvailabilityScore

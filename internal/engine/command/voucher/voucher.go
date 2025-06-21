@@ -35,11 +35,11 @@ func NewVoucherCmd(ctx context.Context, cfg *Config, db *repository.Database, wl
 	}
 }
 
-func (v *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
-	cmd := v.buildVoucherCommand(botID)
+func (c *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildVoucherCommand(botID)
 
 	choices := []command.Choice{}
-	for tmplName := range v.templates {
+	for tmplName := range c.templates {
 		choice := command.Choice{
 			Name:  tmplName,
 			Desc:  tmplName,
@@ -48,8 +48,8 @@ func (v *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
 
 		choices = append(choices, choice)
 	}
-	v.subCmdCreate.Args[0].Choices = choices
-	v.subCmdCreateBulk.Args[0].Choices = choices
+	c.subCmdCreate.Args[0].Choices = choices
+	c.subCmdCreateBulk.Args[0].Choices = choices
 
 	return cmd
 }

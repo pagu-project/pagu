@@ -55,8 +55,8 @@ type NetStatus struct {
 	CirculatingSupply   int64
 }
 
-func (n *NetworkCmd) BuildCommand(botID entity.BotID) *command.Command {
-	cmd := n.buildNetworkCommand(botID)
+func (c *NetworkCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildNetworkCommand(botID)
 
 	return cmd
 }

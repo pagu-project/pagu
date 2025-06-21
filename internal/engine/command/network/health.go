@@ -8,12 +8,12 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (n *NetworkCmd) healthHandler(
+func (c *NetworkCmd) healthHandler(
 	_ *entity.User,
 	cmd *command.Command,
 	_ map[string]string,
 ) command.CommandResult {
-	lastBlockTime, lastBlockHeight, err := n.clientMgr.GetLastBlockTime()
+	lastBlockTime, lastBlockHeight, err := c.clientMgr.GetLastBlockTime()
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}

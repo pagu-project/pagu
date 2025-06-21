@@ -13,12 +13,12 @@ import (
 	"github.com/pagu-project/pagu/pkg/utils"
 )
 
-func (v *VoucherCmd) createHandler(
+func (c *VoucherCmd) createHandler(
 	caller *entity.User,
 	cmd *command.Command,
 	args map[string]string,
 ) command.CommandResult {
-	voucher, err := v.createVoucher(
+	voucher, err := c.createVoucher(
 		caller,
 		args[argNameCreateRecipient],
 		args[argNameCreateEmail],
@@ -30,7 +30,7 @@ func (v *VoucherCmd) createHandler(
 		return cmd.RenderErrorTemplate(err)
 	}
 
-	err = v.sendEmail(args[argNameCreateTemplate], voucher)
+	err = c.sendEmail(args[argNameCreateTemplate], voucher)
 	if err != nil {
 		return cmd.RenderErrorTemplate(err)
 	}
@@ -38,10 +38,10 @@ func (v *VoucherCmd) createHandler(
 	return cmd.RenderResultTemplate("voucher", voucher)
 }
 
-func (v *VoucherCmd) createVoucher(caller *entity.User,
+func (c *VoucherCmd) createVoucher(caller *entity.User,
 	recipient, email, amtStr, validMonthsStr, desc string,
 ) (*entity.Voucher, error) {
-	existing := v.db.GetNonExpiredVoucherByEmail(email)
+	existing := c.db.GetNonExpiredVoucherByEmail(email)
 	if existing != nil {
 		return nil, fmt.Errorf("email already has a non-expired voucher: %s", email)
 	}
@@ -77,7 +77,7 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 		Desc:        desc,
 	}
 
-	err = v.db.AddVoucher(voucher)
+	err = c.db.AddVoucher(voucher)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +86,8 @@ func (v *VoucherCmd) createVoucher(caller *entity.User,
 	return voucher, nil
 }
 
-func (v *VoucherCmd) sendEmail(tmplName string, voucher *entity.Voucher) error {
-	tmplPath := v.templates[tmplName]
+func (c *VoucherCmd) sendEmail(tmplName string, voucher *entity.Voucher) error {
+	tmplPath := c.templates[tmplName]
 
 	data := map[string]string{
 		"Code":        voucher.Code,
@@ -95,7 +95,7 @@ func (v *VoucherCmd) sendEmail(tmplName string, voucher *entity.Voucher) error {
 		"ValidMonths": strconv.Itoa(int(voucher.ValidMonths)),
 		"Recipient":   voucher.Recipient,
 	}
-	err := v.mailer.SendTemplateMailAsync(voucher.Email, tmplPath, data)
+	err := c.mailer.SendTemplateMailAsync(voucher.Email, tmplPath, data)
 	if err != nil {
 		return err
 	}

@@ -21,8 +21,8 @@ func NewMarketCmd(clientMgr client.IManager, priceCache cache.Cache[string, enti
 	}
 }
 
-func (m *MarketCmd) BuildCommand(botID entity.BotID) *command.Command {
-	cmd := m.buildMarketCommand(botID)
+func (c *MarketCmd) BuildCommand(botID entity.BotID) *command.Command {
+	cmd := c.buildMarketCommand(botID)
 
 	return cmd
 }

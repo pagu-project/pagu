@@ -9,8 +9,8 @@ import (
 	"github.com/pagu-project/pagu/pkg/log"
 )
 
-func (m *MarketCmd) priceHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
-	priceData, ok := m.priceCache.Get(job.PriceCacheKey)
+func (c *MarketCmd) priceHandler(_ *entity.User, cmd *command.Command, _ map[string]string) command.CommandResult {
+	priceData, ok := c.priceCache.Get(job.PriceCacheKey)
 	if !ok {
 		return cmd.RenderFailedTemplate("failed to get price from markets. please try again later")
 	}
