@@ -10,12 +10,14 @@ const (
 	argNameClaimCode          = "code"
 	argNameClaimAddress       = "address"
 	argNameCreateTemplate     = "template"
+	argNameCreateType         = "type"
 	argNameCreateRecipient    = "recipient"
 	argNameCreateEmail        = "email"
 	argNameCreateAmount       = "amount"
 	argNameCreateValidMonths  = "valid-months"
 	argNameCreateDescription  = "description"
 	argNameCreateBulkTemplate = "template"
+	argNameCreateBulkType     = "type"
 	argNameCreateBulkCsv      = "csv"
 	argNameStatusCode         = "code"
 	argNameStatusEmail        = "email"
@@ -69,6 +71,12 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 				Optional: false,
 			},
 			{
+				Name:     "type",
+				Desc:     "Type of voucher (Stake or Liquid)",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
+			},
+			{
 				Name:     "recipient",
 				Desc:     "The name of the recipient",
 				InputBox: command.InputBoxText,
@@ -113,6 +121,12 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 			{
 				Name:     "template",
 				Desc:     "The email template to use for the voucher",
+				InputBox: command.InputBoxChoice,
+				Optional: false,
+			},
+			{
+				Name:     "type",
+				Desc:     "Type of voucher (Stake or Liquid)",
 				InputBox: command.InputBoxChoice,
 				Optional: false,
 			},

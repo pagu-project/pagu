@@ -97,6 +97,12 @@ func WithEmail(email string) VoucherOption {
 	}
 }
 
+func WithType(typ uint8) VoucherOption {
+	return func(v *entity.Voucher) {
+		v.Type = typ
+	}
+}
+
 func WithRecipient(recipient string) VoucherOption {
 	return func(v *entity.Voucher) {
 		v.Recipient = recipient
@@ -107,6 +113,7 @@ func (td *testData) createTestVoucher(t *testing.T, opts ...VoucherOption) *enti
 	t.Helper()
 
 	voucher := &entity.Voucher{
+		Type:        entity.VoucherTypeStake,
 		ValidMonths: 1,
 		Email:       td.RandEmail(),
 		Recipient:   td.RandString(8),

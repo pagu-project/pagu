@@ -33,6 +33,10 @@ sub_commands:
         desc: The email template to use for the voucher
         input_box: Choice
         optional: false
+      - name: type
+        desc: Type of voucher (Stake or Liquid)
+        input_box: Choice
+        optional: false
       - name: recipient
         desc: The name of the recipient
         input_box: Text
@@ -61,6 +65,10 @@ sub_commands:
     args:
       - name: template
         desc: The email template to use for the voucher
+        input_box: Choice
+        optional: false
+      - name: type
+        desc: Type of voucher (Stake or Liquid)
         input_box: Choice
         optional: false
       - name: csv

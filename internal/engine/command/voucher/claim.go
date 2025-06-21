@@ -34,29 +34,48 @@ func (c *VoucherCmd) claimHandler(
 	}
 
 	address := args[argNameClaimAddress]
-	valInfo, _ := c.clientManager.GetValidatorInfo(address)
-	if valInfo != nil {
-		err = errors.New("this address is already a staked validator")
-		log.Warn("Staked validator found", "address", address)
 
-		return cmd.RenderErrorTemplate(err)
-	}
+	var txHash string
+	switch voucher.Type {
+	case entity.VoucherTypeStake:
+		valInfo, _ := c.clientManager.GetValidatorInfo(address)
+		if valInfo != nil {
+			err = errors.New("this address is already a staked validator")
+			log.Warn("Staked validator found", "address", address)
 
-	pubKey, err := c.clientManager.FindPublicKey(address, false)
-	if err != nil {
-		log.Warn("Peer not found", "address", address)
+			return cmd.RenderErrorTemplate(err)
+		}
 
-		return cmd.RenderErrorTemplate(err)
-	}
+		pubKey, err := c.clientManager.FindPublicKey(address, false)
+		if err != nil {
+			log.Warn("Peer not found", "address", address)
 
-	memo := fmt.Sprintf("Voucher %s claimed by Pagu", code)
-	txHash, err := c.wallet.BondTransaction(pubKey, address, memo, voucher.Amount)
-	if err != nil {
-		return cmd.RenderErrorTemplate(err)
-	}
+			return cmd.RenderErrorTemplate(err)
+		}
 
-	if txHash == "" {
-		return cmd.RenderFailedTemplate("Can't send bond transaction")
+		memo := fmt.Sprintf("Voucher %s claimed by Pagu", code)
+		txHash, err = c.wallet.BondTransaction(pubKey, address, voucher.Amount, memo)
+		if err != nil {
+			return cmd.RenderErrorTemplate(err)
+		}
+
+		if txHash == "" {
+			return cmd.RenderFailedTemplate("Can't send bond transaction")
+		}
+
+	case voucher.Type:
+		memo := fmt.Sprintf("Voucher %s claimed by Pagu", code)
+		txHash, err = c.wallet.TransferTransaction(address, voucher.Amount, memo)
+		if err != nil {
+			return cmd.RenderErrorTemplate(err)
+		}
+
+		if txHash == "" {
+			return cmd.RenderFailedTemplate("Can't send transfer transaction")
+		}
+
+	default:
+		return cmd.RenderFailedTemplateF("Invalid Voucher type: %d", voucher.Type)
 	}
 
 	if err = c.db.ClaimVoucher(voucher.ID, txHash, caller.ID); err != nil {
