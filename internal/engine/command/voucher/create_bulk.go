@@ -31,6 +31,7 @@ func (c *VoucherCmd) createBulkHandler(
 	for index, rec := range bulkRecorders {
 		voucher, err := c.createVoucher(
 			caller,
+			args[argNameCreateBulkType],
 			rec.Recipient,
 			rec.Email,
 			rec.Amount,

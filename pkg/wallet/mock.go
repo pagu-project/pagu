@@ -69,18 +69,18 @@ func (mr *MockIWalletMockRecorder) Balance() *gomock.Call {
 }
 
 // BondTransaction mocks base method.
-func (m *MockIWallet) BondTransaction(pubKey, toAddress, memo string, amt amount.Amount) (string, error) {
+func (m *MockIWallet) BondTransaction(pubKey, toAddress string, amt amount.Amount, memo string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "BondTransaction", pubKey, toAddress, memo, amt)
+	ret := m.ctrl.Call(m, "BondTransaction", pubKey, toAddress, amt, memo)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // BondTransaction indicates an expected call of BondTransaction.
-func (mr *MockIWalletMockRecorder) BondTransaction(pubKey, toAddress, memo, amt any) *gomock.Call {
+func (mr *MockIWalletMockRecorder) BondTransaction(pubKey, toAddress, amt, memo any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BondTransaction", reflect.TypeOf((*MockIWallet)(nil).BondTransaction), pubKey, toAddress, memo, amt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BondTransaction", reflect.TypeOf((*MockIWallet)(nil).BondTransaction), pubKey, toAddress, amt, memo)
 }
 
 // LinkToExplorer mocks base method.
@@ -98,16 +98,16 @@ func (mr *MockIWalletMockRecorder) LinkToExplorer(txID any) *gomock.Call {
 }
 
 // TransferTransaction mocks base method.
-func (m *MockIWallet) TransferTransaction(toAddress, memo string, amt amount.Amount) (string, error) {
+func (m *MockIWallet) TransferTransaction(toAddress string, amt amount.Amount, memo string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TransferTransaction", toAddress, memo, amt)
+	ret := m.ctrl.Call(m, "TransferTransaction", toAddress, amt, memo)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // TransferTransaction indicates an expected call of TransferTransaction.
-func (mr *MockIWalletMockRecorder) TransferTransaction(toAddress, memo, amt any) *gomock.Call {
+func (mr *MockIWalletMockRecorder) TransferTransaction(toAddress, amt, memo any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransferTransaction", reflect.TypeOf((*MockIWallet)(nil).TransferTransaction), toAddress, memo, amt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransferTransaction", reflect.TypeOf((*MockIWallet)(nil).TransferTransaction), toAddress, amt, memo)
 }

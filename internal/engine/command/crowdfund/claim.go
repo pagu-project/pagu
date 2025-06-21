@@ -32,7 +32,7 @@ func (c *CrowdfundCmd) claimHandler(
 		if isPaid {
 			address := args[argNameClaimAddress]
 
-			txID, err = c.wallet.TransferTransaction(address, "Crowdfund campaign", purchase.PACAmount)
+			txID, err = c.wallet.TransferTransaction(address, purchase.PACAmount, "Crowdfund campaign")
 			if err != nil {
 				log.Error("wallet failed", "error", err, "address", address)
 

@@ -31,7 +31,7 @@ func New(cfg *Config) (*Wallet, error) {
 	}, nil
 }
 
-func (w *Wallet) BondTransaction(pubKey, toAddress, memo string, amt amount.Amount) (string, error) {
+func (w *Wallet) BondTransaction(pubKey, toAddress string, amt amount.Amount, memo string) (string, error) {
 	opts := []wallet.TxOption{
 		wallet.OptionFee(w.fee.ToPactusAmount()),
 		wallet.OptionMemo(memo),
@@ -70,7 +70,7 @@ func (w *Wallet) BondTransaction(pubKey, toAddress, memo string, amt amount.Amou
 	return res, nil // return transaction hash
 }
 
-func (w *Wallet) TransferTransaction(toAddress, memo string, amt amount.Amount) (string, error) {
+func (w *Wallet) TransferTransaction(toAddress string, amt amount.Amount, memo string) (string, error) {
 	opts := []wallet.TxOption{
 		wallet.OptionFee(w.fee.ToPactusAmount()),
 		wallet.OptionMemo(memo),

@@ -38,7 +38,7 @@ func NewVoucherCmd(ctx context.Context, cfg *Config, db *repository.Database, wl
 func (c *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
 	cmd := c.buildVoucherCommand(botID)
 
-	choices := []command.Choice{}
+	templateChoices := []command.Choice{}
 	for tmplName := range c.templates {
 		choice := command.Choice{
 			Name:  tmplName,
@@ -46,10 +46,17 @@ func (c *VoucherCmd) BuildCommand(botID entity.BotID) *command.Command {
 			Value: tmplName,
 		}
 
-		choices = append(choices, choice)
+		templateChoices = append(templateChoices, choice)
 	}
-	c.subCmdCreate.Args[0].Choices = choices
-	c.subCmdCreateBulk.Args[0].Choices = choices
+	c.subCmdCreate.Args[0].Choices = templateChoices
+	c.subCmdCreateBulk.Args[0].Choices = templateChoices
+
+	typeChoices := []command.Choice{
+		{Name: "Stake", Desc: "Voucher will be bonded to the validator address", Value: "0"},
+		{Name: "Liquid", Desc: "Voucher will be transferred to the account address", Value: "1"},
+	}
+	c.subCmdCreate.Args[1].Choices = typeChoices
+	c.subCmdCreateBulk.Args[1].Choices = typeChoices
 
 	return cmd
 }

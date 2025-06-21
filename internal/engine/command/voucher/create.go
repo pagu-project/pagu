@@ -20,6 +20,7 @@ func (c *VoucherCmd) createHandler(
 ) command.CommandResult {
 	voucher, err := c.createVoucher(
 		caller,
+		args[argNameCreateType],
 		args[argNameCreateRecipient],
 		args[argNameCreateEmail],
 		args[argNameCreateAmount],
@@ -39,11 +40,16 @@ func (c *VoucherCmd) createHandler(
 }
 
 func (c *VoucherCmd) createVoucher(caller *entity.User,
-	recipient, email, amtStr, validMonthsStr, desc string,
+	typStr string, recipient, email, amtStr, validMonthsStr, desc string,
 ) (*entity.Voucher, error) {
 	existing := c.db.GetNonExpiredVoucherByEmail(email)
 	if existing != nil {
 		return nil, fmt.Errorf("email already has a non-expired voucher: %s", email)
+	}
+
+	typ, err := strconv.Atoi(typStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid type: %w", err)
 	}
 
 	amt, err := amount.FromString(amtStr)
@@ -58,7 +64,7 @@ func (c *VoucherCmd) createVoucher(caller *entity.User,
 
 	expireMonths, err := strconv.Atoi(validMonthsStr)
 	if err != nil {
-		return nil, fmt.Errorf("invalid valid-months param: %w", err)
+		return nil, fmt.Errorf("invalid valid-months: %w", err)
 	}
 
 	_, err = mail.ParseAddress(email)
@@ -70,6 +76,7 @@ func (c *VoucherCmd) createVoucher(caller *entity.User,
 	voucher := &entity.Voucher{
 		Creator:     caller.ID,
 		Code:        code,
+		Type:        uint8(typ),
 		ValidMonths: uint8(expireMonths),
 		Amount:      amt,
 		Recipient:   recipient,
