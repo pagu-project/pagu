@@ -88,16 +88,16 @@ func TestClaimLiquid(t *testing.T) {
 		testVoucher := td.createTestVoucher(t,
 			WithCode(voucherCode),
 			WithType(entity.VoucherTypeLiquid))
-		AccountAddr := "pc1r..."
+		accountAddr := "pc1r..."
 
-		td.mockWallet.EXPECT().TransferTransaction(AccountAddr,
+		td.mockWallet.EXPECT().TransferTransaction(accountAddr,
 			testVoucher.Amount, "Voucher 12345678 claimed by Pagu").Return(
 			"0x1", nil,
 		).AnyTimes()
 
 		args := map[string]string{
 			"code":    voucherCode,
-			"address": AccountAddr,
+			"address": accountAddr,
 		}
 		result := td.voucherCmd.claimHandler(caller, td.voucherCmd.subCmdClaim, args)
 		assert.True(t, result.Successful)

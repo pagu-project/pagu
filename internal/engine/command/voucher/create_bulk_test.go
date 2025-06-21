@@ -15,7 +15,7 @@ func TestCreateBulk(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		args := map[string]string{
 			"template": "sample",
-			"type": "1",
+			"type":     "1",
 			"csv": `recipient,email,amount,valid-months,desc
 name1,test1@test.com,100,1,Some descriptions
 name2,test2@test.com,100,1,Some descriptions
