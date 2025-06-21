@@ -40,29 +40,29 @@ func (m *MockIMailer) EXPECT() *MockIMailerMockRecorder {
 }
 
 // SendTemplateMail mocks base method.
-func (m *MockIMailer) SendTemplateMail(recipient, templatePath string, data map[string]string) error {
+func (m *MockIMailer) SendTemplateMail(email, templatePath string, data map[string]string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendTemplateMail", recipient, templatePath, data)
+	ret := m.ctrl.Call(m, "SendTemplateMail", email, templatePath, data)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendTemplateMail indicates an expected call of SendTemplateMail.
-func (mr *MockIMailerMockRecorder) SendTemplateMail(recipient, templatePath, data any) *gomock.Call {
+func (mr *MockIMailerMockRecorder) SendTemplateMail(email, templatePath, data any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendTemplateMail", reflect.TypeOf((*MockIMailer)(nil).SendTemplateMail), recipient, templatePath, data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendTemplateMail", reflect.TypeOf((*MockIMailer)(nil).SendTemplateMail), email, templatePath, data)
 }
 
 // SendTemplateMailAsync mocks base method.
-func (m *MockIMailer) SendTemplateMailAsync(recipient, templatePath string, data map[string]string) error {
+func (m *MockIMailer) SendTemplateMailAsync(email, templatePath string, data map[string]string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendTemplateMailAsync", recipient, templatePath, data)
+	ret := m.ctrl.Call(m, "SendTemplateMailAsync", email, templatePath, data)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SendTemplateMailAsync indicates an expected call of SendTemplateMailAsync.
-func (mr *MockIMailerMockRecorder) SendTemplateMailAsync(recipient, templatePath, data any) *gomock.Call {
+func (mr *MockIMailerMockRecorder) SendTemplateMailAsync(email, templatePath, data any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendTemplateMailAsync", reflect.TypeOf((*MockIMailer)(nil).SendTemplateMailAsync), recipient, templatePath, data)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendTemplateMailAsync", reflect.TypeOf((*MockIMailer)(nil).SendTemplateMailAsync), email, templatePath, data)
 }
