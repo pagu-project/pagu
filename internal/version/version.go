@@ -10,7 +10,7 @@ type Version struct {
 
 var version = Version{
 	Major: 0,
-	Minor: 2,
+	Minor: 3,
 	Patch: 0,
 }
 
