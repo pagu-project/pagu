@@ -35,20 +35,20 @@ type voucherSubCmds struct {
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	subCmdClaim := &command.Command{
 		Name:           "claim",
-		Help:           "Claim voucher coins and bond them to a validator",
+		Help:           "Claim your voucher",
 		Handler:        c.claimHandler,
 		ResultTemplate: "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/{{.txHash}}\n",
 		TargetBotIDs:   entity.AllBotIDs(),
 		Args: []*command.Args{
 			{
 				Name:     "code",
-				Desc:     "The voucher code",
+				Desc:     "YOur voucher code",
 				InputBox: command.InputBoxText,
 				Optional: false,
 			},
 			{
 				Name:     "address",
-				Desc:     "Your Pactus validator address",
+				Desc:     "Your Pactus address to receive the PAC coins",
 				InputBox: command.InputBoxText,
 				Optional: false,
 			},

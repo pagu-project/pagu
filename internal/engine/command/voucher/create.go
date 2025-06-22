@@ -46,7 +46,7 @@ func (c *VoucherCmd) createVoucher(caller *entity.User,
 	existing := c.db.GetNonExpiredVoucherByEmail(email)
 	if existing != nil {
 		if !existing.IsClaimed() {
-			// Resend the email
+			log.Info("resend the voucher email", "email", email)
 			_ = c.sendEmail(tmplName, existing)
 		}
 
