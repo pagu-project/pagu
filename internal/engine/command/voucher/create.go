@@ -50,7 +50,8 @@ func (c *VoucherCmd) createVoucher(caller *entity.User,
 			_ = c.sendEmail(tmplName, existing)
 		}
 
-		return nil, fmt.Errorf("email already has a non-expired voucher: %s", email)
+		return nil, fmt.Errorf("email already has a non-expired voucher: %s (claimed: %v)",
+			email, existing.IsClaimed())
 	}
 
 	typ, err := strconv.Atoi(typStr)
