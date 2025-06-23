@@ -5,18 +5,18 @@ active: true
 help: Commands for managing vouchers
 sub_commands:
   - name: claim
-    help: Claim voucher coins and bond them to a validator
+    help: Claim your voucher
     result_template: |
       Voucher claimed successfully!
 
       https://pacviewer.com/transaction/{{.txHash}}
     args:
       - name: code
-        desc: The voucher code
+        desc: YOur voucher code
         input_box: Text
         optional: false
       - name: address
-        desc: Your Pactus validator address
+        desc: Your Pactus address to receive the PAC coins
         input_box: Text
         optional: false
   - name: create

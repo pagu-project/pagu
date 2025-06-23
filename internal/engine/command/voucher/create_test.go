@@ -120,6 +120,7 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 		voucher := td.createTestVoucher(t,
 			WithValidMonths(2), // 2 months validity
 			WithCreatedAt(createdAt),
+			WithTxHash("tx-hash"),
 		)
 		args := map[string]string{
 			"type":         "1",
@@ -130,6 +131,30 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 			"template":     "sample",
 			"description":  "Some descriptions",
 		}
+
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
+		assert.False(t, result.Successful)
+		assert.Contains(t, result.Message, "email already has a non-expired voucher")
+	})
+
+	t.Run("claimed voucher", func(t *testing.T) {
+		createdAt := time.Now().AddDate(0, -1, 0) // 1 month ago
+		voucher := td.createTestVoucher(t,
+			WithValidMonths(2), // 2 months validity
+			WithCreatedAt(createdAt),
+		)
+		args := map[string]string{
+			"type":         "1",
+			"email":        voucher.Email,
+			"recipient":    voucher.Recipient,
+			"amount":       "100",
+			"valid-months": "1",
+			"template":     "sample",
+			"description":  "Some descriptions",
+		}
+
+		// Resend the email
+		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
