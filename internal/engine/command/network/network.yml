@@ -54,7 +54,8 @@ sub_commands:
       > Note📝: This info is from one random network node. Some data may not be consistent.
   - name: wallet
     help: Show the Pagu wallet info
-    target_bot_ids: [Moderator, CLI]
+    target_bot_ids: [CLI, Moderator]
+    target_user_roles: [Admin ,Moderator]
     result_template: |
       Pagu Wallet:
 

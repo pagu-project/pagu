@@ -17,25 +17,28 @@ type phoenixSubCmds struct {
 
 func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 	subCmdHealth := &command.Command{
-		Name:           "health",
-		Help:           "Check the network health status",
-		Handler:        c.healthHandler,
-		ResultTemplate: "**Network is {{.Status}}**\n**Current Time**: {{.CurrentTime}}\n**Last Block Time**: {{.LastBlockTime}}\n**Time Difference**: {{.TimeDiff}}\n**Last Block Height**: {{.LastBlockHeight}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "health",
+		Help:            "Check the network health status",
+		Handler:         c.healthHandler,
+		ResultTemplate:  "**Network is {{.Status}}**\n**Current Time**: {{.CurrentTime}}\n**Last Block Time**: {{.LastBlockTime}}\n**Time Difference**: {{.TimeDiff}}\n**Last Block Height**: {{.LastBlockHeight}}\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 	subCmdStatus := &command.Command{
-		Name:           "status",
-		Help:           "View network statistics",
-		Handler:        c.statusHandler,
-		ResultTemplate: "**Network Name**: {{.NetworkName}}\n**Connected Peers**: {{.ConnectedPeers}}\n**Validator Count**: {{.ValidatorsCount}}\n**Account Count**: {{.AccountsCount}}\n**Current Block Height**: {{.CurrentBlockHeight}}\n**Total Power**: {{.TotalPower}} tPAC\n**Total Committee Power**: {{.TotalCommitteePower}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "status",
+		Help:            "View network statistics",
+		Handler:         c.statusHandler,
+		ResultTemplate:  "**Network Name**: {{.NetworkName}}\n**Connected Peers**: {{.ConnectedPeers}}\n**Validator Count**: {{.ValidatorsCount}}\n**Account Count**: {{.AccountsCount}}\n**Current Block Height**: {{.CurrentBlockHeight}}\n**Total Power**: {{.TotalPower}} tPAC\n**Total Committee Power**: {{.TotalCommitteePower}} tPAC\n\n> Note📝: This info is from a random network node. Some data may not be consistent.\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 	subCmdFaucet := &command.Command{
-		Name:           "faucet",
-		Help:           "Get tPAC test coins on Phoenix Testnet for testing your project",
-		Handler:        c.faucetHandler,
-		ResultTemplate: "You received {{.amount}} tPAC on Phoenix Testnet!\n\nhttps://phoenix.pacviewer.com/transaction/{{.txHash}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "faucet",
+		Help:            "Get tPAC test coins on Phoenix Testnet for testing your project",
+		Handler:         c.faucetHandler,
+		ResultTemplate:  "You received {{.amount}} tPAC on Phoenix Testnet!\n\nhttps://phoenix.pacviewer.com/transaction/{{.txHash}}\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "address",
@@ -46,11 +49,12 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 		},
 	}
 	subCmdWallet := &command.Command{
-		Name:           "wallet",
-		Help:           "Show the Pagu Phoenix (Faucet) wallet info",
-		Handler:        c.walletHandler,
-		ResultTemplate: "Pagu Phoenix Wallet:\n\n**Address**: {{.address}}\n**Balance**: {{.balance}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "wallet",
+		Help:            "Show the Pagu Phoenix (Faucet) wallet info",
+		Handler:         c.walletHandler,
+		ResultTemplate:  "Pagu Phoenix Wallet:\n\n**Address**: {{.address}}\n**Balance**: {{.balance}}\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	return &phoenixSubCmds{
@@ -63,12 +67,13 @@ func (c *PhoenixCmd) buildSubCmds() *phoenixSubCmds {
 
 func (c *PhoenixCmd) buildPhoenixCommand(botID entity.BotID) *command.Command {
 	phoenixCmd := &command.Command{
-		Name:         "phoenix",
-		Emoji:        "🐦",
-		Active:       true,
-		Help:         "Commands for working with Phoenix Testnet",
-		SubCommands:  make([]*command.Command, 0),
-		TargetBotIDs: entity.AllBotIDs(),
+		Name:            "phoenix",
+		Emoji:           "🐦",
+		Active:          true,
+		Help:            "Commands for working with Phoenix Testnet",
+		SubCommands:     make([]*command.Command, 0),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	c.phoenixSubCmds = c.buildSubCmds()

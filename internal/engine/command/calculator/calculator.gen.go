@@ -19,11 +19,12 @@ type calculatorSubCmds struct {
 
 func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 	subCmdReward := &command.Command{
-		Name:           "reward",
-		Help:           "Calculate the PAC coins you can earn based on your validator stake",
-		Handler:        c.rewardHandler,
-		ResultTemplate: "Approximately you earn {{.reward}} PAC reward, with {{.stake}} stake 🔒 on your validator in {{.days}} days ⏰ with {{.totalPower}} total power ⚡ of committee.\n\n> Note📝: This number is just an estimation. It will vary depending on your stake amount and total network power.\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "reward",
+		Help:            "Calculate the PAC coins you can earn based on your validator stake",
+		Handler:         c.rewardHandler,
+		ResultTemplate:  "Approximately you earn {{.reward}} PAC reward, with {{.stake}} stake 🔒 on your validator in {{.days}} days ⏰ with {{.totalPower}} total power ⚡ of committee.\n\n> Note📝: This number is just an estimation. It will vary depending on your stake amount and total network power.\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "stake",
@@ -40,11 +41,12 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 		},
 	}
 	subCmdFee := &command.Command{
-		Name:           "fee",
-		Help:           "Return the estimated transaction fee on the network",
-		Handler:        c.feeHandler,
-		ResultTemplate: "Sending {{.amount}} will cost {{.fee}} with current fee percentage.\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "fee",
+		Help:            "Return the estimated transaction fee on the network",
+		Handler:         c.feeHandler,
+		ResultTemplate:  "Sending {{.amount}} will cost {{.fee}} with current fee percentage.\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "amount",
@@ -63,12 +65,13 @@ func (c *CalculatorCmd) buildSubCmds() *calculatorSubCmds {
 
 func (c *CalculatorCmd) buildCalculatorCommand(botID entity.BotID) *command.Command {
 	calculatorCmd := &command.Command{
-		Name:         "calculator",
-		Emoji:        "🧮",
-		Active:       true,
-		Help:         "Perform calculations such as reward and fee estimations",
-		SubCommands:  make([]*command.Command, 0),
-		TargetBotIDs: entity.AllBotIDs(),
+		Name:            "calculator",
+		Emoji:           "🧮",
+		Active:          true,
+		Help:            "Perform calculations such as reward and fee estimations",
+		SubCommands:     make([]*command.Command, 0),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	c.calculatorSubCmds = c.buildSubCmds()

@@ -17,11 +17,12 @@ type networkSubCmds struct {
 
 func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 	subCmdNodeInfo := &command.Command{
-		Name:           "node-info",
-		Help:           "View information about a specific node",
-		Handler:        c.nodeInfoHandler,
-		ResultTemplate: "**PeerID**: {{.PeerID}}\n**IP Address**: {{.IPAddress}}\n**Agent**: {{.Agent}}\n**Moniker**: {{.Moniker}}\n**Country**: {{.Country}}\n**City**: {{.City}}\n**Region Name**: {{.RegionName}}\n**TimeZone**: {{.TimeZone}}\n**ISP**: {{.ISP}}\n\n## Validator Info 🔍\n\n**Number**: {{.Number}}\n**PIP-19 Score**: {{.AvailabilityScore}}\n**Stake**: {{.Stake}} PAC\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "node-info",
+		Help:            "View information about a specific node",
+		Handler:         c.nodeInfoHandler,
+		ResultTemplate:  "**PeerID**: {{.PeerID}}\n**IP Address**: {{.IPAddress}}\n**Agent**: {{.Agent}}\n**Moniker**: {{.Moniker}}\n**Country**: {{.Country}}\n**City**: {{.City}}\n**Region Name**: {{.RegionName}}\n**TimeZone**: {{.TimeZone}}\n**ISP**: {{.ISP}}\n\n## Validator Info 🔍\n\n**Number**: {{.Number}}\n**PIP-19 Score**: {{.AvailabilityScore}}\n**Stake**: {{.Stake}} PAC\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "validator_address",
@@ -32,18 +33,20 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		},
 	}
 	subCmdHealth := &command.Command{
-		Name:           "health",
-		Help:           "Check the network health status",
-		Handler:        c.healthHandler,
-		ResultTemplate: "**Network is {{.Status}}**\n**Current Time**: {{.CurrentTime}}\n**Last Block Time**: {{.LastBlockTime}}\n**Time Difference**: {{.TimeDiff}}\n**Last Block Height**: {{.LastBlockHeight}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "health",
+		Help:            "Check the network health status",
+		Handler:         c.healthHandler,
+		ResultTemplate:  "**Network is {{.Status}}**\n**Current Time**: {{.CurrentTime}}\n**Last Block Time**: {{.LastBlockTime}}\n**Time Difference**: {{.TimeDiff}}\n**Last Block Height**: {{.LastBlockHeight}}\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 	subCmdStatus := &command.Command{
-		Name:           "status",
-		Help:           "View network statistics",
-		Handler:        c.statusHandler,
-		ResultTemplate: "**Network Name**: {{.NetworkName}}\n**Connected Peers**: {{.ConnectedPeers}}\n**Validator Count**: {{.ValidatorsCount}}\n**Account Count**: {{.AccountsCount}}\n**Current Block Height**: {{.CurrentBlockHeight}}\n**Total Power**: {{.TotalPower}} PAC\n**Total Committee Power**: {{.TotalCommitteePower}} PAC\n**Circulating Supply**: {{.CirculatingSupply}} PAC\n\n> Note📝: This info is from one random network node. Some data may not be consistent.\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "status",
+		Help:            "View network statistics",
+		Handler:         c.statusHandler,
+		ResultTemplate:  "**Network Name**: {{.NetworkName}}\n**Connected Peers**: {{.ConnectedPeers}}\n**Validator Count**: {{.ValidatorsCount}}\n**Account Count**: {{.AccountsCount}}\n**Current Block Height**: {{.CurrentBlockHeight}}\n**Total Power**: {{.TotalPower}} PAC\n**Total Committee Power**: {{.TotalCommitteePower}} PAC\n**Circulating Supply**: {{.CirculatingSupply}} PAC\n\n> Note📝: This info is from one random network node. Some data may not be consistent.\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 	subCmdWallet := &command.Command{
 		Name:           "wallet",
@@ -51,8 +54,12 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 		Handler:        c.walletHandler,
 		ResultTemplate: "Pagu Wallet:\n\n**Address**: {{.address}}\n**Balance**: {{.balance}}\n",
 		TargetBotIDs: []entity.BotID{
-			entity.BotID_Moderator,
 			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
 		},
 	}
 
@@ -66,12 +73,13 @@ func (c *NetworkCmd) buildSubCmds() *networkSubCmds {
 
 func (c *NetworkCmd) buildNetworkCommand(botID entity.BotID) *command.Command {
 	networkCmd := &command.Command{
-		Name:         "network",
-		Emoji:        "🌐",
-		Active:       true,
-		Help:         "Commands for network metrics and information",
-		SubCommands:  make([]*command.Command, 0),
-		TargetBotIDs: entity.AllBotIDs(),
+		Name:            "network",
+		Emoji:           "🌐",
+		Active:          true,
+		Help:            "Commands for network metrics and information",
+		SubCommands:     make([]*command.Command, 0),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	c.networkSubCmds = c.buildSubCmds()

@@ -15,7 +15,7 @@ func TestGetUserByID(t *testing.T) {
 	user := entity.User{
 		PlatformID:     entity.PlatformIDDiscord,
 		PlatformUserID: "1234",
-		Role:           entity.BasicUser,
+		Role:           entity.UserRole_BasicUser,
 	}
 	err = db.AddUser(&user)
 	assert.NoError(t, err)

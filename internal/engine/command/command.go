@@ -89,15 +89,16 @@ type Args struct {
 type HandlerFunc func(caller *entity.User, cmd *Command, args map[string]string) CommandResult
 
 type Command struct {
-	Name           string         `yaml:"name"`
-	Emoji          string         `yaml:"emoji"`
-	Active         bool           `yaml:"active"`
-	Help           string         `yaml:"help"`
-	Args           []*Args        `yaml:"args"`
-	SubCommands    []*Command     `yaml:"sub_commands"`
-	ResultTemplate string         `yaml:"result_template"`
-	TargetBotIDs   []entity.BotID `yaml:"target_bot_ids"`
-	Handler        HandlerFunc    `yaml:"-"`
+	Name            string            `yaml:"name"`
+	Emoji           string            `yaml:"emoji"`
+	Active          bool              `yaml:"active"`
+	Help            string            `yaml:"help"`
+	Args            []*Args           `yaml:"args"`
+	SubCommands     []*Command        `yaml:"sub_commands"`
+	ResultTemplate  string            `yaml:"result_template"`
+	TargetBotIDs    []entity.BotID    `yaml:"target_bot_ids"`
+	TargetUserRoles []entity.UserRole `yaml:"target_user_roles"`
+	Handler         HandlerFunc       `yaml:"-"`
 }
 
 type CommandResult struct {
@@ -246,8 +247,12 @@ func (cmd *Command) NameWithEmoji() string {
 	return cmd.Name
 }
 
-func (cmd *Command) canBeHandledByBot(botID entity.BotID) bool {
+func (cmd *Command) CanBeHandledByBot(botID entity.BotID) bool {
 	return slices.Contains(cmd.TargetBotIDs, botID)
+}
+
+func (cmd *Command) CanBeHandledByUserRole(role entity.UserRole) bool {
+	return slices.Contains(cmd.TargetUserRoles, role)
 }
 
 func (cmd *Command) HasSubCommand() bool {
@@ -259,7 +264,7 @@ func (cmd *Command) AddSubCommand(botID entity.BotID, subCmd *Command) {
 		return
 	}
 
-	if !subCmd.canBeHandledByBot(botID) {
+	if !subCmd.CanBeHandledByBot(botID) {
 		return
 	}
 

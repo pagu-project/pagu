@@ -12,11 +12,12 @@ type marketSubCmds struct {
 
 func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 	subCmdPrice := &command.Command{
-		Name:           "price",
-		Help:           "Shows the latest price of PAC coin across different markets",
-		Handler:        c.priceHandler,
-		ResultTemplate: "\nTradeogre Price: **{{.tradeOgre}} USDT**\n[Trade Ogre](https://tradeogre.com/exchange/PAC-USDT)\n\nAzbit Price: **{{.azbitPrice}} USDT**\n[Azbit](https://azbit.com/exchange/PAC_USDT)\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "price",
+		Help:            "Shows the latest price of PAC coin across different markets",
+		Handler:         c.priceHandler,
+		ResultTemplate:  "\nTradeogre Price: **{{.tradeOgre}} USDT**\n[Trade Ogre](https://tradeogre.com/exchange/PAC-USDT)\n\nAzbit Price: **{{.azbitPrice}} USDT**\n[Azbit](https://azbit.com/exchange/PAC_USDT)\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	return &marketSubCmds{
@@ -26,12 +27,13 @@ func (c *MarketCmd) buildSubCmds() *marketSubCmds {
 
 func (c *MarketCmd) buildMarketCommand(botID entity.BotID) *command.Command {
 	marketCmd := &command.Command{
-		Name:         "market",
-		Emoji:        "📈",
-		Active:       true,
-		Help:         "Commands to check market and price of PAC coin",
-		SubCommands:  make([]*command.Command, 0),
-		TargetBotIDs: entity.AllBotIDs(),
+		Name:            "market",
+		Emoji:           "📈",
+		Active:          true,
+		Help:            "Commands to check market and price of PAC coin",
+		SubCommands:     make([]*command.Command, 0),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	c.marketSubCmds = c.buildSubCmds()

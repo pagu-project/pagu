@@ -34,11 +34,12 @@ type voucherSubCmds struct {
 
 func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 	subCmdClaim := &command.Command{
-		Name:           "claim",
-		Help:           "Claim your voucher",
-		Handler:        c.claimHandler,
-		ResultTemplate: "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/{{.txHash}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "claim",
+		Help:            "Claim your voucher",
+		Handler:         c.claimHandler,
+		ResultTemplate:  "Voucher claimed successfully!\n\nhttps://pacviewer.com/transaction/{{.txHash}}\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -62,6 +63,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
+		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
 		},
 		Args: []*command.Args{
 			{
@@ -117,6 +122,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "template",
@@ -147,6 +156,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "code",
@@ -171,6 +184,10 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
 		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
+		},
 		Args: []*command.Args{
 			{
 				Name:     "since",
@@ -192,12 +209,13 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 
 func (c *VoucherCmd) buildVoucherCommand(botID entity.BotID) *command.Command {
 	voucherCmd := &command.Command{
-		Name:         "voucher",
-		Emoji:        "🎁",
-		Active:       true,
-		Help:         "Commands for managing vouchers",
-		SubCommands:  make([]*command.Command, 0),
-		TargetBotIDs: entity.AllBotIDs(),
+		Name:            "voucher",
+		Emoji:           "🎁",
+		Active:          true,
+		Help:            "Commands for managing vouchers",
+		SubCommands:     make([]*command.Command, 0),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	c.voucherSubCmds = c.buildSubCmds()

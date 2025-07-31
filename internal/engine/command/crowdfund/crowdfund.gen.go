@@ -34,8 +34,12 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Handler:        c.createHandler,
 		ResultTemplate: "Crowdfund campaign '{{.campaign.Title}}' created successfully with {{ .campaign.Packages | len }} packages\n",
 		TargetBotIDs: []entity.BotID{
-			entity.BotID_Moderator,
 			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
 		},
 		Args: []*command.Args{
 			{
@@ -64,8 +68,12 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		Handler:        c.editHandler,
 		ResultTemplate: "Crowdfund campaign '{{.campaign.Title}}' updated successfully with {{ .campaign.Packages | len }} packages\n",
 		TargetBotIDs: []entity.BotID{
-			entity.BotID_Moderator,
 			entity.BotID_CLI,
+			entity.BotID_Moderator,
+		},
+		TargetUserRoles: []entity.UserRole{
+			entity.UserRole_Admin,
+			entity.UserRole_Moderator,
 		},
 		Args: []*command.Args{
 			{
@@ -95,25 +103,28 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		},
 	}
 	subCmdReport := &command.Command{
-		Name:           "report",
-		Help:           "View reports of a crowdfunding campaign",
-		Handler:        c.reportHandler,
-		ResultTemplate: "**Crowdfunding Report**\n\n- Total purchased packages: **{{.count}}**\n- Total crowdfunded amount: **{{.amount}} USDT**\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "report",
+		Help:            "View reports of a crowdfunding campaign",
+		Handler:         c.reportHandler,
+		ResultTemplate:  "**Crowdfunding Report**\n\n- Total purchased packages: **{{.count}}**\n- Total crowdfunded amount: **{{.amount}} USDT**\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 	subCmdInfo := &command.Command{
-		Name:           "info",
-		Help:           "Get detailed information about a crowdfunding campaign",
-		Handler:        c.infoHandler,
-		ResultTemplate: "**{{.campaign.Title}}**\n{{.campaign.Desc}}\n\nPackages:\n{{range .campaign.Packages}}\n- **{{.Name}}**: {{.USDAmount}} USDT to {{.PACAmount }}\n{{- end}}\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "info",
+		Help:            "Get detailed information about a crowdfunding campaign",
+		Handler:         c.infoHandler,
+		ResultTemplate:  "**{{.campaign.Title}}**\n{{.campaign.Desc}}\n\nPackages:\n{{range .campaign.Packages}}\n- **{{.Name}}**: {{.USDAmount}} USDT to {{.PACAmount }}\n{{- end}}\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 	subCmdPurchase := &command.Command{
-		Name:           "purchase",
-		Help:           "Make a purchase in a crowdfunding campaign",
-		Handler:        c.purchaseHandler,
-		ResultTemplate: "Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.\nPlease visit {{ .paymentLink }} to make the payment.\n\nOnce the payment is done, you can claim your PAC coins using \"claim\" command.\n\nThanks\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "purchase",
+		Help:            "Make a purchase in a crowdfunding campaign",
+		Handler:         c.purchaseHandler,
+		ResultTemplate:  "Your purchase of {{ .purchase.USDAmount }} USDT to receive {{ .purchase.PACAmount }} successfully registered in our database.\nPlease visit {{ .paymentLink }} to make the payment.\n\nOnce the payment is done, you can claim your PAC coins using \"claim\" command.\n\nThanks\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "package",
@@ -124,11 +135,12 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 		},
 	}
 	subCmdClaim := &command.Command{
-		Name:           "claim",
-		Help:           "Claim packages from a crowdfunding campaign",
-		Handler:        c.claimHandler,
-		ResultTemplate: "Thank you for supporting the Pactus blockchain!\n\nYou can track your transaction here: {{.txLink}}\nIf you have any questions or need assistance, feel free to reach out to our community.\n",
-		TargetBotIDs:   entity.AllBotIDs(),
+		Name:            "claim",
+		Help:            "Claim packages from a crowdfunding campaign",
+		Handler:         c.claimHandler,
+		ResultTemplate:  "Thank you for supporting the Pactus blockchain!\n\nYou can track your transaction here: {{.txLink}}\nIf you have any questions or need assistance, feel free to reach out to our community.\n",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Args: []*command.Args{
 			{
 				Name:     "address",
@@ -151,12 +163,13 @@ func (c *CrowdfundCmd) buildSubCmds() *crowdfundSubCmds {
 
 func (c *CrowdfundCmd) buildCrowdfundCommand(botID entity.BotID) *command.Command {
 	crowdfundCmd := &command.Command{
-		Name:         "crowdfund",
-		Emoji:        "🤝",
-		Active:       true,
-		Help:         "Commands for managing crowdfunding campaigns",
-		SubCommands:  make([]*command.Command, 0),
-		TargetBotIDs: entity.AllBotIDs(),
+		Name:            "crowdfund",
+		Emoji:           "🤝",
+		Active:          true,
+		Help:            "Commands for managing crowdfunding campaigns",
+		SubCommands:     make([]*command.Command, 0),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 	}
 
 	c.crowdfundSubCmds = c.buildSubCmds()

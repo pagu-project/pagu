@@ -21,6 +21,7 @@ sub_commands:
         optional: false
   - name: create
     target_bot_ids: [CLI, Moderator]
+    target_user_roles: [Admin ,Moderator]
     help: Generate a single voucher code
     result_template: |
       Voucher created successfully!
@@ -59,6 +60,7 @@ sub_commands:
         optional: false
   - name: create-bulk
     target_bot_ids: [CLI, Moderator]
+    target_user_roles: [Admin ,Moderator]
     help: Generate bulk voucher codes from JSON input
     result_template: |
       Vouchers are going to send to recipients.
@@ -77,6 +79,7 @@ sub_commands:
         optional: false
   - name: status
     target_bot_ids: [CLI, Moderator]
+    target_user_roles: [Admin ,Moderator]
     help: View the status of a specific voucher
     result_template: |
       **Code**: {{.voucher.Code}}
@@ -98,6 +101,7 @@ sub_commands:
 
   - name: report
     target_bot_ids: [CLI, Moderator]
+    target_user_roles: [Admin ,Moderator]
     help: The report of total vouchers
     result_template: |
       **Total Vouchers**: {{.total}}
