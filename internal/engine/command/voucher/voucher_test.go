@@ -120,6 +120,7 @@ func (td *testData) createTestVoucher(t *testing.T, opts ...VoucherOption) *enti
 		Amount:      td.RandAmount(),
 		Creator:     uint(td.RandInt(100)),
 		Code:        td.RandString(8),
+		Desc:        td.RandString(20),
 	}
 
 	// Apply options

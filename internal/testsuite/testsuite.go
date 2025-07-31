@@ -224,6 +224,11 @@ func (ts *TestSuite) RandEmail() string {
 	return fmt.Sprintf("%s@test.com", ts.RandString(10))
 }
 
+// RandName generates a random name.
+func (ts *TestSuite) RandName() string {
+	return ts.RandString(10)
+}
+
 // DecodingHex decodes the input string from hexadecimal format and returns the resulting byte slice.
 func (*TestSuite) DecodingHex(in string) []byte {
 	d, err := hex.DecodeString(in)

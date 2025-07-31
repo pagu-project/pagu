@@ -20,7 +20,6 @@ func (c *VoucherCmd) createHandler(
 ) command.CommandResult {
 	voucher, err := c.createVoucher(
 		caller,
-		args[argNameCreateTemplate],
 		args[argNameCreateType],
 		args[argNameCreateRecipient],
 		args[argNameCreateEmail],
@@ -41,19 +40,8 @@ func (c *VoucherCmd) createHandler(
 }
 
 func (c *VoucherCmd) createVoucher(caller *entity.User,
-	tmplName, typStr, recipient, email, amtStr, validMonthsStr, desc string,
+	typStr, recipient, email, amtStr, validMonthsStr, desc string,
 ) (*entity.Voucher, error) {
-	existing := c.db.GetNonExpiredVoucherByEmail(email)
-	if existing != nil {
-		if !existing.IsClaimed() {
-			log.Info("resend the voucher email", "email", email)
-			_ = c.sendEmail(tmplName, existing)
-		}
-
-		return nil, fmt.Errorf("email already has a non-expired voucher: %s (claimed: %v)",
-			email, existing.IsClaimed())
-	}
-
 	typ, err := strconv.Atoi(typStr)
 	if err != nil {
 		return nil, fmt.Errorf("invalid type: %w", err)
@@ -89,6 +77,11 @@ func (c *VoucherCmd) createVoucher(caller *entity.User,
 		Recipient:   recipient,
 		Email:       email,
 		Desc:        desc,
+	}
+
+	duplicated := c.db.IsDuplicatedVoucher(voucher)
+	if duplicated {
+		return nil, fmt.Errorf("duplicated voucher for  %s", email)
 	}
 
 	err = c.db.AddVoucher(voucher)

@@ -1,8 +1,8 @@
 package voucher
 
 import (
+	"fmt"
 	"testing"
-	"time"
 
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/stretchr/testify/assert"
@@ -69,9 +69,10 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("normal", func(t *testing.T) {
+		email := td.RandEmail()
 		args := map[string]string{
 			"type":         "1",
-			"email":        td.RandEmail(),
+			"email":        email,
 			"recipient":    "Kayhan",
 			"amount":       "100",
 			"valid-months": "1",
@@ -79,7 +80,7 @@ func TestCreate(t *testing.T) {
 			"description":  "Some descriptions",
 		}
 
-		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+		td.mockMailer.EXPECT().SendTemplateMailAsync(email, gomock.Any(), gomock.Any()).Return(nil)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.True(t, result.Successful)
@@ -87,25 +88,41 @@ func TestCreate(t *testing.T) {
 	})
 }
 
-func TestTestCreateWithExistingVoucher(t *testing.T) {
+func TestTestDuplicatedVoucher(t *testing.T) {
 	td := setup(t)
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 
-	t.Run("expired voucher", func(t *testing.T) {
-		createdAt := time.Now().AddDate(0, -2, 0) // 2 months ago
-		voucher := td.createTestVoucher(t,
-			WithValidMonths(1), // 1 month validity
-			WithCreatedAt(createdAt),
-		)
+	t.Run("not duplicated voucher", func(t *testing.T) {
+		voucher := td.createTestVoucher(t)
 
 		args := map[string]string{
 			"type":         "1",
 			"email":        voucher.Email,
 			"recipient":    voucher.Recipient,
-			"amount":       "100",
+			"amount":       fmt.Sprintf("%v", td.RandAmount().ToPAC()),
 			"valid-months": "1",
 			"template":     "sample",
-			"description":  "Some descriptions",
+			"description":  voucher.Desc,
+		}
+
+		td.mockMailer.EXPECT().SendTemplateMailAsync(voucher.Email, gomock.Any(), gomock.Any()).Return(nil)
+
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
+		assert.True(t, result.Successful)
+		assert.Contains(t, result.Message, "Voucher created successfully!")
+	})
+
+	t.Run("not duplicated voucher", func(t *testing.T) {
+		voucher := td.createTestVoucher(t)
+
+		args := map[string]string{
+			"type":         "1",
+			"email":        td.RandEmail(), // Use a different email.
+			"recipient":    voucher.Recipient,
+			"amount":       fmt.Sprintf("%v", voucher.Amount.ToPAC()),
+			"valid-months": "1",
+			"template":     "sample",
+			"description":  voucher.Desc,
 		}
 
 		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
@@ -115,50 +132,25 @@ func TestTestCreateWithExistingVoucher(t *testing.T) {
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})
 
-	t.Run("non-expired voucher", func(t *testing.T) {
-		createdAt := time.Now().AddDate(0, -1, 0) // 1 month ago
-		voucher := td.createTestVoucher(t,
-			WithValidMonths(2), // 2 months validity
-			WithCreatedAt(createdAt),
-			WithTxHash("tx-hash"),
-		)
+	t.Run("duplicated voucher", func(t *testing.T) {
+		voucher := td.createTestVoucher(t)
+
 		args := map[string]string{
 			"type":         "1",
 			"email":        voucher.Email,
 			"recipient":    voucher.Recipient,
-			"amount":       "100",
+			"amount":       fmt.Sprintf("%v", voucher.Amount.ToPAC()),
 			"valid-months": "1",
 			"template":     "sample",
-			"description":  "Some descriptions",
+			"description":  voucher.Desc,
 		}
+
+		v, _ := td.testDB.GetVoucherByEmail(voucher.Email) // Ensure the voucher exists in the DB.
+		fmt.Printf("Voucher: %+v\n", v)
 
 		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
 		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "email already has a non-expired voucher")
-	})
-
-	t.Run("claimed voucher", func(t *testing.T) {
-		createdAt := time.Now().AddDate(0, -1, 0) // 1 month ago
-		voucher := td.createTestVoucher(t,
-			WithValidMonths(2), // 2 months validity
-			WithCreatedAt(createdAt),
-		)
-		args := map[string]string{
-			"type":         "1",
-			"email":        voucher.Email,
-			"recipient":    voucher.Recipient,
-			"amount":       "100",
-			"valid-months": "1",
-			"template":     "sample",
-			"description":  "Some descriptions",
-		}
-
-		// Resend the email
-		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
-
-		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
-		assert.False(t, result.Successful)
-		assert.Contains(t, result.Message, "email already has a non-expired voucher")
+		assert.Contains(t, result.Message, "duplicated voucher for")
 	})
 }
 
