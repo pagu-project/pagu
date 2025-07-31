@@ -277,10 +277,11 @@ func (cmd *Command) AddSubCommand(botID entity.BotID, subCmd *Command) {
 
 func (cmd *Command) AddHelpSubCommand(botID entity.BotID) {
 	helpCmd := &Command{
-		Emoji:        "❓",
-		Name:         "help",
-		Help:         fmt.Sprintf("Help for %v command", cmd.Name),
-		TargetBotIDs: entity.AllBotIDs(),
+		Emoji:           "❓",
+		Name:            "help",
+		Help:            fmt.Sprintf("Help for %v command", cmd.Name),
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
 			return cmd.RenderHelpTemplate()
 		},
@@ -312,11 +313,12 @@ Phoenix Testnet integration, and More...
 
 	cmd.ResultTemplate = aboutTemplate
 	aboutCmd := &Command{
-		Emoji:          "📝",
-		Name:           "about",
-		Help:           "About Pagu",
-		TargetBotIDs:   entity.AllBotIDs(),
-		ResultTemplate: aboutTemplate,
+		Emoji:           "📝",
+		Name:            "about",
+		Help:            "About Pagu",
+		TargetBotIDs:    entity.AllBotIDs(),
+		TargetUserRoles: entity.AllUserRoles(),
+		ResultTemplate:  aboutTemplate,
 		Handler: func(_ *entity.User, _ *Command, _ map[string]string) CommandResult {
 			return cmd.RenderResultTemplate("version", version.StringVersion())
 		},
