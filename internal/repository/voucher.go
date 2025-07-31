@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"time"
 
 	"github.com/pagu-project/pagu/internal/entity"
 	"github.com/pagu-project/pagu/pkg/log"
@@ -64,26 +63,21 @@ func (db *Database) ListVoucher() ([]*entity.Voucher, error) {
 	return vouchers, nil
 }
 
-// GetNonExpiredVoucherByEmail returns a non-expired voucher for the given email, or nil if none exists.
-func (db *Database) GetNonExpiredVoucherByEmail(email string) *entity.Voucher {
-	var voucher entity.Voucher
+// IsDuplicatedVoucher checks if the voucher is created with the same email, amount, recipient, and description.
+func (db *Database) IsDuplicatedVoucher(voucher *entity.Voucher) bool {
 	err := db.gormDB.Model(&entity.Voucher{}).
-		Where("email = ?", email).
+		Where("email = ? AND amount = ? AND recipient = ? AND desc = ?",
+			voucher.Email, voucher.Amount, voucher.Recipient, voucher.Desc).
 		Order("created_at DESC").
 		First(&voucher).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil
+			return false
 		}
-		log.Warn("failed to fetch non-expired voucher by email", "email", email, "error", err)
+		log.Warn("failed to check duplicated voucher", "email", voucher.Email, "error", err)
 
-		return nil
+		return true
 	}
 
-	expireAt := voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0)
-	if expireAt.After(time.Now()) {
-		return &voucher
-	}
-
-	return nil
+	return true
 }
