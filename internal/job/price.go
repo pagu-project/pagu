@@ -16,9 +16,8 @@ import (
 const (
 	PriceCacheKey = "PriceCacheKey"
 
-	_defaultXeggexPriceEndpoint = "https://api.xeggex.com/api/v2/market/getbysymbol/Pactus%2Fusdt"
-	_defaultTradeOgreEndpoint   = "https://tradeogre.com/api/v1/ticker/PAC-USDT"
-	_defaultAzbitPriceEndpoint  = "https://data.azbit.com/api/tickers?currencyPairCode=PAC_USDT"
+	_defaultTradeOgreEndpoint  = "https://tradeogre.com/api/v1/ticker/PAC-USDT"
+	_defaultAzbitPriceEndpoint = "https://data.azbit.com/api/tickers?currencyPairCode=PAC_USDT"
 )
 
 type PriceChecker struct {
@@ -44,22 +43,12 @@ func (p *PriceChecker) start() {
 	var (
 		wg        sync.WaitGroup
 		price     entity.Price
-		xeggex    entity.XeggexPriceResponse
 		tradeOgre entity.TradeOgrePriceResponse
 		azbit     []entity.AzbitPriceResponse
 	)
 
-	ctx := context.Background()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := p.getPrice(ctx, _defaultXeggexPriceEndpoint, &xeggex); err != nil {
-			log.Error("unable to get Xeggex price", "error", err)
-
-			return
-		}
-	}()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	wg.Add(1)
 	go func() {
@@ -83,7 +72,6 @@ func (p *PriceChecker) start() {
 
 	wg.Wait()
 
-	price.XeggexPacToUSDT = xeggex
 	price.TradeOgrePacToUSDT = tradeOgre
 	if len(azbit) > 0 {
 		price.AzbitPacToUSDT = azbit[0]

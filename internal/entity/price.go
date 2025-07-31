@@ -1,24 +1,8 @@
 package entity
 
 type Price struct {
-	XeggexPacToUSDT    XeggexPriceResponse
 	AzbitPacToUSDT     AzbitPriceResponse
 	TradeOgrePacToUSDT TradeOgrePriceResponse
-}
-
-//nolint:tagliatelle // External dependency
-type XeggexPriceResponse struct {
-	LastPrice      string  `json:"lastPrice"`
-	YesterdayPrice string  `json:"yesterdayPrice"`
-	HighPrice      string  `json:"highPrice"`
-	LowPrice       string  `json:"lowPrice"`
-	Volume         string  `json:"volume"`
-	Decimal        int     `json:"priceDecimals"`
-	BestAsk        string  `json:"bestAsk"`
-	BestBid        string  `json:"bestBid"`
-	SpreadPercent  string  `json:"spreadPercent"`
-	ChangePercent  string  `json:"changePercent"`
-	MarketCap      float64 `json:"marketcapNumber"`
 }
 
 //nolint:tagliatelle // External dependency
