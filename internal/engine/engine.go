@@ -261,6 +261,10 @@ func (be *BotEngine) executeCommand(
 		return cmd.RenderErrorTemplate(fmt.Errorf("user is not defined in %s application", platformID))
 	}
 
+	if !cmd.CanBeHandledByUserRole(caller.Role) {
+		return cmd.RenderErrorTemplate(fmt.Errorf("unable to execute this command: %s", cmd.Name))
+	}
+
 	return cmd.Handler(caller, cmd, args)
 }
 
@@ -329,7 +333,7 @@ func (be *BotEngine) GetUser(platformID entity.PlatformID, platformUserID string
 	newUser := &entity.User{
 		PlatformID:     platformID,
 		PlatformUserID: platformUserID,
-		Role:           entity.BasicUser,
+		Role:           entity.UserRole_BasicUser,
 	}
 	if err := be.db.AddUser(newUser); err != nil {
 		return nil, err

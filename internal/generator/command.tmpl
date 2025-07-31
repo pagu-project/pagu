@@ -28,11 +28,20 @@ func (c *{{.Name | title}}Cmd) buildSubCmds() *{{.Name}}SubCmds {
 		{{- if .TargetBotIDs }}
 		TargetBotIDs: []entity.BotID{
 			{{- range .TargetBotIDs }}
-			entity.BotID_{{ . | botIDName }},
+			entity.BotID_{{ . }},
 			{{- end }}
 		},
 		{{- else }}
 		TargetBotIDs: entity.AllBotIDs(),
+		{{- end }}
+		{{- if .TargetUserRoles }}
+		TargetUserRoles: []entity.UserRole{
+			{{- range .TargetUserRoles }}
+			entity.UserRole_{{ . }},
+			{{- end }}
+		},
+		{{- else }}
+		TargetUserRoles: entity.AllUserRoles(),
 		{{- end }}
 		{{- if .Args }}
 		Args: []*command.Args{
@@ -82,6 +91,15 @@ func (c *{{.Name | title}}Cmd) build{{.Name | title}}Command(botID entity.BotID)
 		},
 		{{- else }}
 		TargetBotIDs: entity.AllBotIDs(),
+		{{- end }}
+		{{- if .TargetUserRoles }}
+		TargetUserRoles: []entity.UserRole{
+			{{- range .TargetUserRoles }}
+			entity.UserRole_{{ . }},
+			{{- end }}
+		},
+		{{- else }}
+		TargetUserRoles: entity.AllUserRoles(),
 		{{- end }}
 	}
 
