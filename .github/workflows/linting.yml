@@ -19,7 +19,7 @@ jobs:
         with:
           go-version: "stable"
 
-      - name: golangci-lint
-        run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          make check
+      - name: Check linting and formatting
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.2.2
