@@ -66,9 +66,8 @@ func (db *Database) ListVoucher() ([]*entity.Voucher, error) {
 // IsDuplicatedVoucher checks if the voucher is created with the same email, amount, recipient, and description.
 func (db *Database) IsDuplicatedVoucher(voucher *entity.Voucher) bool {
 	err := db.gormDB.Model(&entity.Voucher{}).
-		Where("email = ? AND amount = ? AND recipient = ? AND desc = ?",
+		Where("email = ? AND amount = ? AND recipient = ? AND `desc` = ?",
 			voucher.Email, voucher.Amount, voucher.Recipient, voucher.Desc).
-		Order("created_at DESC").
 		First(&voucher).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

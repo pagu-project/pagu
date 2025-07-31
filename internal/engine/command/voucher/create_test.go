@@ -92,7 +92,7 @@ func TestTestDuplicatedVoucher(t *testing.T) {
 	td := setup(t)
 	caller := &entity.User{DBModel: entity.DBModel{ID: 1}}
 
-	t.Run("not duplicated voucher", func(t *testing.T) {
+	t.Run("not duplicated voucher, Different amount", func(t *testing.T) {
 		voucher := td.createTestVoucher(t)
 
 		args := map[string]string{
@@ -112,12 +112,32 @@ func TestTestDuplicatedVoucher(t *testing.T) {
 		assert.Contains(t, result.Message, "Voucher created successfully!")
 	})
 
-	t.Run("not duplicated voucher", func(t *testing.T) {
+	t.Run("not duplicated voucher, Different description", func(t *testing.T) {
 		voucher := td.createTestVoucher(t)
 
 		args := map[string]string{
 			"type":         "1",
-			"email":        td.RandEmail(), // Use a different email.
+			"email":        voucher.Email,
+			"recipient":    voucher.Recipient,
+			"amount":       fmt.Sprintf("%v", voucher.Amount.ToPAC()),
+			"valid-months": "1",
+			"template":     "sample",
+			"description":  td.RandString(20),
+		}
+
+		td.mockMailer.EXPECT().SendTemplateMailAsync(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+
+		result := td.voucherCmd.createHandler(caller, td.voucherCmd.subCmdCreate, args)
+		assert.True(t, result.Successful)
+		assert.Contains(t, result.Message, "Voucher created successfully!")
+	})
+
+	t.Run("not duplicated voucher, different email", func(t *testing.T) {
+		voucher := td.createTestVoucher(t)
+
+		args := map[string]string{
+			"type":         "1",
+			"email":        td.RandEmail(),
 			"recipient":    voucher.Recipient,
 			"amount":       fmt.Sprintf("%v", voucher.Amount.ToPAC()),
 			"valid-months": "1",
