@@ -21,7 +21,7 @@ func TestStatusNormal(t *testing.T) {
 		}
 		result := td.voucherCmd.statusHandler(caller, td.voucherCmd.subCmdStatus, args)
 		assert.True(t, result.Successful)
-		assert.Contains(t, result.Message, "12345678")
+		assert.NotContains(t, result.Message, "12345678")
 		assert.Contains(t, result.Message, testVoucher.Recipient)
 	})
 
