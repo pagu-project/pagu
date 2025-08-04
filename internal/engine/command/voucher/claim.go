@@ -17,12 +17,12 @@ func (c *VoucherCmd) claimHandler(
 ) command.CommandResult {
 	code := args[argNameClaimCode]
 	if len(code) != 8 {
-		return cmd.RenderFailedTemplate("Voucher code is not valid, length must be 8")
+		return cmd.RenderFailedTemplateF("Voucher code is not valid, length must be 8: `%v`", code)
 	}
 
 	voucher, err := c.db.GetVoucherByCode(code)
 	if err != nil {
-		return cmd.RenderFailedTemplate("Voucher code is not valid, no voucher found")
+		return cmd.RenderFailedTemplateF("Voucher code is not valid, no voucher found: `%v`", code)
 	}
 
 	if voucher.CreatedAt.AddDate(0, int(voucher.ValidMonths), 0).Before(time.Now()) {
