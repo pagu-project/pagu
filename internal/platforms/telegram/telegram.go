@@ -165,9 +165,10 @@ func (bot *Bot) registerCommands() error {
 
 func (bot *Bot) parsTextMessage(tgCtx tele.Context) error {
 	senderID := tgCtx.Message().Sender.ID
-	cmd := findCommand(bot.engine.Commands(), senderID)
-	if cmd == nil {
-		return bot.sendMarkdown(tgCtx, "Invalid command")
+	path := argsContext[senderID].Commands
+	cmd, err := bot.engine.FindCommandByPath(path)
+	if err != nil {
+		return bot.sendMarkdown(tgCtx, err.Error())
 	}
 
 	currentArgsIndex := len(argsValue[senderID])
@@ -246,25 +247,6 @@ func (bot *Bot) handleCommand(tgCtx tele.Context, commands []string) error {
 	argsValue[senderID] = nil
 
 	return bot.sendMarkdown(tgCtx, res.Message, tele.NoPreview)
-}
-
-func findCommand(commands []*command.Command, senderID int64) *command.Command {
-	lastEnteredCommandIndex := len(argsContext[senderID].Commands) - 1
-	enteredCommand := argsContext[senderID].Commands[lastEnteredCommandIndex]
-
-	for _, cmd := range commands {
-		if cmd.Name == enteredCommand {
-			return cmd
-		}
-
-		for _, sc := range cmd.SubCommands {
-			if sc.Name == enteredCommand {
-				return sc
-			}
-		}
-	}
-
-	return nil
 }
 
 func (bot *Bot) sendMarkdown(tgCtx tele.Context, what string, opts ...any) error {
