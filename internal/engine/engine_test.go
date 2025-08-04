@@ -211,3 +211,65 @@ func TestCheckCommandsAndArgs(t *testing.T) {
 
 	checkCommands(eng.Commands())
 }
+
+func TestFindCommandByPath(t *testing.T) {
+	ts := testsuite.NewTestSuite(t)
+	ctrl := gomock.NewController(t)
+
+	ctx := context.Background()
+	testDB := ts.MakeTestDB()
+	mockClientManager := client.NewMockIManager(ctrl)
+	mockWallet := wallet.NewMockIWallet(ctrl)
+	mockMailer := mailer.NewMockIMailer(ctrl)
+	mockNowPayments := nowpayments.NewMockINowPayments(ctrl)
+	cfg := &Config{
+		Phoenix: phoenix.Config{
+			PrivateKey: "TSECRET1RZSMS2JGNFLRU26NHNQK3JYTD4KGKLGW4S7SG75CZ057SR7CE8HUSG5MS3Z",
+		},
+	}
+	eng := newBotEngine(ctx, entity.BotID_CLI, cfg,
+		testDB, mockClientManager, mockWallet, mockMailer, mockNowPayments)
+
+	tests := []struct {
+		path    []string
+		wantCmd *command.Command
+		wantErr error
+	}{
+		{
+			path:    []string{},
+			wantCmd: eng.rootCmd,
+		},
+		{
+			path:    []string{"pagu"},
+			wantCmd: nil,
+			wantErr: errors.New("unknown command: pagu"),
+		},
+		{
+			path:    []string{"unknown_command"},
+			wantCmd: nil,
+			wantErr: errors.New("unknown command: unknown_command"),
+		},
+		{
+			path:    []string{"voucher"},
+			wantCmd: eng.rootCmd.SubCommands[1],
+		},
+		{
+			path:    []string{"crowdfund", "claim"},
+			wantCmd: eng.rootCmd.SubCommands[0].SubCommands[5],
+		},
+		{
+			path:    []string{"voucher", "claim"},
+			wantCmd: eng.rootCmd.SubCommands[1].SubCommands[0],
+		},
+	}
+
+	for _, tt := range tests {
+		gotCmd, err := eng.FindCommandByPath(tt.path)
+
+		if tt.wantErr == nil {
+			assert.Equal(t, tt.wantCmd, gotCmd, "commands not found: got %v, want %v", gotCmd, tt.wantCmd)
+		} else {
+			assert.Equal(t, tt.wantErr, err, "error mismatch: got %v, want %v", err, tt.wantErr)
+		}
+	}
+}

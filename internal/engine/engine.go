@@ -353,3 +353,26 @@ func (be *BotEngine) Start() {
 func (be *BotEngine) RootCmd() *command.Command {
 	return be.rootCmd
 }
+
+func (be *BotEngine) FindCommandByPath(path []string) (*command.Command, error) {
+	cmd := be.rootCmd
+	for _, cmdName := range path {
+		found := false
+		for _, subCmd := range cmd.SubCommands {
+			if subCmd.Name == cmdName {
+				found = true
+				cmd = subCmd
+
+				break
+			}
+		}
+
+		if !found {
+			log.Warn("Command not found", "path", path)
+
+			return nil, fmt.Errorf("unknown command: %s", cmdName)
+		}
+	}
+
+	return cmd, nil
+}

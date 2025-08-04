@@ -75,7 +75,7 @@ const (
 	PlatformIDCLI      PlatformID = 1
 	PlatformIDDiscord  PlatformID = 2
 	PlatformIDWeb      PlatformID = 3
-	PlatformIDWhatsapp PlatformID = 4
+	PlatformIDWhatsApp PlatformID = 4
 	PlatformIDTelegram PlatformID = 5
 )
 
@@ -83,7 +83,7 @@ var platformIDToString = map[PlatformID]string{
 	PlatformIDCLI:      "CLI",
 	PlatformIDDiscord:  "Discord",
 	PlatformIDWeb:      "Web",
-	PlatformIDWhatsapp: "Whatsapp",
+	PlatformIDWhatsApp: "Whatsapp",
 	PlatformIDTelegram: "Telegram",
 }
 

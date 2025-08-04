@@ -90,24 +90,6 @@ type ListReply struct {
 	Description string `json:"description"`
 }
 
-func (bot *Bot) findCommandByName(name string) *command.Command {
-	if name == bot.engine.RootCmd().Name {
-		return bot.engine.RootCmd()
-	}
-	for _, cmd := range bot.cmds {
-		if cmd.Name == name {
-			return cmd
-		}
-		for _, subCmd := range cmd.SubCommands {
-			if subCmd.Name == name {
-				return subCmd
-			}
-		}
-	}
-
-	return nil
-}
-
 func (bot *Bot) renderTextResult(result, destination string) map[string]any {
 	result = bot.markdown.Render(result)
 
@@ -288,11 +270,8 @@ func (bot *Bot) sendCommand(ctx context.Context, phoneNumberID, destination stri
 
 	//nolint:nestif // high complexity
 	if len(session.Commands) > 0 {
-		lastCmd := session.Commands[len(session.Commands)-1]
-		cmd := bot.findCommandByName(lastCmd)
-
-		if cmd == nil {
-			log.Warn("Command not found", "cmdName", lastCmd)
+		cmd, err := bot.engine.FindCommandByPath(session.Commands)
+		if err != nil {
 			bot.sessionManager.CloseSession(phoneNumberID)
 
 			return nil
@@ -455,5 +434,5 @@ func (bot *Bot) executeCommand(session *session.Session, callerID string) comman
 	log.Debug("Executing command", "commandLine", commandLine)
 
 	// Call the engine's Run method with the full command string
-	return bot.engine.ParseAndExecute(entity.PlatformIDTelegram, callerID, commandLine)
+	return bot.engine.ParseAndExecute(entity.PlatformIDWhatsApp, callerID, commandLine)
 }
