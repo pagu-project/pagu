@@ -82,7 +82,6 @@ sub_commands:
     target_user_roles: [Admin ,Moderator]
     help: View the status of a specific voucher
     result_template: |
-      **Code**: {{.voucher.Code}}
       **Amount**: {{.voucher.Amount}}
       **Expire** At: {{.expireAt}}
       **Recipient**: {{.voucher.Recipient}}

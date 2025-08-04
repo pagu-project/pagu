@@ -151,7 +151,7 @@ func (c *VoucherCmd) buildSubCmds() *voucherSubCmds {
 		Name:           "status",
 		Help:           "View the status of a specific voucher",
 		Handler:        c.statusHandler,
-		ResultTemplate: "**Code**: {{.voucher.Code}}\n**Amount**: {{.voucher.Amount}}\n**Expire** At: {{.expireAt}}\n**Recipient**: {{.voucher.Recipient}}\n**Description**: {{.voucher.Desc}}\n**Claimed**: {{.isClaimed}}\n**Tx** Link: {{.txLink}}\n",
+		ResultTemplate: "**Amount**: {{.voucher.Amount}}\n**Expire** At: {{.expireAt}}\n**Recipient**: {{.voucher.Recipient}}\n**Description**: {{.voucher.Desc}}\n**Claimed**: {{.isClaimed}}\n**Tx** Link: {{.txLink}}\n",
 		TargetBotIDs: []entity.BotID{
 			entity.BotID_CLI,
 			entity.BotID_Moderator,
